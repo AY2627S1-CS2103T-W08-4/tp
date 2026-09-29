@@ -259,73 +259,226 @@ _{Explain here how the data archiving feature will be implemented}_
 
 ### Product scope
 
-**Target user profile**:
+**Target user profile**: Teaching assistants (TAs) and professors teaching computer
+science courses who manage students across multiple courses and tutorial groups.
+They are comfortable with technology, type quickly, prefer command-based workflows,
+and use a desktop computer for their teaching administration. Each TutorTrack
+installation manages one teaching staff member's local records.
 
-* has a need to manage a significant number of contacts
-* prefers desktop apps over other types of applications
-* can type fast
-* prefers typing to mouse interactions
-* is reasonably comfortable using CLI apps
+**Value proposition**: Bring student contacts, course and class membership, and
+teaching records into one place so that tech-savvy teaching staff can spend less
+time on administration using fast typed commands.
 
-**Value proposition**: Manage contacts faster than with a typical mouse-driven GUI application.
+**Persona**: John is a CS TA teaching multiple courses and classes. He struggles to
+keep track of his students, is highly comfortable with technology, and wants to
+view their details at a glance while spending less time on administrative work.
 
+The following requirements describe the intended product, not features already
+implemented. Priorities express the team's ordering of work; they are not course
+iteration numbers. The course's v1.1 iteration is documentation-only.
+
+**MVP scope**: Add a student with contact details and one or more course/group
+memberships; delete students; list all students or view one class for a chosen
+week; record, correct or clear attendance; and save, reload and exit. Editing,
+GitHub usernames, project teams, participation points, tags, Telegram search,
+bulk attendance and absence analytics are beyond this MVP.
+
+**Domain rules from the MVP specification**:
+
+* One dataset covers one teaching staff member's students for one semester.
+* A student has one profile and at most one tutorial group per course.
+* Normalized email addresses and Telegram handles are individually unique.
+  Namesakes are permitted under the detailed add-student contract.
+* A class is identified by its course and group together, such as CS2103T:T04.
+* Attendance belongs to a student, course and teaching week (1–53). It is Present,
+  Absent or Unrecorded. Unrecorded means no decision, not an absence.
+* The MVP supports one attendance decision per course per week, with no automatic
+  calendar inference or separate sessions within that week.
+* Displayed indices refer to the current roster, not permanent student IDs.
 
 ### User stories
 
-Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unlikely to have) - `*`
+Priorities: **P1** foundational student management; **P2** course and class
+organization; **P3** tracking and grading support; **P4** stretch goals.
+The complete set below includes requirements beyond the MVP.
 
-| Priority | As a …​                                    | I want to …​                     | So that I can…​                                                        |
-| -------- | ------------------------------------------ | ------------------------------ | ---------------------------------------------------------------------- |
-| `* * *`  | new user                                   | see usage instructions         | refer to instructions when I forget how to use the App                 |
-| `* * *`  | user                                       | add a new person               |                                                                        |
-| `* * *`  | user                                       | delete a person                | remove entries that I no longer need                                   |
-| `* * *`  | user                                       | find a person by name          | locate details of persons without having to go through the entire list |
-| `* *`    | user                                       | hide private contact details   | minimize chance of someone else seeing them by accident                |
-| `*`      | user with many persons in the address book | sort persons by name           | locate a person easily                                                 |
-
-*{More to be added}*
+| ID | Priority | As a … | I want to … | So that I can … |
+| --- | --- | --- | --- | --- |
+| S01 | P1 | CS TA | add a student with their name, university email and Telegram handle | keep their core contact details together |
+| S02 | P1 | CS TA | add a student's GitHub username to their profile | quickly find their repositories for lab grading |
+| S03 | P1 | TA | delete a student | remove students who have dropped the course |
+| S04 | P1 | TA | edit a student's details | keep their email and Telegram handle up to date |
+| S05 | P1 | professor | list all my students | get an overview of everyone I teach |
+| S06 | P2 | TA teaching multiple courses | assign a student to a course code | distinguish students from different courses |
+| S07 | P2 | TA | assign a student to a tutorial group within a course | organize students by the classes I teach |
+| S08 | P2 | TA | filter students by course and tutorial group | see the students attending a particular class |
+| S09 | P2 | CS professor | assign students to project teams within a course | track group assignments and team-based grading |
+| S10 | P3 | TA | mark a student present or absent for a tutorial session using a text command | record attendance quickly during class |
+| S11 | P3 | TA | add participation points to a student | record class contributions before I forget |
+| S12 | P3 | CS TA | tag a student with programming weaknesses | identify students who need extra attention in labs |
+| S13 | P3 | TA | search for a student by Telegram handle | identify the student and their class when they message me |
+| S14 | P4 | TA | list students who have missed more than two tutorials | identify students to contact with a warning email |
+| S15 | P4 | professor | mark an entire tutorial group present for a session, then correct individual absentees | take attendance with fewer commands |
+| S16 | P4 | TA | clear all student records with one purge command | prepare the application for a new semester |
 
 ### Use cases
 
-(For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
+**System**: TutorTrack. **Actor**: a TA or professor (called the user below).
+MSS means main success scenario. These use cases describe intended behavior rather
+than final command syntax. Course context distinguishes groups with the same name.
 
-**Use case: Delete a person**
+#### UC01: Add a student (S01)
 
 **MSS**
 
-1.  User requests to list persons
-2.  AddressBook shows a list of persons
-3.  User requests to delete a specific person in the list
-4.  AddressBook deletes the person
+1. The user requests to add a student and supplies their name, university email, Telegram handle and at least one course/group membership.
+2. TutorTrack validates the supplied details and creates the student record.
+3. TutorTrack shows confirmation and the saved student details.
 
-    Use case ends.
+Use case ends.
 
 **Extensions**
 
-* 2a. The list is empty.
+* 2a. Required details are missing or invalid.
+  * 2a1. TutorTrack identifies the invalid fields without creating a record.
+  * 2a2. The user supplies corrected details.
+  * Use case resumes at step 2.
+* 2b. The normalized email or Telegram handle already belongs to a student record.
+  * 2b1. TutorTrack reports the existing record without creating a duplicate.
+  * Use case ends.
 
-  Use case ends.
+#### UC02: View a class roster (S05, S08)
 
-* 3a. The given index is invalid.
+**MSS**
 
-    * 3a1. AddressBook shows an error message.
+1. The user requests students for a course, tutorial group and teaching week.
+2. TutorTrack displays the matching students and their attendance for that course and week.
+3. The user requests the full roster.
+4. TutorTrack removes the filter and displays all students once each.
 
-      Use case resumes at step 2.
+Use case ends.
 
-*{More to be added}*
+**Extensions**
+
+* 1a. The class or week input is missing or invalid.
+  * 1a1. TutorTrack explains the error and retains the previous view.
+  * Use case resumes at step 1.
+* 2a. The class has no students.
+  * 2a1. TutorTrack shows an empty roster with the requested class and week context.
+  * Use case resumes at step 3.
+* 2b. A student has no attendance decision for the requested course and week.
+  * 2b1. TutorTrack shows Unrecorded for that student.
+  * Use case resumes at step 3.
+
+#### UC03: Record and correct attendance (S08, S10)
+
+**MSS**
+
+1. The user requests the roster for a course and tutorial group.
+2. TutorTrack shows the students in that group.
+3. The user specifies a student, enrolled course, teaching week and attendance status.
+4. TutorTrack saves the attendance and shows the resulting record.
+5. The user notices an incorrect status and requests a correction for the same student, course and week.
+6. TutorTrack updates the existing attendance record and shows the corrected status.
+
+Use case ends.
+
+**Extensions**
+
+* 2a. The roster is empty.
+  * Use case ends.
+* 3a. The student index, course, week or attendance status is invalid, or the student is not enrolled in the specified course.
+  * 3a1. TutorTrack explains the problem without changing attendance.
+  * Use case resumes at step 3.
+* 5a. No correction is needed.
+  * Use case ends.
+* 5b. The correction details are invalid.
+  * 5b1. TutorTrack explains the problem and retains the previous record.
+  * Use case resumes at step 5.
+
+* 3b. The requested status is already recorded.
+  * 3b1. TutorTrack reports that attendance is unchanged, without adding a record.
+  * Use case ends.
+* 5c. The user clears a mistaken record by specifying Unrecorded.
+  * 5c1. TutorTrack removes the attendance decision for that student, course and week.
+  * Use case ends.
+* 4a. Saving the initial attendance decision fails.
+  * 4a1. TutorTrack reports the failure and retains the complete pre-command data and view.
+  * Use case ends.
+
+* 6a. Saving the correction fails.
+  * 6a1. TutorTrack reports the failure and retains the previous attendance and view.
+  * Use case ends.
+
+#### UC04: Delete students (S03)
+
+**MSS**
+
+1. The user requests the full roster or a class roster.
+2. TutorTrack displays the matching students.
+3. The user specifies one or more displayed student indices to delete.
+4. TutorTrack resolves all targets against the pre-command roster and saves their removal, including memberships and attendance.
+5. TutorTrack confirms the deletions and updates the roster while preserving its filter.
+
+Use case ends.
+
+**Extensions**
+
+* 2a. The roster is empty.
+  * Use case ends.
+* 3a. Any index has invalid syntax or is outside the displayed roster.
+  * 3a1. TutorTrack reports the error without deleting any students.
+  * Use case resumes at step 2.
+* 4a. Saving fails.
+  * 4a1. TutorTrack reports the failure and retains all pre-command records and the previous view.
+  * Use case ends.
+
+#### UC05: Exit and reload
+
+**MSS**
+
+1. The user requests to exit TutorTrack.
+2. TutorTrack waits for any in-progress command to finish, then closes.
+3. The user launches TutorTrack again.
+4. TutorTrack loads all previously saved student, membership and attendance records.
+
+Use case ends.
+
+**Extensions**
+
+* 1a. The exit command contains extra arguments.
+  * 1a1. TutorTrack explains the correct format and keeps the application open.
+  * Use case resumes at step 1.
 
 ### Non-Functional Requirements
 
-1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
-2.  Should be able to hold up to 1000 persons without noticeable sluggishness in performance for typical usage.
-3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
+1. TutorTrack shall run on Windows, Linux and macOS with Java 25, without requiring a separate installer.
+2. Student, membership and teaching records shall be stored locally in human-editable text files. Normal use shall not depend on a database server or a remote service.
+3. Each installation shall support a single user's records. Shared multi-user access and synchronization are outside the intended scope.
+4. Core student-management, course-organization and attendance operations shall be executable through typed commands without requiring mouse interaction.
+5. The interface shall remain usable at 1920 × 1080 with 100% and 125% scaling, and at 1280 × 720 with 150% scaling.
+6. Distribution shall use a single JAR no larger than 100 MB, including dependencies.
+7. Invalid command input shall produce actionable feedback and shall not change stored records.
+8. Successfully saved records shall remain available after the application is closed and reopened.
 
-*{More to be added}*
+These are acceptance targets for the intended product. Platform, display, persistence
+and invalid-input behavior must be verified as the features are implemented.
 
 ### Glossary
 
-* **Mainstream OS**: Windows, Linux, Unix, or macOS
-* **Private contact detail**: A contact detail that is not meant to be shared with others
+* **Course**: A subject taught under a course code, such as CS2103T; also called a module.
+* **Course membership**: The association between a student and a course.
+* **Tutorial group**: A class within a course, such as T04. The course and group together identify the class.
+* **Teaching week**: An integer from 1 to 53 agreed by the operator for the semester; not inferred from calendar dates.
+* **Attendance record**: A student's present or absent status for a particular course and teaching week. A missing record does not by itself mean absent.
+* **Participation points**: A teaching staff member's numerical record of a student's class contributions.
+* **Project team**: A group of students working on an assignment within a course.
+* **Programming weakness tag**: A label describing a topic where a student may need additional help.
+* **University email**: A student's university-issued email address.
+* **Telegram handle**: A Telegram username used to identify and contact a student.
+* **TA**: Teaching assistant.
+* **CLI**: Command-line interface; interaction by typing commands.
+* **MVP**: Minimum viable product; the smallest agreed feature set that provides useful value to the target user.
 
 --------------------------------------------------------------------------------------------------------------------
 
