@@ -344,7 +344,11 @@ Use case ends.
   * 2a2. The user supplies corrected details.
   * Use case resumes at step 2.
 * 2b. The normalized email or Telegram handle already belongs to a student record.
-  * 2b1. TutorTrack reports the existing record without creating a duplicate.
+  * 2b1. TutorTrack reports the conflicting email or Telegram handle without creating a duplicate.
+  * Use case ends.
+
+* 2c. Saving fails.
+  * 2c1. TutorTrack reports the failure without creating a student or changing the previous view.
   * Use case ends.
 
 #### UC02: View a class roster (S05, S08)
@@ -374,7 +378,7 @@ Use case ends.
 
 **MSS**
 
-1. The user requests the roster for a course and tutorial group.
+1. The user requests the roster for a course, tutorial group and teaching week.
 2. TutorTrack shows the students in that group.
 3. The user specifies a student, enrolled course, teaching week and attendance status.
 4. TutorTrack saves the attendance and shows the resulting record.
@@ -390,22 +394,20 @@ Use case ends.
 * 3a. The student index, course, week or attendance status is invalid, or the student is not enrolled in the specified course.
   * 3a1. TutorTrack explains the problem without changing attendance.
   * Use case resumes at step 3.
+* 3b. The requested status is already recorded.
+  * 3b1. TutorTrack reports that attendance is unchanged, without adding a record.
+  * Use case ends.
+* 4a. Saving the initial attendance decision fails.
+  * 4a1. TutorTrack reports the failure and retains the complete pre-command data and view.
+  * Use case ends.
 * 5a. No correction is needed.
   * Use case ends.
 * 5b. The correction details are invalid.
   * 5b1. TutorTrack explains the problem and retains the previous record.
   * Use case resumes at step 5.
-
-* 3b. The requested status is already recorded.
-  * 3b1. TutorTrack reports that attendance is unchanged, without adding a record.
-  * Use case ends.
 * 5c. The user clears a mistaken record by specifying Unrecorded.
-  * 5c1. TutorTrack removes the attendance decision for that student, course and week.
+  * 5c1. TutorTrack saves removal of the decision for that student, course and week; on a save failure, extension 6a applies.
   * Use case ends.
-* 4a. Saving the initial attendance decision fails.
-  * 4a1. TutorTrack reports the failure and retains the complete pre-command data and view.
-  * Use case ends.
-
 * 6a. Saving the correction fails.
   * 6a1. TutorTrack reports the failure and retains the previous attendance and view.
   * Use case ends.
