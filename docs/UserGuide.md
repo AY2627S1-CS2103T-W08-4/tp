@@ -87,6 +87,19 @@ Examples:
 * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
 * `add n/Betsy Crowe t/friend e/betsycrowe@example.com a/Newgate Prison p/1234567 t/criminal`
 
+### Adding or removing a remark: `remark`
+
+Adds or replaces the remark of the person at the displayed index.
+
+Format: `remark INDEX [r/REMARK]`
+
+* `INDEX` must be a positive integer in the currently displayed list.
+* `remark 1 r/Likes swimming` adds or replaces a remark.
+* `remark 1 r/` or `remark 1` removes the remark.
+* Multiple `r/` fields are rejected. Leading and trailing spaces are trimmed.
+* Remarks are displayed on contact cards and saved between sessions.
+* Editing other contact details preserves the remark.
+
 ### Listing all persons: `list`
 
 Shows a list of all persons in the address book.
