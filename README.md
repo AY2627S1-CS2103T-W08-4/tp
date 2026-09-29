@@ -2,14 +2,14 @@
 
 [![Java CI](https://github.com/AY2627S1-CS2103T-W08-4/tp/actions/workflows/gradle.yml/badge.svg)](https://github.com/AY2627S1-CS2103T-W08-4/tp/actions/workflows/gradle.yml)
 
-TutorTrack is a desktop application being developed for teaching assistants who
+TutorTrack is a desktop application being developed for teaching assistants and professors who
 prefer typing to manage student contact details, course memberships and weekly
 attendance in one place.
 
 ![Proposed TutorTrack interface showing a course roster and weekly attendance](docs/images/Ui.png)
 
-*Proposed final-product UI. The mockup uses sample data; its layout and command
-syntax are subject to team agreement and do not describe the current release.*
+*Planned MVP interface, adapted from the team feature specification (M1).
+The mockup uses sample data and does not depict the current release.*
 
 TutorTrack aims to help teaching assistants:
 
