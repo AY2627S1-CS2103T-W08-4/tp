@@ -19,15 +19,14 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 * Role: Project Advisor
 
-### Jane Doe
+### Vincent Peh
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/eskalade.png" width="200px" alt="Temporary default profile avatar">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](https://github.com/Eskalade)]
 
-* Role: Team Lead
-* Responsibilities: UI
+* Role: Developer
+* Responsibilities: Documentation (README, website and Developer Guide)
 
 ### Johnny Doe
 
