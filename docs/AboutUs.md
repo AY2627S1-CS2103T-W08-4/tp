@@ -21,7 +21,7 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 ### Vincent Peh
 
-<img src="images/eskalade.png" width="200px" alt="Temporary default profile avatar">
+<img src="images/eskalade.png" width="200px" alt="Vincent Peh’s GitHub profile image">
 
 [[github](https://github.com/Eskalade)]
 
