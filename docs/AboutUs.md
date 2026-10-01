@@ -57,3 +57,12 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 * Role: Developer
 * Responsibilities: UI
+
+### Ethan Quek
+
+<img src="images/eatenquek.png" width="200px">
+
+[[github](https://github.com/eatenquek)]
+
+* Role: Developer
+* Responsibilities: GUI and testing
