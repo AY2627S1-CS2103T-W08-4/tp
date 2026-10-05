@@ -33,3 +33,13 @@ We are a team based in the [School of Computing, National University of Singapor
 
 * Role: Developer
 * Responsibilities: Code quality
+
+
+### Min Thi Ha
+
+<img src="images/toomintyy.png" width="200px">
+
+[[github](https://github.com/toomintyy)]
+
+* Role: Developer
+* Responsibilities: Integration and releases — monitor CI, coordinate integration after peer review, and verify release packaging and readiness.
