@@ -26,7 +26,7 @@ Update it in every implementation PR and refresh the status when handing work of
 
 | MVP feature | Confirmed owner | Status |
 | --- | --- | --- |
-| Add student | Vincent Peh (`Eskalade`) | First increment implemented locally |
+| Add student | Vincent Peh (`Eskalade`) | First increment in PR #28, awaiting review |
 | Delete student | Not recorded yet | Coordinate with team |
 | List students and view a class | Not recorded yet | Coordinate with team |
 | Record and correct attendance | Not recorded yet | Coordinate with team |
@@ -40,10 +40,11 @@ documentation or integration. Other members' unpublished work is not known here.
 - Owner: Vincent Peh (`Eskalade`).
 - Branch: `codex/add-student-telegram`.
 - Base: team master `33718ded`, fetched on 2026-10-06.
-- Status: implemented and tested locally; not yet published or merged.
+- Status: published for teammate review; not merged.
 - GitHub issue: [#27](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/27),
   `Add Telegram handle value type for student creation`, assigned to `Eskalade`, v1.2.
-  PR publication is pending.
+- GitHub PR: [#28](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/28),
+  `Add Telegram handle value type`, assigned to `Eskalade`, v1.2.
 - Scope: immutable `TelegramHandle`, specification-based validation and
   normalization, value equality/hashing, automated tests and DG explanation.
 - Code: `src/main/java/seedu/address/model/person/TelegramHandle.java`.
@@ -51,7 +52,7 @@ documentation or integration. Other members' unpublished work is not known here.
 - Documentation: DG Implementation section and AI acknowledgement.
 - Validation: `./gradlew check coverage` passed on Java 25.0.3, with 245 tests,
   zero failures/errors/skips. TelegramHandle has 100% line and branch coverage.
-  This is local validation; remote PR CI has not run for this increment.
+  This is local validation; check PR #28 for the latest remote CI results.
 - User-visible behavior: unchanged. `Person`, add parsing, JSON storage and UI are
   not connected to the new type yet. `p/` still means AB3 phone in the running app.
 
@@ -122,8 +123,8 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 
 ## Next steps
 
-1. Publish the Telegram PR under v1.2; link it here, obtain teammate review,
-   and verify remote CI. Do not mark this increment merged until it actually is.
+1. Obtain teammate review of PR #28 and verify remote CI before merging.
+   Do not mark this increment merged until it actually is.
 2. Agree shared student/membership interfaces and legacy-data handling with teammates.
 3. Implement Telegram model/parser/storage/UI integration as the next bounded PR.
 4. Add name/email contracts, membership support, duplicate checks and atomic save
@@ -133,5 +134,6 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 
 ## Increment history
 
-- 2026-10-06: Vincent implemented the first Telegram value-type increment locally;
-  full local checks passed. Added this handoff and AGENTS.md. Publication pending.
+- 2026-10-06: Vincent implemented the first Telegram value-type increment; full
+  local checks passed. Added this handoff and AGENTS.md. Published issue #27 and
+  PR #28 under v1.2; teammate review and merge remain pending.
