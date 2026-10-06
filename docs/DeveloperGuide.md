@@ -9,7 +9,8 @@ title: Developer Guide
 
 ## **Acknowledgements**
 
-* _{List the sources of reused or adapted ideas, code, documentation, and third-party libraries here, with links to the originals.}_
+* Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
+  implement and test the Telegram handle value type, and draft its developer documentation.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -154,6 +155,27 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 ## **Implementation**
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### Add-student foundation: Telegram handles
+
+`TelegramHandle` is an immutable value type for the add-student feature. It removes
+surrounding ordinary spaces (U+0020), requires `@` followed by 5–32 ASCII characters,
+and requires the first character after `@` to be a letter. Subsequent characters may
+be letters, digits or underscores. Tabs, line breaks, internal spaces and non-ASCII
+characters are rejected. This is TutorTrack's supported subset, not a statement of
+all Telegram username rules.
+
+Accepted handles are stored in lowercase using `Locale.ROOT`, so normalization does
+not depend on the computer's language settings. Equality and hashing use this stored
+value: `@Alice_1` and ` @alice_1 ` represent the same handle. Invalid construction
+throws `IllegalArgumentException` with `MESSAGE_CONSTRAINTS`; null input is a
+programming error and throws `NullPointerException`.
+
+This increment introduces the value type and its automated tests only. It is not yet
+connected to `Person`, commands, storage or the UI; the existing `add` command still
+uses AB3's phone field. Follow-up increments will use this type for the MVP's `p/`
+Telegram parameter and contact uniqueness checks. No new user command is available
+in this increment.
 
 ### \[Proposed\] Undo/redo feature
 
