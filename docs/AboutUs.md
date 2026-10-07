@@ -43,3 +43,12 @@ We are a team based in the [School of Computing, National University of Singapor
 
 * Role: Developer
 * Responsibilities: Integration and releases — monitor CI, coordinate integration after peer review, and verify release packaging and readiness.
+
+### Aston Yan
+
+<img src="images/aston-ish.png" width="200px">
+
+[[github](https://github.com/aston-ish)]
+
+* Role: Developer
+* Responsibilities: Project coordination — track tasks, milestones, and deadlines
