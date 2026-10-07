@@ -28,7 +28,7 @@ Update it in every implementation PR and refresh the status when handing work of
 | --- | --- | --- |
 | Add student | Vincent Peh (`Eskalade`) | First increment (Telegram handle) merged in PR #28 |
 | Delete student | Not recorded yet | Coordinate with team |
-| List students and view a class | Jian Yang (`jianyang999`) | First increment (class membership) in progress, issue #33 |
+| List students and view a class | Jian Yang (`jianyang999`) | First increment (class membership) in PR #34, awaiting review |
 | Record and correct attendance | Not recorded yet | Coordinate with team |
 | Save, reload and exit | Not recorded yet | Coordinate with team |
 
@@ -40,7 +40,9 @@ documentation or integration. Other members' unpublished work is not known here.
 - Owner: Jian Yang (`jianyang999`).
 - Branch: `add-class-membership`.
 - Base: team master `326798ba`, fetched on 2026-10-07.
-- Status: local implementation; PR not yet opened.
+- Status: published for teammate review; not merged.
+- GitHub PR: [#34](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/34),
+  `Add class membership value type`, assigned to `jianyang999`, v1.2.
 - GitHub issue: [#33](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/33),
   `Add class membership value type for viewing a class`, assigned to `jianyang999`, v1.2.
 - Scope: immutable `ClassMembership` (course code + tutorial group, `COURSE:GROUP`),
@@ -145,4 +147,5 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   local checks passed. Added this handoff and AGENTS.md. Published issue #27 and
   PR #28 under v1.2; PR #28 was later merged.
 - 2026-10-07: Jian Yang implemented the ClassMembership value-type increment for
-  view class (issue #33); full local checks passed.
+  view class (issue #33); full local checks passed. Published PR #34 under v1.2;
+  teammate review and merge remain pending.
