@@ -1,6 +1,6 @@
 # TutorTrack team implementation context
 
-Last updated: 2026-10-06 (Singapore time).
+Last updated: 2026-10-08 (Singapore time).
 
 This file is a handoff for team members and their coding assistants. Read it with
 the code, issues and PRs; it is a snapshot, not proof of the live GitHub state.
@@ -26,35 +26,42 @@ Update it in every implementation PR and refresh the status when handing work of
 
 | MVP feature | Confirmed owner | Status |
 | --- | --- | --- |
-| Add student | Vincent Peh (`Eskalade`) | First increment in PR #28, awaiting review |
+| Add student | Vincent Peh (`Eskalade`) | First value-type increment merged in PR #28; command integration remains |
 | Delete student | Not recorded yet | Coordinate with team |
 | List students and view a class | Not recorded yet | Coordinate with team |
 | Record and correct attendance | Not recorded yet | Coordinate with team |
-| Save, reload and exit | Not recorded yet | Coordinate with team |
+| Exit | Aston (`aston-ish`) | Argument validation implemented locally; issue #37, PR pending |
+| Save and reload | Not recorded yet | Coordinate ownership and integration with team |
 
 Do not infer feature assignments from AboutUs responsibilities such as testing,
 documentation or integration. Other members' unpublished work is not known here.
 
 ## Current increment
 
-- Owner: Vincent Peh (`Eskalade`).
-- Branch: `codex/add-student-telegram`.
-- Base: team master `33718ded`, fetched on 2026-10-06.
-- Status: published for teammate review; not merged.
-- GitHub issue: [#27](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/27),
-  `Add Telegram handle value type for student creation`, assigned to `Eskalade`, v1.2.
-- GitHub PR: [#28](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/28),
-  `Add Telegram handle value type`, assigned to `Eskalade`, v1.2.
-- Scope: immutable `TelegramHandle`, specification-based validation and
-  normalization, value equality/hashing, automated tests and DG explanation.
-- Code: `src/main/java/seedu/address/model/person/TelegramHandle.java`.
-- Tests: `src/test/java/seedu/address/model/person/TelegramHandleTest.java`.
-- Documentation: DG Implementation section and AI acknowledgement.
-- Validation: `./gradlew check coverage` passed on Java 25.0.3, with 245 tests,
-  zero failures/errors/skips. TelegramHandle has 100% line and branch coverage.
-  This is local validation; check PR #28 for the latest remote CI results.
-- User-visible behavior: unchanged. `Person`, add parsing, JSON storage and UI are
-  not connected to the new type yet. `p/` still means AB3 phone in the running app.
+- Owner: Aston (`aston-ish`), assigned Exit by the user on 2026-10-08.
+- Branch: `codex/exit-command-validation` in Aston's fork.
+- Base: team master `326798ba`, fetched and checked against GitHub on 2026-10-08.
+- Status: implemented locally; PR creation, teammate review and merge pending.
+- GitHub issue: [#37](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/37),
+  `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
+- GitHub PR: not opened yet.
+- Scope: `ExitCommandParser`, explicit usage feedback, main-parser integration,
+  parser and logic regression tests, UG/DG updates and AI acknowledgement.
+- Validation: `./gradlew.bat check coverage` passed on Temurin Java 25.0.4, with
+  252 tests and zero failures/errors/skips; both main and test Checkstyle passed.
+  `ExitCommandParser` has 100% line and branch coverage. `git diff --check` passed.
+  Initial runs exposed a filtered-view assumption in a new test helper and one
+  lambda-formatting violation; both were corrected before the successful run.
+  GUI manual testing has not been performed. Remote CI remains to be checked.
+- User-visible behavior: lowercase `exit` with surrounding spaces still closes
+  the app. Extra arguments such as `exit 3`, `exit anything` and `exit n/Alice`
+  produce a format error with `Example: exit`; no exit result is returned and the
+  data, saved JSON and current filtered view remain unchanged.
+- Integration: implements DG UC05 extension 1a before command execution or saving.
+  Existing valid-Exit, save and shutdown paths are retained; no shared model,
+  storage schema or teammates' feature branches are changed.
+- Remaining work: teammate review/merge, manual GUI validation, graceful shutdown
+  verification and full MVP exit/reload integration as dependent features arrive.
 
 ## Add-student contract
 
@@ -123,8 +130,8 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 
 ## Next steps
 
-1. Obtain teammate review of PR #28 and verify remote CI before merging.
-   Do not mark this increment merged until it actually is.
+1. Publish Exit issue #37's implementation, verify remote CI and obtain teammate
+   review before merging. Do not mark it merged until verified on GitHub.
 2. Agree shared student/membership interfaces and legacy-data handling with teammates.
 3. Implement Telegram model/parser/storage/UI integration as the next bounded PR.
 4. Add name/email contracts, membership support, duplicate checks and atomic save
@@ -134,6 +141,12 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 
 ## Increment history
 
-- 2026-10-06: Vincent implemented the first Telegram value-type increment; full
-  local checks passed. Added this handoff and AGENTS.md. Published issue #27 and
-  PR #28 under v1.2; teammate review and merge remain pending.
+- 2026-10-06: Vincent's Telegram value-type increment (issue #27, PR #28) merged
+  into team master; merge confirmed through GitHub on 2026-10-08. Original local
+  validation: Java 25.0.3, 245 tests, zero failures/errors/skips, 100% line/branch
+  coverage for `TelegramHandle`. Added this handoff and AGENTS.md. `Person`, add
+  parsing, storage and UI integration remain; `p/` still means AB3 phone.
+- 2026-10-08: Aston implemented Exit argument validation locally for issue #37,
+  with UG/DG updates and AI credit. Java 25.0.4 checks passed: 252 tests, no
+  failures/errors/skips; new parser has 100% line/branch coverage. Review and merge
+  remain pending.

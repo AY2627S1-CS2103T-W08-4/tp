@@ -1,6 +1,7 @@
 package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.logic.commands.CommandTestUtil.ADDRESS_DESC_AMY;
@@ -9,10 +10,13 @@ import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_AMY;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.AMY;
+import static seedu.address.testutil.TypicalPersons.BOB;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -68,6 +73,32 @@ public class LogicManagerTest {
     public void execute_validCommand_success() throws Exception {
         String listCommand = ListCommand.COMMAND_WORD;
         assertCommandSuccess(listCommand, ListCommand.MESSAGE_SUCCESS, model);
+    }
+
+    @Test
+    public void execute_validExit_returnsExitResult() throws Exception {
+        CommandResult expectedResult = new CommandResult(ExitCommand.MESSAGE_EXIT_ACKNOWLEDGEMENT, false, true);
+        assertEquals(expectedResult, logic.execute("  exit  "));
+    }
+
+    @Test
+    public void execute_exitWithArguments_preservesDataAndView() throws Exception {
+        model.addPerson(AMY);
+        model.addPerson(BOB);
+        logic.execute("find Amy");
+        Model expectedModel = new ModelManager(model.getAddressBook(), model.getUserPrefs());
+        List<Person> expectedView = List.copyOf(model.getFilteredPersonList());
+        assertEquals(List.of(AMY), expectedView);
+        Path dataPath = temporaryFolder.resolve("addressBook.json");
+        String expectedSavedData = Files.readString(dataPath);
+
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, ExitCommand.MESSAGE_USAGE);
+        assertThrows(ParseException.class, expectedMessage, () -> logic.execute("exit 3"));
+
+        assertEquals(expectedModel.getAddressBook(), model.getAddressBook());
+        assertEquals(expectedModel.getUserPrefs(), model.getUserPrefs());
+        assertEquals(expectedView, model.getFilteredPersonList());
+        assertEquals(expectedSavedData, Files.readString(dataPath));
     }
 
     @Test
