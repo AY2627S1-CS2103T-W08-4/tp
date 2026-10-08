@@ -30,7 +30,7 @@ Update it in every implementation PR and refresh the status when handing work of
 | Delete student | Not recorded yet | Coordinate with team |
 | List students and view a class | Not recorded yet | Coordinate with team |
 | Record and correct attendance | Not recorded yet | Coordinate with team |
-| Exit | Aston (`aston-ish`) | Argument validation implemented locally; issue #37, PR pending |
+| Exit | Aston (`aston-ish`) | Argument validation in open PR #38; awaiting teammate review, unmerged |
 | Save and reload | Not recorded yet | Coordinate ownership and integration with team |
 
 Do not infer feature assignments from AboutUs responsibilities such as testing,
@@ -41,10 +41,12 @@ documentation or integration. Other members' unpublished work is not known here.
 - Owner: Aston (`aston-ish`), assigned Exit by the user on 2026-10-08.
 - Branch: `codex/exit-command-validation` in Aston's fork.
 - Base: team master `326798ba`, fetched and checked against GitHub on 2026-10-08.
-- Status: implemented locally; PR creation, teammate review and merge pending.
+- Status: published in open PR #38; awaiting teammate review, not merged.
+  Aston requested that it remain unmerged on 2026-10-08.
 - GitHub issue: [#37](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/37),
   `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
-- GitHub PR: not opened yet.
+- GitHub PR: [#38](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/38),
+  `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
 - Scope: `ExitCommandParser`, explicit usage feedback, main-parser integration,
   parser and logic regression tests, UG/DG updates and AI acknowledgement.
 - Validation: `./gradlew.bat check coverage` passed on Temurin Java 25.0.4, with
@@ -52,7 +54,8 @@ documentation or integration. Other members' unpublished work is not known here.
   `ExitCommandParser` has 100% line and branch coverage. `git diff --check` passed.
   Initial runs exposed a filtered-view assumption in a new test helper and one
   lambda-formatting violation; both were corrected before the successful run.
-  GUI manual testing has not been performed. Remote CI remains to be checked.
+  GUI manual testing has not been performed. PR #38's first remote CI run was
+  in progress when checked; verify checks against the latest PR commit.
 - User-visible behavior: lowercase `exit` with surrounding spaces still closes
   the app. Extra arguments such as `exit 3`, `exit anything` and `exit n/Alice`
   produce a format error with `Example: exit`; no exit result is returned and the
@@ -60,8 +63,9 @@ documentation or integration. Other members' unpublished work is not known here.
 - Integration: implements DG UC05 extension 1a before command execution or saving.
   Existing valid-Exit, save and shutdown paths are retained; no shared model,
   storage schema or teammates' feature branches are changed.
-- Remaining work: teammate review/merge, manual GUI validation, graceful shutdown
+- Remaining work: teammate review, manual GUI validation, graceful shutdown
   verification and full MVP exit/reload integration as dependent features arrive.
+  Merge is deferred at Aston's request and requires renewed authorization.
 
 ## Add-student contract
 
@@ -130,8 +134,8 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 
 ## Next steps
 
-1. Publish Exit issue #37's implementation, verify remote CI and obtain teammate
-   review before merging. Do not mark it merged until verified on GitHub.
+1. Verify PR #38's latest remote CI and obtain teammate review. Keep it unmerged
+   at Aston's request; only merge after renewed authorization and review.
 2. Agree shared student/membership interfaces and legacy-data handling with teammates.
 3. Implement Telegram model/parser/storage/UI integration as the next bounded PR.
 4. Add name/email contracts, membership support, duplicate checks and atomic save
@@ -146,7 +150,7 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   validation: Java 25.0.3, 245 tests, zero failures/errors/skips, 100% line/branch
   coverage for `TelegramHandle`. Added this handoff and AGENTS.md. `Person`, add
   parsing, storage and UI integration remain; `p/` still means AB3 phone.
-- 2026-10-08: Aston implemented Exit argument validation locally for issue #37,
+- 2026-10-08: Aston published Exit argument validation in PR #38 for issue #37,
   with UG/DG updates and AI credit. Java 25.0.4 checks passed: 252 tests, no
   failures/errors/skips; new parser has 100% line/branch coverage. Review and merge
-  remain pending.
+  remain pending; merge is deferred at Aston's request.
