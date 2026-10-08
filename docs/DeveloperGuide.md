@@ -198,8 +198,8 @@ at most one tutorial group per course. Invalid construction throws
 
 This increment introduces the value type and its automated tests only. It is not yet
 connected to `Person`, commands, storage or the UI. Follow-up increments will store
-memberships on students, and add a command that shows the students in a chosen
-class (UC02). The add-student feature can reuse this type for its `c/` parameter.
+memberships on students, and extend `find` as `find c/COURSE:GROUP w/WEEK` to show
+the students in a chosen class (UC02). The add-student feature can reuse this type for its `c/` parameter.
 
 ### \[Proposed\] Undo/redo feature
 
