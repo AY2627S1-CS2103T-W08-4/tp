@@ -11,8 +11,7 @@ title: Developer Guide
 
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type, and draft its developer documentation.
-* Aston used OpenAI Codex to help implement and test Exit argument validation and
-  update the user guide, developer guide and implementation context.
+* Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 
 --------------------------------------------------------------------------------------------------------------------
 

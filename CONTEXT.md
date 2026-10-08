@@ -30,7 +30,7 @@ Update it in every implementation PR and refresh the status when handing work of
 | Delete student | Not recorded yet | Coordinate with team |
 | List students and view a class | Not recorded yet | Coordinate with team |
 | Record and correct attendance | Not recorded yet | Coordinate with team |
-| Exit | Aston (`aston-ish`) | Argument validation in open PR #38; awaiting teammate review, unmerged |
+| Exit | Aston (`aston-ish`) | Argument validation in open PR #39; awaiting teammate review, unmerged |
 | Save and reload | Not recorded yet | Coordinate ownership and integration with team |
 
 Do not infer feature assignments from AboutUs responsibilities such as testing,
@@ -39,14 +39,16 @@ documentation or integration. Other members' unpublished work is not known here.
 ## Current increment
 
 - Owner: Aston (`aston-ish`), assigned Exit by the user on 2026-10-08.
-- Branch: `codex/exit-command-validation` in Aston's fork.
+- Branch: `exit-command-validation` in Aston's fork (renamed on 2026-10-08).
 - Base: team master `326798ba`, fetched and checked against GitHub on 2026-10-08.
-- Status: published in open PR #38; awaiting teammate review, not merged.
+- Status: published in open PR #39; awaiting teammate review, not merged.
   Aston requested that it remain unmerged on 2026-10-08.
 - GitHub issue: [#37](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/37),
   `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
-- GitHub PR: [#38](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/38),
+- GitHub PR: [#39](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/39),
   `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
+  Replaces [#38](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/38), which GitHub
+  closed without merging when the source branch was renamed.
 - Scope: `ExitCommandParser`, explicit usage feedback, main-parser integration,
   parser and logic regression tests, UG/DG updates and AI acknowledgement.
 - Validation: `./gradlew.bat check coverage` passed on Temurin Java 25.0.4, with
@@ -54,8 +56,11 @@ documentation or integration. Other members' unpublished work is not known here.
   `ExitCommandParser` has 100% line and branch coverage. `git diff --check` passed.
   Initial runs exposed a filtered-view assumption in a new test helper and one
   lambda-formatting violation; both were corrected before the successful run.
-  GUI manual testing has not been performed. PR #38's first remote CI run was
-  in progress when checked; verify checks against the latest PR commit.
+  GUI manual testing has not been performed. PR #38's commit `ad004f1b` passed
+  Windows, macOS, Linux and Codecov patch checks before the branch rename.
+  The rename and acknowledgement wording edit do not change Java code; verify
+  PR #39's checks against its latest commit. Aston will finalize the Developer
+  Guide acknowledgement manually; full assistance is recorded in the PR/commits.
 - User-visible behavior: lowercase `exit` with surrounding spaces still closes
   the app. Extra arguments such as `exit 3`, `exit anything` and `exit n/Alice`
   produce a format error with `Example: exit`; no exit result is returned and the
@@ -134,7 +139,7 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 
 ## Next steps
 
-1. Verify PR #38's latest remote CI and obtain teammate review. Keep it unmerged
+1. Verify PR #39's latest remote CI and obtain teammate review. Keep it unmerged
    at Aston's request; only merge after renewed authorization and review.
 2. Agree shared student/membership interfaces and legacy-data handling with teammates.
 3. Implement Telegram model/parser/storage/UI integration as the next bounded PR.
@@ -154,3 +159,7 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   with UG/DG updates and AI credit. Java 25.0.4 checks passed: 252 tests, no
   failures/errors/skips; new parser has 100% line/branch coverage. Review and merge
   remain pending; merge is deferred at Aston's request.
+- 2026-10-08: Renamed the source branch to `exit-command-validation` at Aston's
+  request. GitHub closed unmerged PR #38; replacement PR #39 retains issue #37,
+  the v1.2 milestone and the tested implementation. Shortened the Developer Guide
+  acknowledgement for Aston to finalize manually. PR #39 remains unmerged.
