@@ -11,6 +11,8 @@ title: Developer Guide
 
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type, and draft its developer documentation.
+* Jian Yang used Claude Code to help implement and test the class membership value type,
+  and draft its developer documentation.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -176,6 +178,28 @@ connected to `Person`, commands, storage or the UI; the existing `add` command s
 uses AB3's phone field. Follow-up increments will use this type for the MVP's `p/`
 Telegram parameter and contact uniqueness checks. No new user command is available
 in this increment.
+
+### View-class foundation: class memberships
+
+`ClassMembership` is an immutable value type identifying a class by its course code
+and tutorial group, written as `COURSE:GROUP` (e.g., `CS2103T:T04`). It removes
+surrounding ordinary spaces (U+0020) and requires exactly one colon with no other
+spaces. The course code is 2–4 ASCII letters, 4 digits and an optional ASCII letter;
+the tutorial group is one ASCII letter followed by 2 digits. There is no course
+catalog check.
+
+Both parts are stored in uppercase using `Locale.ROOT`, so `cs2103t:t04` and
+`CS2103T:T04` are equal and hash identically. Because a class is identified by
+course and group together, `CS2103T:T04` and `CS2101:T04` are different classes.
+`isSameCourse` compares course codes only; it supports the rule that a student has
+at most one tutorial group per course. Invalid construction throws
+`IllegalArgumentException` with `MESSAGE_CONSTRAINTS`; null input throws
+`NullPointerException`.
+
+This increment introduces the value type and its automated tests only. It is not yet
+connected to `Person`, commands, storage or the UI. Follow-up increments will store
+memberships on students, and extend `find` as `find c/COURSE:GROUP w/WEEK` to show
+the students in a chosen class (UC02). The add-student feature can reuse this type for its `c/` parameter.
 
 ### \[Proposed\] Undo/redo feature
 
