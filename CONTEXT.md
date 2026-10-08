@@ -1,6 +1,6 @@
 # TutorTrack team implementation context
 
-Last updated: 2026-10-06 (Singapore time).
+Last updated: 2026-10-08 (Singapore time).
 
 This file is a handoff for team members and their coding assistants. Read it with
 the code, issues and PRs; it is a snapshot, not proof of the live GitHub state.
@@ -29,13 +29,34 @@ Update it in every implementation PR and refresh the status when handing work of
 | Add student | Vincent Peh (`Eskalade`) | First increment in PR #28, awaiting review |
 | Delete student | Not recorded yet | Coordinate with team |
 | List students and view a class | Not recorded yet | Coordinate with team |
-| Record and correct attendance | Not recorded yet | Coordinate with team |
+| Record and correct attendance | `toomintyy` (confirmed in owner conversation) | Local status-type increment; not committed |
 | Save, reload and exit | Not recorded yet | Coordinate with team |
 
 Do not infer feature assignments from AboutUs responsibilities such as testing,
 documentation or integration. Other members' unpublished work is not known here.
 
 ## Current increment
+
+### Attendance status (2026-10-08)
+
+- Owner: `toomintyy`; branch: `add-attendance-status`; milestone: v1.2.
+- Status: implemented and locally validated; ready for the owner's first commit.
+  No implementation commit or PR yet as of this check. AI assistance: Codex.
+- GitHub issue: [#35](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/35),
+  `Add attendance status type for attendance tracking`, verified open and assigned
+  to `toomintyy` under v1.2 on 2026-10-08.
+- Scope: `AttendanceStatus` enum in `model.person` and six JUnit tests.
+  Converts case-insensitive status words, trims U+0020 spaces only, rejects invalid
+  input with the specified message, and provides canonical display labels.
+- Source: Feature 4 STATUS contract in the owner's current MVP Markdown export.
+- Validation: focused `AttendanceStatusTest` passed; final `./gradlew check coverage`
+  passed, including Checkstyle and all 268 tests with no failures/errors/skips.
+- Integration: no Person, command, storage or UI changes. Attendance remains per
+  student/course/week; the enum alone does not record or clear attendance.
+- Remaining: commit this increment, create and link its reviewed PR, then
+  coordinate memberships and persistence before implementing the `mark` command.
+
+### Telegram increment (status recorded 2026-10-06; not reverified here)
 
 - Owner: Vincent Peh (`Eskalade`).
 - Branch: `codex/add-student-telegram`.
