@@ -41,14 +41,13 @@ documentation or integration. Other members' unpublished work is not known here.
 - Owner: Aston (`aston-ish`), assigned Exit by the user on 2026-10-08.
 - Branch: `exit-command-validation` in Aston's fork (renamed on 2026-10-08).
 - Base: team master `326798ba`, fetched and checked against GitHub on 2026-10-08.
-- Status: published in open PR #39; awaiting teammate review, not merged.
-  Aston requested that it remain unmerged on 2026-10-08.
+- Status: published for teammate review, not merged.
 - GitHub issue: [#37](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/37),
   `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
 - GitHub PR: [#39](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/39),
   `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
   Replaces [#38](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/38), which GitHub
-  closed without merging when the source branch was renamed.
+  closed without merging when the source branch was renamed to fit the MVP feature.
 - Scope: `ExitCommandParser`, explicit usage feedback, main-parser integration,
   parser and logic regression tests, UG/DG updates and AI acknowledgement.
 - Validation: `./gradlew.bat check coverage` passed on Temurin Java 25.0.4, with
