@@ -26,22 +26,22 @@ Update it in every implementation PR and refresh the status when handing work of
 
 | MVP feature | Confirmed owner | Status |
 | --- | --- | --- |
-| Add student | Vincent Peh (`Eskalade`) | First value-type increment merged in PR #28; command integration remains |
+| Add student | Vincent Peh (`Eskalade`) | First increment (Telegram handle) merged in PR #28 |
 | Delete student | Not recorded yet | Coordinate with team |
-| List students and view a class | Not recorded yet | Coordinate with team |
-| Record and correct attendance | Not recorded yet | Coordinate with team |
-| Exit | Aston (`aston-ish`) | Argument validation in open PR #39; awaiting teammate review, unmerged |
-| Save and reload | Not recorded yet | Coordinate ownership and integration with team |
+| List students and view a class | Jian Yang (`jianyang999`) | First increment (class membership) in PR #34, approved |
+| Record and correct attendance | `toomintyy` (confirmed in owner conversation) | First increment (attendance status) merged in PR #36 |
+| Exit | Aston (`aston-ish`) | Argument validation in open PR #39; latest changes need review, unmerged |
+| Save and reload | Not recorded yet | Coordinate with team |
 
 Do not infer feature assignments from AboutUs responsibilities such as testing,
 documentation or integration. Other members' unpublished work is not known here.
 
 ## Current increment
 
-- Owner: Aston (`aston-ish`), assigned Exit by the user on 2026-10-08.
-- Branch: `exit-command-validation` in Aston's fork (renamed on 2026-10-08).
-- Base: team master `326798ba`, fetched and checked against GitHub on 2026-10-08.
-- Status: published for teammate review, not merged.
+### Exit argument validation (2026-10-08)
+
+- Owner: `aston-ish`; Branch: `exit-command-validation`; milestone: v1.2.
+- Status: approved by Jian Yang, not merged.
 - GitHub issue: [#37](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/37),
   `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
 - GitHub PR: [#39](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/39),
@@ -57,9 +57,6 @@ documentation or integration. Other members' unpublished work is not known here.
   lambda-formatting violation; both were corrected before the successful run.
   GUI manual testing has not been performed. PR #38's commit `ad004f1b` passed
   Windows, macOS, Linux and Codecov patch checks before the branch rename.
-  The rename and acknowledgement wording edit do not change Java code; verify
-  PR #39's checks against its latest commit. Aston will finalize the Developer
-  Guide acknowledgement manually; full assistance is recorded in the PR/commits.
 - User-visible behavior: lowercase `exit` with surrounding spaces still closes
   the app. Extra arguments such as `exit 3`, `exit anything` and `exit n/Alice`
   produce a format error with `Example: exit`; no exit result is returned and the
@@ -69,7 +66,53 @@ documentation or integration. Other members' unpublished work is not known here.
   storage schema or teammates' feature branches are changed.
 - Remaining work: teammate review, manual GUI validation, graceful shutdown
   verification and full MVP exit/reload integration as dependent features arrive.
-  Merge is deferred at Aston's request and requires renewed authorization.
+  
+### Class membership for view class (2026-10-08)
+
+- Owner: Jian Yang (`jianyang999`); branch: `add-class-membership`; milestone: v1.2.
+- AI assistance: Claude Code.
+- Status: merged into team master in PR #34 (verified 2026-10-08).
+- GitHub PR: [#34](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/34),
+  `Add class membership value type`, assigned to `jianyang999`, v1.2.
+- GitHub issue: [#33](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/33),
+  `Add class membership value type for viewing a class`, assigned to `jianyang999`, v1.2.
+- Scope: immutable `ClassMembership` (course code + tutorial group, `COURSE:GROUP`),
+  validation per the membership rules in the add-student contract below, uppercase
+  normalization with `Locale.ROOT`, value equality/hashing, `isSameCourse`, automated
+  tests and DG explanation.
+- Code: `src/main/java/seedu/address/model/person/ClassMembership.java`.
+- Tests: `src/test/java/seedu/address/model/person/ClassMembershipTest.java`.
+- Documentation: DG Implementation section and AI acknowledgement.
+- Validation: after merging team master (with AttendanceStatus), `./gradlew check
+  coverage` passed locally on Java 25.0.4.1 with 258 tests, zero failures/errors/skips.
+  ClassMembership has 100% line and branch coverage. Check the PR for remote CI.
+- User-visible behavior: unchanged. `Person`, parsing, JSON storage and UI are not
+  connected to the new type yet.
+- Open point: `MESSAGE_CONSTRAINTS` wording is provisional; align it with the exact
+  message in the team specification document if one is given there.
+- Target command (per review): extend `find` as `find c/COURSE:GROUP w/WEEK`
+  rather than adding a separate `view` command.
+
+### Attendance status (2026-10-08)
+
+- Owner: `toomintyy`; branch: `35-add-attendance-status`; milestone: v1.2.
+- Status: merged into team master in PR #36 (verified 2026-10-08). AI assistance: Codex.
+- GitHub issue: [#35](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/35),
+  `Add attendance status type for attendance tracking`, assigned to `toomintyy`, v1.2.
+- Scope: `AttendanceStatus` enum in `model.person` and six JUnit tests.
+  Converts case-insensitive status words, trims U+0020 spaces only, rejects invalid
+  input with the specified message, and provides canonical display labels.
+- Source: Feature 4 STATUS contract in the owner's current MVP Markdown export.
+- Validation: focused `AttendanceStatusTest` passed; final `./gradlew check coverage`
+  passed, including Checkstyle and all 268 tests with no failures/errors/skips.
+- Integration: no Person, command, storage or UI changes. Attendance remains per
+  student/course/week; the enum alone does not record or clear attendance.
+- Remaining: coordinate memberships and persistence before implementing the `mark` command.
+
+### Telegram increment
+
+- Owner: Vincent Peh (`Eskalade`). `TelegramHandle` value type, issue #27, merged in
+  PR #28. Not yet connected to `Person`, parsing, storage or UI.
 
 ## Add-student contract
 
@@ -128,8 +171,9 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   Ensure edits preserve new fields even where editing is beyond the MVP scope.
 - `LogicManager` currently mutates the model before saving and does not roll back
   on failure. Coordinate with the persistence owner to meet the atomicity contract.
-- Membership representation is not yet agreed/implemented. Coordinate its public
-  interface with roster and attendance owners before changing `Person`.
+- `ClassMembership` (issue #33) is the proposed shared membership value type for
+  add-student, view-class and attendance. How `Person` stores memberships is not yet
+  agreed; coordinate with the add-student and attendance owners before changing `Person`.
 - Roster indices are positions in the current display, not stable student IDs.
   Attendance is per student/course/week (1–53); Unrecorded is not Absent.
 - The document references common error precedence and an interruption appendix
@@ -138,13 +182,18 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 
 ## Next steps
 
-1. Verify PR #39's latest remote CI and obtain teammate review. Keep it unmerged
-   at Aston's request; only merge after renewed authorization and review.
-2. Agree shared student/membership interfaces and legacy-data handling with teammates.
+1. Keep each increment's status accurate: verify reviews, CI and merges on GitHub
+   before recording them here.
+2. Agree shared student/membership interfaces and legacy-data handling with teammates,
+   including how `Person` stores its `ClassMembership` set.
 3. Implement Telegram model/parser/storage/UI integration as the next bounded PR.
 4. Add name/email contracts, membership support, duplicate checks and atomic save
    behavior in subsequent reviewed increments toward the complete add-student feature.
-5. Update user-facing command documentation when behavior changes. Keep planned
+5. View class (v1.3): store memberships on `Person`, then add a class predicate and
+   extend `find` as `find c/COURSE:GROUP w/WEEK` to filter the roster by class and show
+   attendance for that week. Align `ClassMembership.MESSAGE_CONSTRAINTS` with the exact
+   class-format error in the MVP specification first (review follow-up on PR #34).
+6. Update user-facing command documentation when behavior changes. Keep planned
    functionality clearly separate from what the application currently supports.
 
 ## Increment history
@@ -154,11 +203,15 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   validation: Java 25.0.3, 245 tests, zero failures/errors/skips, 100% line/branch
   coverage for `TelegramHandle`. Added this handoff and AGENTS.md. `Person`, add
   parsing, storage and UI integration remain; `p/` still means AB3 phone.
-- 2026-10-08: Aston published Exit argument validation in PR #38 for issue #37,
-  with UG/DG updates and AI credit. Java 25.0.4 checks passed: 252 tests, no
-  failures/errors/skips; new parser has 100% line/branch coverage. Review and merge
-  remain pending; merge is deferred at Aston's request.
-- 2026-10-08: Renamed the source branch to `exit-command-validation` at Aston's
-  request. GitHub closed unmerged PR #38; replacement PR #39 retains issue #37,
-  the v1.2 milestone and the tested implementation. Shortened the Developer Guide
-  acknowledgement for Aston to finalize manually. PR #39 remains unmerged.
+- 2026-10-08: Aston published Exit argument validation in PR #39 for issue #37,
+  with UG/DG updates. Java 25.0.4 checks passed: 252 tests, no
+  failures/errors/skips; new parser has 100% line/branch coverage. Approved and merged.
+- 2026-10-06: Vincent implemented the first Telegram value-type increment; full
+  local checks passed. Added this handoff and AGENTS.md. Published issue #27 and
+  PR #28 under v1.2; PR #28 was later merged.
+- 2026-10-07: Jian Yang implemented the ClassMembership value-type increment for
+  view class (issue #33); full local checks passed. Published PR #34 under v1.2.
+- 2026-10-08: `toomintyy` implemented the AttendanceStatus increment (issue #35);
+  merged in PR #36.
+- 2026-10-08: PR #34 approved by `Eskalade`. Merged team master into the branch to
+  resolve a CONTEXT.md conflict and recorded the review follow-ups.
