@@ -30,18 +30,48 @@ Update it in every implementation PR and refresh the status when handing work of
 | Delete student | Not recorded yet | Coordinate with team |
 | List students and view a class | Jian Yang (`jianyang999`) | First increment (class membership) in PR #34, approved |
 | Record and correct attendance | `toomintyy` (confirmed in owner conversation) | First increment (attendance status) merged in PR #36 |
-| Save, reload and exit | Not recorded yet | Coordinate with team |
+| Exit | Aston (`aston-ish`) | Argument validation in open PR #39; latest changes need review, unmerged |
+| Save and reload | Not recorded yet | Coordinate with team |
 
 Do not infer feature assignments from AboutUs responsibilities such as testing,
 documentation or integration. Other members' unpublished work is not known here.
 
 ## Current increment
 
+### Exit argument validation (2026-10-08)
+
+- Owner: `aston-ish`; Branch: `exit-command-validation`; milestone: v1.2.
+- Status: approved by Jian Yang, not merged.
+- GitHub issue: [#37](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/37),
+  `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
+- GitHub PR: [#39](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/39),
+  `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
+  Replaces [#38](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/38), which GitHub
+  closed without merging when the source branch was renamed to fit the MVP feature.
+- Scope: `ExitCommandParser`, explicit usage feedback, main-parser integration,
+  parser and logic regression tests, UG/DG updates and AI acknowledgement.
+- Validation: `./gradlew.bat check coverage` passed on Temurin Java 25.0.4, with
+  252 tests and zero failures/errors/skips; both main and test Checkstyle passed.
+  `ExitCommandParser` has 100% line and branch coverage. `git diff --check` passed.
+  Initial runs exposed a filtered-view assumption in a new test helper and one
+  lambda-formatting violation; both were corrected before the successful run.
+  GUI manual testing has not been performed. PR #38's commit `ad004f1b` passed
+  Windows, macOS, Linux and Codecov patch checks before the branch rename.
+- User-visible behavior: lowercase `exit` with surrounding spaces still closes
+  the app. Extra arguments such as `exit 3`, `exit anything` and `exit n/Alice`
+  produce a format error with `Example: exit`; no exit result is returned and the
+  data, saved JSON and current filtered view remain unchanged.
+- Integration: implements DG UC05 extension 1a before command execution or saving.
+  Existing valid-Exit, save and shutdown paths are retained; no shared model,
+  storage schema or teammates' feature branches are changed.
+- Remaining work: teammate review, manual GUI validation, graceful shutdown
+  verification and full MVP exit/reload integration as dependent features arrive.
+  
 ### Class membership for view class (2026-10-08)
 
 - Owner: Jian Yang (`jianyang999`); branch: `add-class-membership`; milestone: v1.2.
 - AI assistance: Claude Code.
-- Status: approved by `Eskalade` on 2026-10-08; merge pending CI on the updated branch.
+- Status: merged into team master in PR #34 (verified 2026-10-08).
 - GitHub PR: [#34](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/34),
   `Add class membership value type`, assigned to `jianyang999`, v1.2.
 - GitHub issue: [#33](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/33),
@@ -168,6 +198,14 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 
 ## Increment history
 
+- 2026-10-06: Vincent's Telegram value-type increment (issue #27, PR #28) merged
+  into team master; merge confirmed through GitHub on 2026-10-08. Original local
+  validation: Java 25.0.3, 245 tests, zero failures/errors/skips, 100% line/branch
+  coverage for `TelegramHandle`. Added this handoff and AGENTS.md. `Person`, add
+  parsing, storage and UI integration remain; `p/` still means AB3 phone.
+- 2026-10-08: Aston published Exit argument validation in PR #39 for issue #37,
+  with UG/DG updates. Java 25.0.4 checks passed: 252 tests, no
+  failures/errors/skips; new parser has 100% line/branch coverage. Approved and merged.
 - 2026-10-06: Vincent implemented the first Telegram value-type increment; full
   local checks passed. Added this handoff and AGENTS.md. Published issue #27 and
   PR #28 under v1.2; PR #28 was later merged.

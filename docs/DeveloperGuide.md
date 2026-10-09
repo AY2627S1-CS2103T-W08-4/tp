@@ -11,6 +11,7 @@ title: Developer Guide
 
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type, and draft its developer documentation.
+* Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to help implement and test the class membership value type,
   and draft its developer documentation.
 
@@ -178,6 +179,20 @@ connected to `Person`, commands, storage or the UI; the existing `add` command s
 uses AB3's phone field. Follow-up increments will use this type for the MVP's `p/`
 Telegram parameter and contact uniqueness checks. No new user command is available
 in this increment.
+
+### Exit argument validation
+
+`AddressBookParser` delegates the arguments of the lowercase `exit` command to
+`ExitCommandParser`. The parser accepts empty arguments after trimming surrounding
+whitespace and rejects any remaining content with `MESSAGE_INVALID_COMMAND_FORMAT`
+and `ExitCommand.MESSAGE_USAGE`. This implements UC05 extension 1a.
+
+Invalid Exit input throws `ParseException` before command execution or saving.
+`MainWindow` displays the error through its existing exception handler, so it does
+not receive an exit result or close the application. Student data and the current
+filtered view remain unchanged. Valid input retains the existing Exit execution
+and shutdown behavior; shutdown scheduling and full MVP reload integration remain
+follow-up work.
 
 ### View-class foundation: class memberships
 
@@ -555,7 +570,19 @@ testers are expected to do more *exploratory* testing.
    1. Relaunch the app by double-clicking the JAR file.<br>
        Expected: The most recent window size and location are retained.
 
-1. _{ more test cases …​ }_
+1. Exit command validation
+
+   1. Prerequisites: Launch the app and optionally use `find` to filter the displayed contacts.
+
+   1. Test case: `exit 3`<br>
+      Expected: A format error explains that Exit takes no arguments and shows `Example: exit`.
+      The app stays open; stored contacts and the current filtered view are unchanged.
+
+   1. Other invalid inputs: `exit anything`, `exit n/Alice`, and `  exit   3  `<br>
+      Expected: The same error and unchanged app state.
+
+   1. Test case: `  exit  `<br>
+      Expected: The app closes using the existing Exit behavior.
 
 ### Deleting a person
 
