@@ -9,10 +9,6 @@ title: Developer Guide
 
 ## **Acknowledgements**
 
-* Aston used OpenAI Codex for the AB3 adding-command tutorial: step-by-step implementation,
-  code review, regression tests and documentation. The implementation follows
-  [SE-EDU's adding-command tutorial](https://se-education.org/guides/tutorials/ab3AddRemark.html).
-
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type, and draft its developer documentation.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.

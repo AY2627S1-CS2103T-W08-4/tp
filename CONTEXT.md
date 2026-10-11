@@ -41,18 +41,14 @@ documentation or integration. Other members' unpublished work is not known here.
 ### AB3 adding-command tutorial (2026-10-12)
 
 - Owner: Aston (`aston-ish`); branch: `tutorial-adding-command`, based on team master.
-- Status: validated local tutorial implementation; unmerged. Aston will create the PR manually.
+- Status: committed and pushed to Aston's fork; unmerged. Aston will create the PR manually.
 - Scope: remark command/parser/value type, Person field, card UI and compatible JSON storage.
   Ordinary edits retain remarks; missing JSON remarks load as empty. Existing constructors
   remain available with an empty default remark.
 - Manual validation: Aston supplied screenshots showing add, removal and persistence after restart.
-- Automated validation: initial check found four formatting issues and one outdated Person
-  string assertion. Those were corrected and focused regression tests added; final check pending.
-- AI assistance: Codex provided implementation guidance, review, tests and documentation,
-  following the SE-EDU AB3 adding-command tutorial (credited in the Developer Guide).
-- Remaining work: run final `check coverage`, commit, push the tutorial branch to Aston's
-  fork and create the course tutorial PR to team master. The course permits closing this
-  tutorial PR without merging. This subsection records tutorial work, not an MVP feature assignment.
+- Automated validation: `gradlew.bat check coverage` passed with 282 tests and zero
+  failures/errors/skips. Main and test Checkstyle passed.
+- AI assistance: Codex provided implementation guidance.
 
 
 ### Exit argument validation (2026-10-08)
