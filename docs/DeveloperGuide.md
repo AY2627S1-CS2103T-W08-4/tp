@@ -9,6 +9,10 @@ title: Developer Guide
 
 ## **Acknowledgements**
 
+* Aston used OpenAI Codex for the AB3 adding-command tutorial: step-by-step implementation,
+  code review, regression tests and documentation. The implementation follows
+  [SE-EDU's adding-command tutorial](https://se-education.org/guides/tutorials/ab3AddRemark.html).
+
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type, and draft its developer documentation.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
@@ -158,6 +162,21 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 ## **Implementation**
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### AB3 tutorial: remark command
+
+`RemarkCommandParser` tokenizes `r/` and validates the displayed index using `ParserUtil`.
+The command replaces the selected immutable `Person` with a copy containing the new `Remark`,
+then restores the full filtered list. An empty remark removes the note; the tutorial parser
+also uses an empty remark when `r/` is omitted. Ordinary `edit` commands preserve remarks.
+
+`PersonCard` displays the remark via its FXML label. `JsonAdaptedPerson` saves the remark as
+a JSON string and treats a missing or null remark as empty when loading legacy data.
+The original constructors remain available with an empty default remark.
+
+Tests cover adding, overwriting and removing remarks, displayed indices after filtering,
+invalid indices, parsing, person equality, editing other fields and JSON save/reload.
+This is tutorial work on `tutorial-adding-command`; merge status must be checked separately.
 
 ### Add-student foundation: Telegram handles
 
