@@ -33,7 +33,7 @@ Unpublished teammate work is unknown. The open tutorial PR #26 is not product fu
 - Owner: Vincent Peh (`Eskalade`); branch in fork: `codex/add-student-v13`.
 - Issue: [#43](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/43), assigned to Eskalade, v1.3.
 - PR: [#44](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/44), v1.3, assigned to Eskalade.
-- Status: pushed to fork and open for teammate review. Not merged or released; remote CI pending.
+- Status: pushed to fork and open for teammate review. Not merged or released.
 - Scope: exact add grammar/field validation, normalization, duplicate contacts,
   immutable memberships, complete JSON round trip, legacy data compatibility,
   save-before-live-model update, selection/details, regression tests and UG/DG.
@@ -41,6 +41,9 @@ Unpublished teammate work is unknown. The open tutorial PR #26 is not product fu
   285 tests, zero failures/errors/skips; both Checkstyle tasks passed; coverage
   reports and JAR generated. Name/Email student validation and AddCommandParser
   have 100% line/branch coverage in this run. `git diff --check` passed.
+- Remote validation: [Java CI run](https://github.com/AY2627S1-CS2103T-W08-4/tp/actions/runs/38265061281)
+  passed on Linux, Windows and macOS at `95f9d810` (same implementation code as this
+  documentation-only validation update). Check the PR for subsequent-head checks.
 - Earlier validation failures: ten obsolete AB3-add expectations were updated to
   the new contract; subsequent runs exposed import/formatting violations, now fixed.
 - GUI validation: packaged app reached UI startup using an isolated temporary data
