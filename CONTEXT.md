@@ -32,7 +32,8 @@ Unpublished teammate work is unknown. The open tutorial PR #26 is not product fu
 
 - Owner: Vincent Peh (`Eskalade`); branch in fork: `codex/add-student-v13`.
 - Issue: [#43](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/43), assigned to Eskalade, v1.3.
-- Status: implemented locally; PR publication pending. Not merged or released.
+- PR: [#44](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/44), v1.3, assigned to Eskalade.
+- Status: pushed to fork and open for teammate review. Not merged or released; remote CI pending.
 - Scope: exact add grammar/field validation, normalization, duplicate contacts,
   immutable memberships, complete JSON round trip, legacy data compatibility,
   save-before-live-model update, selection/details, regression tests and UG/DG.
@@ -83,7 +84,7 @@ was yet recorded. They are implemented on this branch and need teammate PR revie
 
 ## Remaining work
 
-1. Publish and review the add increment; verify CI on its exact head before merge.
+1. Review PR #44; verify CI on its exact head before merge.
 2. Teammates review the shared Person/schema interface; integrate their own commands
    without dropping new fields. General persistence/rollback still needs an owner.
 3. Complete the DG GUI smoke checklist, including selection, duplicate error input
@@ -142,5 +143,5 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   Authors recorded successful local checks; these were foundation types, not commands.
 - 2026-10-09: Aston's Exit argument validation (#37 / #39) merged, replacing unmerged #38.
 - 2026-10-10: GitHub v1.2 milestone closed. This does not mean the full MVP is complete.
-- 2026-10-12: Vincent implemented the local v1.3 add-student increment for #43;
+- 2026-10-12: Vincent published the v1.3 add-student increment, issue #43 / PR #44;
   285 tests and required checks passed; teammate review and merge remain pending.
