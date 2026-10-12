@@ -34,8 +34,8 @@ public class AddressBookParserTest {
 
     @Test
     public void parseCommand_add() throws Exception {
-        Person person = new PersonBuilder().build();
-        AddCommand command = (AddCommand) parser.parseCommand(PersonUtil.getAddCommand(person));
+        Person person = seedu.address.testutil.StudentBuilder.typicalStudent();
+        AddCommand command = (AddCommand) parser.parseCommand(seedu.address.testutil.StudentBuilder.COMMAND);
         assertEquals(new AddCommand(person), command);
     }
 

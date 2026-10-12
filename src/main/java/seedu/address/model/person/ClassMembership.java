@@ -12,8 +12,8 @@ import java.util.Locale;
  */
 public final class ClassMembership {
 
-    public static final String MESSAGE_CONSTRAINTS = "Class must be in the format COURSE:GROUP, e.g. CS2103T:T04. "
-            + "COURSE is 2-4 letters, 4 digits and an optional letter. GROUP is 1 letter followed by 2 digits.";
+    public static final String MESSAGE_CONSTRAINTS = "Class must use COURSE:GROUP, for example CS2103T:T04. "
+            + "Course must be 2-4 letters, 4 digits and an optional letter; group must be a letter and 2 digits.";
     private static final String COURSE_REGEX = "[A-Za-z]{2,4}[0-9]{4}[A-Za-z]?";
     private static final String GROUP_REGEX = "[A-Za-z][0-9]{2}";
     private static final String VALIDATION_REGEX = COURSE_REGEX + ":" + GROUP_REGEX;

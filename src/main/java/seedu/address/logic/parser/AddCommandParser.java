@@ -1,61 +1,87 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.person.Address;
+import seedu.address.model.person.ClassMembership;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
-import seedu.address.model.person.Phone;
-import seedu.address.model.tag.Tag;
+import seedu.address.model.person.TelegramHandle;
 
-/**
- * Parses input arguments and creates a new AddCommand object
- */
+/** Parses the student creation grammar without silently trimming control characters. */
 public class AddCommandParser implements Parser<AddCommand> {
+    private static final Pattern PREFIX = Pattern.compile("(?<![^ ])([^ /\\s]+)/");
+    private static final List<String> REQUIRED = List.of("n", "p", "e", "c");
 
-    /**
-     * Parses the given {@code String} of arguments in the context of the AddCommand
-     * and returns an AddCommand object for execution.
-     * @throws ParseException if the user input does not conform to the expected format
-     */
+    @Override
     public AddCommand parse(String args) throws ParseException {
-        ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE, PREFIX_EMAIL, PREFIX_ADDRESS, PREFIX_TAG);
+        Map<String, List<String>> values = tokenize(args);
+        for (String prefix : REQUIRED) {
+            if (!values.containsKey(prefix)) {
+                throw new ParseException("Missing required parameter: " + prefix + "/.");
+            }
+        }
+        try {
+            Name name = Name.forStudent(values.get("n").getFirst());
+            TelegramHandle telegram = new TelegramHandle(values.get("p").getFirst());
+            Email email = Email.forStudent(values.get("e").getFirst());
+            List<ClassMembership> classes = new ArrayList<>();
+            for (String value : values.get("c")) {
+                classes.add(new ClassMembership(value));
+            }
+            Set<String> courses = new LinkedHashSet<>();
+            for (ClassMembership membership : classes) {
+                if (!courses.add(membership.courseCode)) {
+                    throw new ParseException("Course " + membership.courseCode
+                            + " may be specified only once per student.");
+                }
+            }
+            return new AddCommand(new Person(name, telegram, email, new LinkedHashSet<>(classes)));
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(e.getMessage(), e);
+        }
+    }
 
-        if (!arePrefixesPresent(argMultimap, PREFIX_NAME, PREFIX_ADDRESS, PREFIX_PHONE, PREFIX_EMAIL)
-                || !argMultimap.getPreamble().isEmpty()) {
+    /** Recognizes prefix tokens at ordinary-space boundaries, preserving every value byte. */
+    private Map<String, List<String>> tokenize(String args) throws ParseException {
+        Map<String, List<String>> values = new LinkedHashMap<>();
+        Matcher matcher = PREFIX.matcher(args);
+        String previous = null;
+        int valueStart = 0;
+        while (matcher.find()) {
+            if (previous == null && !args.substring(0, matcher.start()).matches(" *")) {
+                throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
+            }
+            if (previous != null) {
+                values.get(previous).add(args.substring(valueStart, matcher.start()));
+            }
+            String prefix = matcher.group(1);
+            if (!REQUIRED.contains(prefix)) {
+                throw new ParseException("Unknown parameter: " + prefix + "/.");
+            }
+            if (values.containsKey(prefix) && !prefix.equals("c")) {
+                throw new ParseException("Parameter " + prefix + "/ must be specified only once.");
+            }
+            values.computeIfAbsent(prefix, key -> new ArrayList<>());
+            previous = prefix;
+            valueStart = matcher.end();
+        }
+        if (previous != null) {
+            values.get(previous).add(args.substring(valueStart));
+        } else if (!args.matches(" *")) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
         }
-
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_EMAIL, PREFIX_ADDRESS);
-        Name name = ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get());
-        Phone phone = ParserUtil.parsePhone(argMultimap.getValue(PREFIX_PHONE).get());
-        Email email = ParserUtil.parseEmail(argMultimap.getValue(PREFIX_EMAIL).get());
-        Address address = ParserUtil.parseAddress(argMultimap.getValue(PREFIX_ADDRESS).get());
-        Set<Tag> tagList = ParserUtil.parseTags(argMultimap.getAllValues(PREFIX_TAG));
-
-        Person person = new Person(name, phone, email, address, tagList);
-
-        return new AddCommand(person);
+        return values;
     }
-
-    /**
-     * Returns true if none of the prefixes contains empty {@code Optional} values in the given
-     * {@code ArgumentMultimap}.
-     */
-    private static boolean arePrefixesPresent(ArgumentMultimap argumentMultimap, Prefix... prefixes) {
-        return Stream.of(prefixes).allMatch(prefix -> argumentMultimap.getValue(prefix).isPresent());
-    }
-
 }

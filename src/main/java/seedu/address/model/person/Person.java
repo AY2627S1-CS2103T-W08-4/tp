@@ -4,7 +4,9 @@ import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import seedu.address.commons.util.ToStringBuilder;
@@ -22,6 +24,8 @@ public class Person {
     private final Email email;
 
     // Data fields
+    private final TelegramHandle telegramHandle;
+    private final Set<ClassMembership> memberships;
     private final Address address;
     private final Set<Tag> tags = new HashSet<>();
 
@@ -35,12 +39,52 @@ public class Person {
         this.email = email;
         this.address = address;
         this.tags.addAll(tags);
+        telegramHandle = null;
+        memberships = Collections.emptySet();
+    }
+
+    /**
+     * Creates a complete student. Legacy phone/address fields are absent, never fabricated.
+     * Membership iteration follows input order and each course can occur only once.
+     */
+    public Person(Name name, TelegramHandle telegramHandle, Email email, Set<ClassMembership> memberships) {
+        requireAllNonNull(name, telegramHandle, email, memberships);
+        if (memberships.isEmpty()) {
+            throw new IllegalArgumentException("A student must have at least one class membership.");
+        }
+        Set<String> courses = new HashSet<>();
+        for (ClassMembership membership : memberships) {
+            requireAllNonNull(membership);
+            if (!courses.add(membership.courseCode)) {
+                throw new IllegalArgumentException("Course " + membership.courseCode
+                        + " may be specified only once per student.");
+            }
+        }
+        this.name = Name.forStudent(name.fullName);
+        this.email = Email.forStudent(email.value);
+        this.telegramHandle = telegramHandle;
+        this.memberships = Collections.unmodifiableSet(new LinkedHashSet<>(memberships));
+        phone = null;
+        address = null;
+    }
+
+    public boolean isStudent() {
+        return telegramHandle != null;
+    }
+
+    public Optional<TelegramHandle> getTelegramHandle() {
+        return Optional.ofNullable(telegramHandle);
+    }
+
+    public Set<ClassMembership> getMemberships() {
+        return memberships;
     }
 
     public Name getName() {
         return name;
     }
 
+    /** Returns the legacy phone, or null for a student; check isStudent before using it. */
     public Phone getPhone() {
         return phone;
     }
@@ -49,6 +93,7 @@ public class Person {
         return email;
     }
 
+    /** Returns the legacy address, or null for a student; check isStudent before using it. */
     public Address getAddress() {
         return address;
     }
@@ -62,16 +107,22 @@ public class Person {
     }
 
     /**
-     * Returns true if both persons have the same name.
-     * This defines a weaker notion of equality between two persons.
+     * Detects a contact collision. Students use normalized email or Telegram, never names.
+     * Two legacy contacts retain their original name-based identity rule.
      */
     public boolean isSamePerson(Person otherPerson) {
         if (otherPerson == this) {
             return true;
         }
 
-        return otherPerson != null
-                && otherPerson.getName().equals(getName());
+        if (otherPerson == null) {
+            return false;
+        }
+        if (isStudent() || otherPerson.isStudent()) {
+            return email.value.equalsIgnoreCase(otherPerson.email.value)
+                    || telegramHandle != null && telegramHandle.equals(otherPerson.telegramHandle);
+        }
+        return otherPerson.getName().equals(getName());
     }
 
     /**
@@ -90,20 +141,26 @@ public class Person {
         }
 
         return name.equals(otherPerson.name)
-                && phone.equals(otherPerson.phone)
+                && Objects.equals(phone, otherPerson.phone)
                 && email.equals(otherPerson.email)
-                && address.equals(otherPerson.address)
-                && tags.equals(otherPerson.tags);
+                && Objects.equals(address, otherPerson.address)
+                && tags.equals(otherPerson.tags)
+                && Objects.equals(telegramHandle, otherPerson.telegramHandle)
+                && memberships.equals(otherPerson.memberships);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, tags);
+        return Objects.hash(name, phone, email, address, tags, telegramHandle, memberships);
     }
 
     @Override
     public String toString() {
+        if (isStudent()) {
+            return new ToStringBuilder(this).add("name", name).add("telegramHandle", telegramHandle)
+                    .add("email", email).add("memberships", memberships).toString();
+        }
         return new ToStringBuilder(this)
                 .add("name", name)
                 .add("phone", phone)

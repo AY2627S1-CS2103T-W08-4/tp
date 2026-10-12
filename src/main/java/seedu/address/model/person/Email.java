@@ -3,11 +3,16 @@ package seedu.address.model.person;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
+import java.util.Locale;
+
 /**
  * Represents a Person's email in the address book.
- * Guarantees: immutable; is valid as declared in {@link #isValidEmail(String)}
+ * Guarantees: immutable; validated with the legacy or student contract at construction.
  */
 public class Email {
+
+    public static final String STUDENT_MESSAGE_CONSTRAINTS = "Email must be at most 254 characters and use "
+            + "local-part@domain with a valid dotted domain and no spaces.";
 
     private static final String SPECIAL_CHARACTERS = "+_.-";
     public static final String MESSAGE_CONSTRAINTS = "Emails should be of the format local-part@domain "
@@ -42,6 +47,38 @@ public class Email {
         requireNonNull(email);
         checkArgument(isValidEmail(email), MESSAGE_CONSTRAINTS);
         value = email;
+    }
+
+    private Email(String email, boolean student) {
+        checkArgument(isValidStudentEmail(email), STUDENT_MESSAGE_CONSTRAINTS);
+        value = email.toLowerCase(Locale.ROOT);
+    }
+
+    /** Creates a normalized MVP email without changing legacy contact loading. */
+    public static Email forStudent(String email) {
+        requireNonNull(email);
+        return new Email(email.replaceAll("^ +| +$", ""), true);
+    }
+
+    /** Checks the supported ASCII email subset, including all length boundaries. */
+    public static boolean isValidStudentEmail(String email) {
+        String trimmed = email.replaceAll("^ +| +$", "");
+        String[] parts = trimmed.split("@", -1);
+        if (trimmed.length() > 254 || parts.length != 2 || parts[0].length() > 64
+                || !parts[0].matches("[A-Za-z0-9](?:[A-Za-z0-9._+\\-]*[A-Za-z0-9])?")
+                || parts[0].contains("..")) {
+            return false;
+        }
+        String[] labels = parts[1].split("\\.", -1);
+        if (labels.length < 2 || !labels[labels.length - 1].matches("[A-Za-z]{2,63}")) {
+            return false;
+        }
+        for (String label : labels) {
+            if (!label.matches("[A-Za-z0-9](?:[A-Za-z0-9\\-]{0,61}[A-Za-z0-9])?")) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
