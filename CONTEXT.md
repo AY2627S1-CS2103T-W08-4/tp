@@ -28,7 +28,7 @@ Update it in every implementation PR and refresh the status when handing work of
 | --- | --- | --- |
 | Add student | Vincent Peh (`Eskalade`) | First increment (Telegram handle) merged in PR #28 |
 | Delete student | Not recorded yet | Coordinate with team |
-| List students and view a class | Jian Yang (`jianyang999`) | ClassMembership merged in PR #34; `list` update in progress (issue #46) |
+| List students and view a class | Jian Yang (`jianyang999`) | ClassMembership merged in PR #34; `list` update in PR #47, awaiting review |
 | Record and correct attendance | `toomintyy` (confirmed in owner conversation) | First increment (attendance status) merged in PR #36 |
 | Exit | Aston (`aston-ish`) | Argument validation in open PR #39; latest changes need review, unmerged |
 | Save and reload | Not recorded yet | Coordinate with team |
@@ -42,7 +42,7 @@ documentation or integration. Other members' unpublished work is not known here.
 
 - Owner: Jian Yang (`jianyang999`); branch: `update-list-command`; milestone: v1.3.
 - GitHub issue: [#46](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/46). AI assistance: Claude Code.
-- Status: local implementation; PR not yet opened.
+- Status: published for teammate review in [PR #47](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/47); not merged.
 - Scope: `ListCommandParser` rejects any extra input with "Invalid command format!"
   and "Format: list"; `list` reports "{N} students listed!" ("1 student listed!" for one).
 - Validation: `./gradlew check coverage` passed locally on Java 25.0.4.1 with 271 tests,
@@ -231,4 +231,4 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 - 2026-10-08: PR #34 approved by `Eskalade`. Merged team master into the branch to
   resolve a CONTEXT.md conflict and recorded the review follow-ups.
 - 2026-10-15: Jian Yang updated `list` to the Feature 3 contract (issue #46);
-  full local checks passed.
+  full local checks passed. Published PR #47 under v1.3.
