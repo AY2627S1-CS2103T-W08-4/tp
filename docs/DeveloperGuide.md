@@ -12,8 +12,8 @@ title: Developer Guide
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type, and draft its developer documentation.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
-* Jian Yang used Claude Code to help implement and test the class membership value type,
-  and draft its developer documentation.
+* Jian Yang used Claude Code to help implement and test the class membership value type
+  and the `list` command update, and draft their documentation.
 
 --------------------------------------------------------------------------------------------------------------------
 

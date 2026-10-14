@@ -90,11 +90,14 @@ Examples:
 * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
 * `add n/Betsy Crowe t/friend e/betsycrowe@example.com a/Newgate Prison p/1234567 t/criminal`
 
-### Listing all persons: `list`
+### Listing all students: `list`
 
-Shows a list of all persons in the address book.
+Removes any active filter and shows every saved student once, in roster order.
 
 Format: `list`
+
+* `list` takes no parameters. Any extra input, such as `list 3` or `list c/CS2103T:T04`, is rejected with the list format error, so you never mistake an unfiltered list for a filtered one.
+* The result shows how many students are listed, for example `3 students listed!`, `1 student listed!` or `0 students listed!`.
 
 ### Editing a person: `edit`
 

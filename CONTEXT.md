@@ -28,7 +28,7 @@ Update it in every implementation PR and refresh the status when handing work of
 | --- | --- | --- |
 | Add student | Vincent Peh (`Eskalade`) | First increment (Telegram handle) merged in PR #28 |
 | Delete student | Not recorded yet | Coordinate with team |
-| List students and view a class | Jian Yang (`jianyang999`) | First increment (class membership) in PR #34, approved |
+| List students and view a class | Jian Yang (`jianyang999`) | ClassMembership merged in PR #34; `list` update in progress (issue #46) |
 | Record and correct attendance | `toomintyy` (confirmed in owner conversation) | First increment (attendance status) merged in PR #36 |
 | Exit | Aston (`aston-ish`) | Argument validation in open PR #39; latest changes need review, unmerged |
 | Save and reload | Not recorded yet | Coordinate with team |
@@ -37,6 +37,21 @@ Do not infer feature assignments from AboutUs responsibilities such as testing,
 documentation or integration. Other members' unpublished work is not known here.
 
 ## Current increment
+
+### List command for Feature 3 (2026-10-15)
+
+- Owner: Jian Yang (`jianyang999`); branch: `update-list-command`; milestone: v1.3.
+- GitHub issue: [#46](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/46). AI assistance: Claude Code.
+- Status: local implementation; PR not yet opened.
+- Scope: `ListCommandParser` rejects any extra input with "Invalid command format!"
+  and "Format: list"; `list` reports "{N} students listed!" ("1 student listed!" for one).
+- Validation: `./gradlew check coverage` passed locally on Java 25.0.4.1 with 271 tests,
+  zero failures/errors/skips. `ListCommand` and `ListCommandParser` have full line coverage.
+- Not yet done (Feature 3 spec): the "All students | {N} students" heading and the
+  "No students saved. Use add to create a student." empty-roster text need UI work;
+  coordinate with PR #44, which also changes `PersonListPanel`.
+- Class/week `find c/COURSE:GROUP w/WEEK` needs `Person#getMemberships()` from PR #44;
+  tracked in issue #45, to be moved to v1.4 if #44 is not merged in time.
 
 ### Exit argument validation (2026-10-08)
 
@@ -215,3 +230,5 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   merged in PR #36.
 - 2026-10-08: PR #34 approved by `Eskalade`. Merged team master into the branch to
   resolve a CONTEXT.md conflict and recorded the review follow-ups.
+- 2026-10-15: Jian Yang updated `list` to the Feature 3 contract (issue #46);
+  full local checks passed.
