@@ -137,3 +137,7 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 - 2026-10-06: Vincent implemented the first Telegram value-type increment; full
   local checks passed. Added this handoff and AGENTS.md. Published issue #27 and
   PR #28 under v1.2; teammate review and merge remain pending.
+
+- 2026-10-15: Ethan adapted the existing `delete INDEX` command to use student
+  terminology in its success message, usage text and User Guide. The deletion
+  logic remains unchanged; membership and attendance removal need a later increment.
