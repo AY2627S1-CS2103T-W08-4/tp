@@ -1,6 +1,6 @@
 # TutorTrack team implementation context
 
-Last updated: 2026-10-08 (Singapore time).
+Last updated: 2026-10-15 (Singapore time).
 
 This file is a handoff for team members and their coding assistants. Read it with
 the code, issues and PRs; it is a snapshot, not proof of the live GitHub state.
@@ -12,12 +12,12 @@ Update it in every implementation PR and refresh the status when handing work of
 - Product: a local desktop app for teaching staff to manage student contacts,
   course/group memberships and weekly attendance using typed commands.
 - Stack: AB3 Java/JavaFX application, Java 25, Gradle, JSON storage.
-- Current iteration: v1.2, first functionality increment. Course deadline:
-  2026-10-08 at 23:59 SGT. No product release is required for this iteration.
+- Current iteration: v1.3, working MVP. Course deadline:
+  2026-10-15 at 23:59 SGT; a release with JAR, release notes and screenshots is required.
 - Create self-assigned issues and PRs under the relevant milestone. Work on a
   separate branch in your fork; obtain teammate review before merging to team master.
-- Week 8 instructions:
-  https://nus-cs2103-ay2627-s1.github.io/website/schedule/week8/project.html
+- Week 9 instructions:
+  https://nus-cs2103-ay2627-s1.github.io/website/schedule/week9/project.html
 - Grading and expectations:
   https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-grading.html
   https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-expectations.html
@@ -29,8 +29,8 @@ Update it in every implementation PR and refresh the status when handing work of
 | Add student | Vincent Peh (`Eskalade`) | First increment (Telegram handle) merged in PR #28 |
 | Delete student | Not recorded yet | Coordinate with team |
 | List students and view a class | Jian Yang (`jianyang999`) | ClassMembership merged in PR #34; `list` update in PR #47, awaiting review |
-| Record and correct attendance | `toomintyy` (confirmed in owner conversation) | First increment (attendance status) merged in PR #36 |
-| Exit | Aston (`aston-ish`) | Argument validation in open PR #39; latest changes need review, unmerged |
+| Record and correct attendance | `toomintyy` (confirmed in owner conversation) | AttendanceStatus (#36) and AttendanceWeek (#49) merged |
+| Exit | Aston (`aston-ish`) | Argument validation merged in PR #39 |
 | Save and reload | Not recorded yet | Coordinate with team |
 
 Do not infer feature assignments from AboutUs responsibilities such as testing,
@@ -55,6 +55,31 @@ documentation or integration. Other members' unpublished work is not known here.
   coordinate with PR #44, which also changes `PersonListPanel`.
 - Class/week `find c/COURSE:GROUP w/WEEK` needs `Person#getMemberships()` from PR #44;
   tracked in issue #45, to be moved to v1.4 if #44 is not merged in time.
+
+### Attendance week (2026-10-15)
+
+- Owner: `toomintyy`; branch: `add-attendance-week`; milestone: v1.3.
+- Issue: [#48](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/48).
+- PR: [#49](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/49).
+- Status: merged into team master in PR #49 (verified 2026-10-15).
+- Scope: immutable `AttendanceWeek`, exact Feature 3/4 WEEK validation, canonical
+  numeric/display access, equality/hash code, tests and UG/DG documentation.
+- Integration: no Person, command, UI or JSON schema changes. Reuse this type for
+  future `mark` and `find w/` parsing; attendance keys also need student and course.
+- Verified against GitHub on 15 October: attendance status #36, Telegram #28,
+  class membership #34 and exit validation #39 are merged. Add-student #44,
+  list #47 and delete #40 remain open; #45 tracks class filtering. The older
+  increment entries below are dated history, not current remote status.
+- Remaining: teammate review and integration of full mark persistence/UI after
+  the student memberships in #44. This foundation does not complete the MVP.
+- Validation: `./gradlew check coverage shadowJar` passed on Zulu Java 25.0.3:
+  271 tests, no failures/errors/skips, Checkstyle passed. AttendanceWeek reached
+  100% line and branch coverage. JAR built (12,498,929 bytes); a Java smoke test
+  against the packaged class passed for normalized week 1, week 53 and invalid 54.
+  Repository checks and `git diff --check` passed. An existing whitespace warning
+  and one new test lambda formatting violation were fixed. No GUI behavior changed;
+  no manual GUI smoke test was performed.
+- AI assistance: OpenAI Codex.
 
 ### Exit argument validation (2026-10-08)
 
@@ -84,7 +109,7 @@ documentation or integration. Other members' unpublished work is not known here.
   storage schema or teammates' feature branches are changed.
 - Remaining work: teammate review, manual GUI validation, graceful shutdown
   verification and full MVP exit/reload integration as dependent features arrive.
-  
+
 ### Class membership for view class (2026-10-08)
 
 - Owner: Jian Yang (`jianyang999`); branch: `add-class-membership`; milestone: v1.2.
