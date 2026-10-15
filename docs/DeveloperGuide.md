@@ -11,6 +11,9 @@ title: Developer Guide
 
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type, and draft its developer documentation.
+* Aston used OpenAI Codex to test Exit argument validation and add implementation context.
+* Jian Yang used Claude Code to help implement and test the class membership value type
+  and the `list` command update, and draft their documentation.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -156,6 +159,27 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
+### Attendance week foundation
+
+`AttendanceWeek` is an immutable value object for the shared Feature 3/4 WEEK
+contract. Its string constructor and `isValidAttendanceWeek` accept only ASCII
+integers 1–53 without leading zeros, after trimming surrounding U+0020 spaces.
+Validation happens before numeric conversion, so oversized input receives the
+same `MESSAGE_CONSTRAINTS` error as other invalid weeks. Null input throws
+`NullPointerException`. The public final `value` exposes the week number;
+`toString()` supplies its canonical display, and equality/hash code use that number.
+
+This type deliberately does not infer a calendar week or impose a current-date
+restriction. Future attendance keys must also identify the student and course;
+a week alone is not a complete record identity. `mark` command parsing,
+student/course/week storage and `find w/` integration remain follow-up work.
+There is no storage schema or command behavior change in this increment.
+
+`AttendanceWeekTest` checks all 53 supported weeks, normalization, invalid syntax,
+whitespace and Unicode digits, overflow-sized input, nulls, equality and replacing
+an equal week key in a map. OpenAI Codex assisted `toomintyy` with implementation,
+tests and documentation.
+
 ### Add-student foundation: Telegram handles
 
 `TelegramHandle` is an immutable value type for the add-student feature. It removes
@@ -176,6 +200,42 @@ connected to `Person`, commands, storage or the UI; the existing `add` command s
 uses AB3's phone field. Follow-up increments will use this type for the MVP's `p/`
 Telegram parameter and contact uniqueness checks. No new user command is available
 in this increment.
+
+### Exit argument validation
+
+`AddressBookParser` delegates the arguments of the lowercase `exit` command to
+`ExitCommandParser`. The parser accepts empty arguments after trimming surrounding
+whitespace and rejects any remaining content with `MESSAGE_INVALID_COMMAND_FORMAT`
+and `ExitCommand.MESSAGE_USAGE`. This implements UC05 extension 1a.
+
+Invalid Exit input throws `ParseException` before command execution or saving.
+`MainWindow` displays the error through its existing exception handler, so it does
+not receive an exit result or close the application. Student data and the current
+filtered view remain unchanged. Valid input retains the existing Exit execution
+and shutdown behavior; shutdown scheduling and full MVP reload integration remain
+follow-up work.
+
+### View-class foundation: class memberships
+
+`ClassMembership` is an immutable value type identifying a class by its course code
+and tutorial group, written as `COURSE:GROUP` (e.g., `CS2103T:T04`). It removes
+surrounding ordinary spaces (U+0020) and requires exactly one colon with no other
+spaces. The course code is 2–4 ASCII letters, 4 digits and an optional ASCII letter;
+the tutorial group is one ASCII letter followed by 2 digits. There is no course
+catalog check.
+
+Both parts are stored in uppercase using `Locale.ROOT`, so `cs2103t:t04` and
+`CS2103T:T04` are equal and hash identically. Because a class is identified by
+course and group together, `CS2103T:T04` and `CS2101:T04` are different classes.
+`isSameCourse` compares course codes only; it supports the rule that a student has
+at most one tutorial group per course. Invalid construction throws
+`IllegalArgumentException` with `MESSAGE_CONSTRAINTS`; null input throws
+`NullPointerException`.
+
+This increment introduces the value type and its automated tests only. It is not yet
+connected to `Person`, commands, storage or the UI. Follow-up increments will store
+memberships on students, and extend `find` as `find c/COURSE:GROUP w/WEEK` to show
+the students in a chosen class (UC02). The add-student feature can reuse this type for its `c/` parameter.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -531,7 +591,19 @@ testers are expected to do more *exploratory* testing.
    1. Relaunch the app by double-clicking the JAR file.<br>
        Expected: The most recent window size and location are retained.
 
-1. _{ more test cases …​ }_
+1. Exit command validation
+
+   1. Prerequisites: Launch the app and optionally use `find` to filter the displayed contacts.
+
+   1. Test case: `exit 3`<br>
+      Expected: A format error explains that Exit takes no arguments and shows `Example: exit`.
+      The app stays open; stored contacts and the current filtered view are unchanged.
+
+   1. Other invalid inputs: `exit anything`, `exit n/Alice`, and `  exit   3  `<br>
+      Expected: The same error and unchanged app state.
+
+   1. Test case: `  exit  `<br>
+      Expected: The app closes using the existing Exit behavior.
 
 ### Deleting a person
 
