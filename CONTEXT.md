@@ -26,10 +26,10 @@ Update it in every implementation PR and refresh the status when handing work of
 
 | MVP feature | Confirmed owner | Status |
 | --- | --- | --- |
-| Add student | Vincent Peh (`Eskalade`) | Telegram type merged in PR #28; full student flow in open PR #44 |
+| Add student | Vincent Peh (`Eskalade`) | First increment (Telegram handle) merged in PR #28 |
 | Delete student | Not recorded yet | Coordinate with team |
-| List students and view a class | Jian Yang (`jianyang999`) | Class membership merged in PR #34; list work in open PR #47 |
-| Record and correct attendance | `toomintyy` (confirmed in owner conversation) | Status type merged in PR #36; commands/persistence in open PR #51 |
+| List students and view a class | Jian Yang (`jianyang999`) | First increment (class membership) in PR #34, approved |
+| Record and correct attendance | `toomintyy` (confirmed in owner conversation) | First increment (attendance status) merged in PR #36 |
 | Exit | Aston (`aston-ish`) | Validation merged in PR #39; v1.3 lifecycle fixes verified locally for issue #52, unmerged |
 | Save and reload | Not recorded yet | Coordinate with team |
 
