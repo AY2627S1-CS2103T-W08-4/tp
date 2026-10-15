@@ -28,9 +28,9 @@ Update it in every implementation PR and refresh the status when handing work of
 | --- | --- | --- |
 | Add student | Vincent Peh (`Eskalade`) | First increment (Telegram handle) merged in PR #28 |
 | Delete student | Not recorded yet | Coordinate with team |
-| List students and view a class | Jian Yang (`jianyang999`) | First increment (class membership) in PR #34, approved |
-| Record and correct attendance | `toomintyy` (confirmed in owner conversation) | First increment (attendance status) merged in PR #36 |
-| Exit | Aston (`aston-ish`) | Argument validation in open PR #39; latest changes need review, unmerged |
+| List students and view a class | Jian Yang (`jianyang999`) | ClassMembership merged in PR #34; `list` update in PR #47, awaiting review |
+| Record and correct attendance | `toomintyy` (confirmed in owner conversation) | AttendanceStatus (#36) and AttendanceWeek (#49) merged |
+| Exit | Aston (`aston-ish`) | Argument validation merged in PR #39 |
 | Save and reload | Not recorded yet | Coordinate with team |
 
 Do not infer feature assignments from AboutUs responsibilities such as testing,
@@ -38,12 +38,32 @@ documentation or integration. Other members' unpublished work is not known here.
 
 ## Current increment
 
+### List command for Feature 3 (2026-10-15)
+
+- Owner: Jian Yang (`jianyang999`); branch: `update-list-command`; milestone: v1.3.
+- GitHub issue: [#46](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/46). AI assistance: Claude Code.
+- Status: [PR #47](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/47) approved by `Eskalade` with two fixes, now addressed; not merged.
+- Scope: `ListCommandParser` rejects any extra input with "Invalid command format!"
+  and "Format: list"; `list` reports "{N} students listed!" ("1 student listed!" for one).
+  Only surrounding ordinary spaces are accepted: `AddressBookParser` passes `list` its
+  raw arguments, so tabs, line breaks and other whitespace are rejected (review fix).
+- Validation: after the review fixes and merging team master (with AttendanceWeek),
+  `./gradlew check coverage` passed locally on Java 25.0.4.1 with 278 tests, zero
+  failures/errors/skips. Non-ASCII spaces next to `list` give "Unknown command."
+  because they are not command-word separators; they are still rejected.
+- Not yet done (Feature 3 spec): the "All students | {N} students" heading, the
+  "No students saved. Use add to create a student." empty-roster text, and clearing
+  the selected student and detail panel when `list` succeeds all need UI work;
+  coordinate with PR #44, which also changes `PersonListPanel`.
+- Class/week `find c/COURSE:GROUP w/WEEK` needs `Person#getMemberships()` from PR #44;
+  tracked in issue #45, to be moved to v1.4 if #44 is not merged in time.
+
 ### Attendance week (2026-10-15)
 
 - Owner: `toomintyy`; branch: `add-attendance-week`; milestone: v1.3.
 - Issue: [#48](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/48).
 - PR: [#49](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/49).
-- Status: published for teammate review; not merged. Remote CI is tracked on the PR.
+- Status: merged into team master in PR #49 (verified 2026-10-15).
 - Scope: immutable `AttendanceWeek`, exact Feature 3/4 WEEK validation, canonical
   numeric/display access, equality/hash code, tests and UG/DG documentation.
 - Integration: no Person, command, UI or JSON schema changes. Reuse this type for
@@ -240,3 +260,5 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   merged in PR #36.
 - 2026-10-08: PR #34 approved by `Eskalade`. Merged team master into the branch to
   resolve a CONTEXT.md conflict and recorded the review follow-ups.
+- 2026-10-15: Jian Yang updated `list` to the Feature 3 contract (issue #46);
+  full local checks passed. Published PR #47 under v1.3.
