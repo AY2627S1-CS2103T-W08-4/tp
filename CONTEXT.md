@@ -223,3 +223,25 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 - 2026-10-10: GitHub v1.2 milestone closed. This does not mean the full MVP is complete.
 - 2026-10-12: Vincent published the v1.3 add-student increment, issue #43 / PR #44;
   285 tests and required checks passed; teammate review and merge remain pending.
+- 2026-10-06: Vincent's Telegram value-type increment (issue #27, PR #28) merged
+  into team master; merge confirmed through GitHub on 2026-10-08. Original local
+  validation: Java 25.0.3, 245 tests, zero failures/errors/skips, 100% line/branch
+  coverage for `TelegramHandle`. Added this handoff and AGENTS.md. `Person`, add
+  parsing, storage and UI integration remain; `p/` still means AB3 phone.
+- 2026-10-08: Aston published Exit argument validation in PR #39 for issue #37,
+  with UG/DG updates. Java 25.0.4 checks passed: 252 tests, no
+  failures/errors/skips; new parser has 100% line/branch coverage. Approved and merged.
+- 2026-10-06: Vincent implemented the first Telegram value-type increment; full
+  local checks passed. Added this handoff and AGENTS.md. Published issue #27 and
+  PR #28 under v1.2; PR #28 was later merged.
+- 2026-10-07: Jian Yang implemented the ClassMembership value-type increment for
+  view class (issue #33); full local checks passed. Published PR #34 under v1.2.
+- 2026-10-08: `toomintyy` implemented the AttendanceStatus increment (issue #35);
+  merged in PR #36.
+- 2026-10-08: PR #34 approved by `Eskalade`. Merged team master into the branch to
+  resolve a CONTEXT.md conflict and recorded the review follow-ups.
+- 2026-10-15: Jian Yang updated `list` to the Feature 3 contract (issue #46);
+  full local checks passed. Published PR #47 under v1.3.
+- 2026-10-15: Ethan adapted the existing `delete INDEX` command to use student
+  terminology in its success message, usage text and User Guide. The deletion
+  logic remains unchanged; membership and attendance removal need a later increment.
