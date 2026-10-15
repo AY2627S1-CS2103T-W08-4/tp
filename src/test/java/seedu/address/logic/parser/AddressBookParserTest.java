@@ -48,6 +48,15 @@ public class AddressBookParserTest {
     }
 
     @Test
+    public void parseCommand_markWithControlWhitespace_rejected() {
+        String command = "mark 1 m/CS2103T w/1 s/present";
+        for (String whitespace : new String[]{"\t", "\n", "\r"}) {
+            assertThrows(ParseException.class, () -> parser.parseCommand(whitespace + command));
+            assertThrows(ParseException.class, () -> parser.parseCommand(command + whitespace));
+        }
+    }
+
+    @Test
     public void parseCommand_clear() throws Exception {
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD) instanceof ClearCommand);
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD + " 3") instanceof ClearCommand);

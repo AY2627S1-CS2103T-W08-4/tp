@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.person.Address;
+import seedu.address.model.person.AttendanceRecord;
 import seedu.address.model.person.ClassMembership;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -33,6 +34,7 @@ class JsonAdaptedPerson {
     private final String address;
     private final String telegram;
     private final List<String> memberships;
+    private final List<JsonAdaptedAttendance> attendance;
     private final List<JsonAdaptedTag> tags = new ArrayList<>();
 
     /**
@@ -42,7 +44,9 @@ class JsonAdaptedPerson {
     public JsonAdaptedPerson(@JsonProperty("name") String name, @JsonProperty("phone") String phone,
             @JsonProperty("email") String email, @JsonProperty("address") String address,
             @JsonProperty("tags") List<JsonAdaptedTag> tags,
-            @JsonProperty("telegram") String telegram, @JsonProperty("memberships") List<String> memberships) {
+            @JsonProperty("telegram") String telegram, @JsonProperty("memberships") List<String> memberships,
+            @JsonProperty("attendance") List<JsonAdaptedAttendance> attendance) {
+        this.attendance = attendance == null ? List.of() : new ArrayList<>(attendance);
         this.telegram = telegram;
         this.memberships = memberships == null ? null : new ArrayList<>(memberships);
         this.name = name;
@@ -54,6 +58,12 @@ class JsonAdaptedPerson {
         }
     }
 
+    /** Retains the student adapter constructor for records predating attendance. */
+    public JsonAdaptedPerson(String name, String phone, String email, String address, List<JsonAdaptedTag> tags,
+            String telegram, List<String> memberships) {
+        this(name, phone, email, address, tags, telegram, memberships, null);
+    }
+
     /** Retains the legacy adapter constructor for old contacts. */
     public JsonAdaptedPerson(String name, String phone, String email, String address, List<JsonAdaptedTag> tags) {
         this(name, phone, email, address, tags, null, null);
@@ -63,6 +73,7 @@ class JsonAdaptedPerson {
      * Converts a given {@code Person} into this class for Jackson use.
      */
     public JsonAdaptedPerson(Person source) {
+        attendance = source.getAttendance().stream().map(JsonAdaptedAttendance::new).collect(Collectors.toList());
         name = source.getName().fullName;
         phone = source.isStudent() ? null : source.getPhone().value;
         email = source.getEmail().value;
@@ -83,6 +94,9 @@ class JsonAdaptedPerson {
     public Person toModelType() throws IllegalValueException {
         if (telegram != null || memberships != null) {
             return toStudent();
+        }
+        if (!attendance.isEmpty()) {
+            throw new IllegalValueException("Legacy contacts cannot contain attendance without course memberships.");
         }
         final List<Tag> personTags = new ArrayList<>();
         for (JsonAdaptedTag tag : tags) {
@@ -147,7 +161,21 @@ class JsonAdaptedPerson {
                 }
                 classes.add(parsed);
             }
-            return new Person(Name.forStudent(name), new TelegramHandle(telegram), Email.forStudent(email), classes);
+            Person student = new Person(Name.forStudent(name), new TelegramHandle(telegram),
+                    Email.forStudent(email), classes);
+            Set<String> keys = new HashSet<>();
+            for (JsonAdaptedAttendance entry : attendance) {
+                if (entry == null) {
+                    throw new IllegalValueException("Attendance entries must not be null.");
+                }
+                AttendanceRecord record = entry.toModelType();
+                if (!keys.add(record.course + ":" + record.week)) {
+                    throw new IllegalValueException("Duplicate attendance for " + record.course
+                            + " week " + record.week + ".");
+                }
+                student = student.withAttendance(record);
+            }
+            return student;
         } catch (IllegalArgumentException e) {
             throw new IllegalValueException(e.getMessage());
         }

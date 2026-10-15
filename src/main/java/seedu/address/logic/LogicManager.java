@@ -2,6 +2,7 @@ package seedu.address.logic;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javafx.collections.ObservableList;
@@ -10,6 +11,7 @@ import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.MarkCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -51,6 +53,23 @@ public class LogicManager implements Logic {
 
         CommandResult commandResult;
         Command command = addressBookParser.parseCommand(commandText);
+        if (command instanceof MarkCommand mark) {
+            Person target = mark.getTarget(model);
+            Model candidate = new ModelManager(model.getAddressBook(), model.getUserPrefs());
+            List<Person> displayed = List.copyOf(model.getFilteredPersonList());
+            candidate.updateFilteredPersonList(displayed::contains);
+            commandResult = mark.execute(candidate);
+            Person updated = commandResult.getSelectedPerson().orElseThrow();
+            if (!updated.equals(target)) {
+                try {
+                    storage.saveAddressBook(candidate.getAddressBook());
+                } catch (IOException e) {
+                    throw new CommandException(ADD_SAVE_ERROR, e);
+                }
+                model.setPerson(target, updated);
+            }
+            return commandResult;
+        }
         if (command instanceof AddCommand) {
             // Execute against a detached candidate: failures leave the live list, predicate and selection untouched.
             Model candidate = new ModelManager(model.getAddressBook(), model.getUserPrefs());

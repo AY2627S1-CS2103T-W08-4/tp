@@ -2,9 +2,11 @@ package seedu.address.model.person;
 
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +29,7 @@ public class Person {
     private final TelegramHandle telegramHandle;
     private final Set<ClassMembership> memberships;
     private final Address address;
+    private final List<AttendanceRecord> attendance;
     private final Set<Tag> tags = new HashSet<>();
 
     /**
@@ -41,6 +44,7 @@ public class Person {
         this.tags.addAll(tags);
         telegramHandle = null;
         memberships = Collections.emptySet();
+        attendance = List.of();
     }
 
     /**
@@ -64,8 +68,48 @@ public class Person {
         this.email = Email.forStudent(email.value);
         this.telegramHandle = telegramHandle;
         this.memberships = Collections.unmodifiableSet(new LinkedHashSet<>(memberships));
+        attendance = List.of();
         phone = null;
         address = null;
+    }
+
+    private Person(Person source, List<AttendanceRecord> attendance) {
+        name = source.name;
+        phone = source.phone;
+        email = source.email;
+        telegramHandle = source.telegramHandle;
+        memberships = source.memberships;
+        address = source.address;
+        tags.addAll(source.tags);
+        this.attendance = List.copyOf(attendance);
+    }
+
+    public List<AttendanceRecord> getAttendance() {
+        return attendance;
+    }
+
+    /** Returns Unrecorded for a course/week with no saved decision. */
+    public AttendanceStatus getAttendanceStatus(String course, AttendanceWeek week) {
+        requireAllNonNull(course, week);
+        String normalized = AttendanceRecord.normalizeCourse(course);
+        return attendance.stream().filter(record -> record.course.equals(normalized) && record.week.equals(week))
+                .map(record -> record.status).findFirst().orElse(AttendanceStatus.UNRECORDED);
+    }
+
+    /** Returns a complete immutable student copy; Unrecorded removes the decision. */
+    public Person withAttendance(AttendanceRecord decision) {
+        requireAllNonNull(decision);
+        if (memberships.stream().noneMatch(membership -> membership.courseCode.equals(decision.course))) {
+            throw new IllegalArgumentException("Student " + name + " is not enrolled in " + decision.course + ".");
+        }
+        List<AttendanceRecord> updated = new ArrayList<>(attendance);
+        updated.removeIf(record -> record.course.equals(decision.course) && record.week.equals(decision.week));
+        if (decision.status != AttendanceStatus.UNRECORDED) {
+            updated.add(decision);
+        }
+        updated.sort(java.util.Comparator.comparing((AttendanceRecord record) -> record.course)
+                .thenComparingInt(record -> record.week.value));
+        return new Person(this, updated);
     }
 
     public boolean isStudent() {
@@ -146,13 +190,14 @@ public class Person {
                 && Objects.equals(address, otherPerson.address)
                 && tags.equals(otherPerson.tags)
                 && Objects.equals(telegramHandle, otherPerson.telegramHandle)
-                && memberships.equals(otherPerson.memberships);
+                && memberships.equals(otherPerson.memberships)
+                && attendance.equals(otherPerson.attendance);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, tags, telegramHandle, memberships);
+        return Objects.hash(name, phone, email, address, tags, telegramHandle, memberships, attendance);
     }
 
     @Override

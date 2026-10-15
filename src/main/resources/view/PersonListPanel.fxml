@@ -2,10 +2,15 @@
 
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
   <ListView fx:id="personListView" VBox.vgrow="ALWAYS" />
-  <Label fx:id="studentDetails" wrapText="true" visible="false" managed="false"
-         style="-fx-padding: 12; -fx-text-fill: white;" />
+  <ScrollPane fx:id="studentDetailsPane" fitToWidth="true" prefHeight="180" maxHeight="180"
+              minHeight="80" visible="false" managed="false">
+    <content>
+      <Label fx:id="studentDetails" wrapText="true" style="-fx-padding: 12; -fx-text-fill: white;" />
+    </content>
+  </ScrollPane>
 </VBox>

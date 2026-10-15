@@ -1,6 +1,6 @@
 # TutorTrack team implementation context
 
-Last verified: 2026-10-12 (Singapore time). This is a handoff, not a substitute for
+Last verified: 2026-10-15 (Singapore time). This is a handoff, not a substitute for
 live GitHub status, issues, teammate review or UG/DG updates.
 
 ## Project and workflow
@@ -41,6 +41,90 @@ Unpublished teammate work is unknown. The open tutorial PR #26 is not product fu
   The initial run reproduced one list-format regression; the fix resolves it.
 - GitHub reports mergeability unknown and no checks for the latest pre-repair head;
   Actions is enabled. The pushed repair must receive fresh CI/review; no merge claimed.
+
+### Attendance merge repair (2026-10-15)
+
+- Vincent (`Eskalade`), with Codex assistance, integrated the latest #44 repair
+  into #51 at the user's request. Preserved attendance implementation and both
+  handoffs; strict mark parsing now receives raw arguments like add/list.
+- Validation: `./gradlew check coverage` passed: 319 tests, zero failures/errors/skips,
+  Checkstyle and coverage passed. Added main-parser control-whitespace regression coverage.
+- Merge order remains #44 before #51. No upstream merge performed; GitHub CI is unverified.
+
+## Current increment: v1.3 attendance
+
+- Owner: `toomintyy`; branch: `attendance-v13`; issue
+  [#50](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/50), milestone v1.3.
+- PR: [#51](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/51), published for review; not merged.
+- This branch includes the published
+  #44 student implementation (`8832ae33`) and #49 week type (`a135c683`). Merge
+  those dependencies first; the local merge does not merge either upstream PR.
+- Scope: mark parser/command, immutable per-student/course/week records, JSON
+  validation and persistence, save-before-live-update transaction, detail rendering
+  and an optional roster badge interface. No-op commands return selection without saving.
+- Roster handoff: #45 should call `PersonListPanel.setAttendanceContext(membership,
+  week)` after a successful query, and `(null, null)` after list/name search. Changing
+  week refreshes cards even if the filtered list is unchanged. Class queries/headings
+  remain Jian Yang's work; they are not enabled by this branch.
+- Validation: `./gradlew check coverage shadowJar` passed on Zulu Java 25.0.3:
+  310 tests, zero failures/errors/skips; both Checkstyle tasks passed. JAR size:
+  12,520,434 bytes. The packaged command workflow passed with isolated data,
+  including add, name filter, record, correct, repeat, clear, save and reload.
+  Initial Checkstyle violations were corrected before the passing run.
+- GUI: the packaged application reached UI startup with isolated temporary data,
+  but the computer-use tool could not bind its Java window. Visual rendering,
+  selection and scrolling are unverified; use the DG manual checklist.
+- Integration limit: class/week commands and automatic badge-context wiring still
+  require #45. Do not call the integrated MVP complete before those checks pass.
+- AI assistance: OpenAI Codex. Reuses the team's existing attendance status,
+  class membership, Telegram and AB3 architecture.
+
+## Attendance week dependency
+
+### List command for Feature 3 (2026-10-15)
+
+- Owner: Jian Yang (`jianyang999`); branch: `update-list-command`; milestone: v1.3.
+- GitHub issue: [#46](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/46). AI assistance: Claude Code.
+- Status: [PR #47](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/47) approved by `Eskalade` with two fixes, now addressed; not merged.
+- Scope: `ListCommandParser` rejects any extra input with "Invalid command format!"
+  and "Format: list"; `list` reports "{N} students listed!" ("1 student listed!" for one).
+  Only surrounding ordinary spaces are accepted: `AddressBookParser` passes `list` its
+  raw arguments, so tabs, line breaks and other whitespace are rejected (review fix).
+- Validation: after the review fixes and merging team master (with AttendanceWeek),
+  `./gradlew check coverage` passed locally on Java 25.0.4.1 with 278 tests, zero
+  failures/errors/skips. Non-ASCII spaces next to `list` give "Unknown command."
+  because they are not command-word separators; they are still rejected.
+- Not yet done (Feature 3 spec): the "All students | {N} students" heading, the
+  "No students saved. Use add to create a student." empty-roster text, and clearing
+  the selected student and detail panel when `list` succeeds all need UI work;
+  coordinate with PR #44, which also changes `PersonListPanel`.
+- Class/week `find c/COURSE:GROUP w/WEEK` needs `Person#getMemberships()` from PR #44;
+  tracked in issue #45, to be moved to v1.4 if #44 is not merged in time.
+
+### Attendance week (2026-10-15)
+
+- Owner: `toomintyy`; branch: `add-attendance-week`; milestone: v1.3.
+- Issue: [#48](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/48).
+- PR: [#49](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/49).
+- Status: merged into team master in PR #49 (verified 2026-10-15).
+- Scope: immutable `AttendanceWeek`, exact Feature 3/4 WEEK validation, canonical
+  numeric/display access, equality/hash code, tests and UG/DG documentation.
+- Integration: no Person, command, UI or JSON schema changes. Reuse this type for
+  future `mark` and `find w/` parsing; attendance keys also need student and course.
+- Verified against GitHub on 15 October: attendance status #36, Telegram #28,
+  class membership #34 and exit validation #39 are merged. Add-student #44,
+  list #47 and delete #40 remain open; #45 tracks class filtering. The older
+  increment entries below are dated history, not current remote status.
+- Remaining: teammate review and integration of full mark persistence/UI after
+  the student memberships in #44. This foundation does not complete the MVP.
+- Validation: `./gradlew check coverage shadowJar` passed on Zulu Java 25.0.3:
+  271 tests, no failures/errors/skips, Checkstyle passed. AttendanceWeek reached
+  100% line and branch coverage. JAR built (12,498,929 bytes); a Java smoke test
+  against the packaged class passed for normalized week 1, week 53 and invalid 54.
+  Repository checks and `git diff --check` passed. An existing whitespace warning
+  and one new test lambda formatting violation were fixed. No GUI behavior changed;
+  no manual GUI smoke test was performed.
+- AI assistance: OpenAI Codex.
 
 ## Current increment: v1.3 add student
 
@@ -86,10 +170,10 @@ was yet recorded. They are implemented on this branch and need teammate PR revie
   targets rather than discarding fields, and prevents legacy email edits colliding with students.
 - Add saves a detached candidate before changing the live model; failed persistence
   leaves the live predicate, data and selection untouched. Disk writes use sibling-temp
-  atomic replacement, without a non-atomic fallback. Other commands retain their
+  atomic replacement, without a non-atomic fallback. Mark also uses a detached candidate in this branch. Other commands retain their
   existing model-before-save flow; this is not generalized transaction/rollback support.
 - All new course/week attendance is implicitly Unrecorded; add creates no attendance
-  records. The new selected detail area currently says `No attendance recorded.`
+  records. The selected detail area says `No attendance recorded.` until a decision is recorded.
   Attendance owner must integrate actual records and extend model/storage/UI together.
 - Class filtering remains Jian Yang's `find c/COURSE:GROUP w/WEEK` work. ClassMembership
   validation is reused; only its provisional error wording was aligned to the original spec.
@@ -162,3 +246,25 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 - 2026-10-10: GitHub v1.2 milestone closed. This does not mean the full MVP is complete.
 - 2026-10-12: Vincent published the v1.3 add-student increment, issue #43 / PR #44;
   285 tests and required checks passed; teammate review and merge remain pending.
+- 2026-10-06: Vincent's Telegram value-type increment (issue #27, PR #28) merged
+  into team master; merge confirmed through GitHub on 2026-10-08. Original local
+  validation: Java 25.0.3, 245 tests, zero failures/errors/skips, 100% line/branch
+  coverage for `TelegramHandle`. Added this handoff and AGENTS.md. `Person`, add
+  parsing, storage and UI integration remain; `p/` still means AB3 phone.
+- 2026-10-08: Aston published Exit argument validation in PR #39 for issue #37,
+  with UG/DG updates. Java 25.0.4 checks passed: 252 tests, no
+  failures/errors/skips; new parser has 100% line/branch coverage. Approved and merged.
+- 2026-10-06: Vincent implemented the first Telegram value-type increment; full
+  local checks passed. Added this handoff and AGENTS.md. Published issue #27 and
+  PR #28 under v1.2; PR #28 was later merged.
+- 2026-10-07: Jian Yang implemented the ClassMembership value-type increment for
+  view class (issue #33); full local checks passed. Published PR #34 under v1.2.
+- 2026-10-08: `toomintyy` implemented the AttendanceStatus increment (issue #35);
+  merged in PR #36.
+- 2026-10-08: PR #34 approved by `Eskalade`. Merged team master into the branch to
+  resolve a CONTEXT.md conflict and recorded the review follow-ups.
+- 2026-10-15: Jian Yang updated `list` to the Feature 3 contract (issue #46);
+  full local checks passed. Published PR #47 under v1.3.
+- 2026-10-15: Ethan adapted the existing `delete INDEX` command to use student
+  terminology in its success message, usage text and User Guide. The deletion
+  logic remains unchanged; membership and attendance removal need a later increment.

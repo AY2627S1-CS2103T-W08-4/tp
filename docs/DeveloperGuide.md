@@ -170,15 +170,77 @@ same `MESSAGE_CONSTRAINTS` error as other invalid weeks. Null input throws
 `toString()` supplies its canonical display, and equality/hash code use that number.
 
 This type deliberately does not infer a calendar week or impose a current-date
-restriction. Future attendance keys must also identify the student and course;
-a week alone is not a complete record identity. `mark` command parsing,
-student/course/week storage and `find w/` integration remain follow-up work.
-There is no storage schema or command behavior change in this increment.
+restriction. Attendance records also identify their course and are owned by a student;
+a week alone is not a complete record identity. The integration below uses this
+type for `mark`; `find w/` remains a separate roster integration.
 
 `AttendanceWeekTest` checks all 53 supported weeks, normalization, invalid syntax,
 whitespace and Unicode digits, overflow-sized input, nulls, equality and replacing
 an equal week key in a map. OpenAI Codex assisted `toomintyy` with implementation,
 tests and documentation.
+
+### Record and correct attendance (v1.3)
+
+`MarkCommandParser` validates the displayed index and required singleton `m/`, `w/`,
+`s/` prefixes without discarding control whitespace. `AttendanceRecord` normalizes
+course codes with `Locale.ROOT`; `AttendanceWeek` and `AttendanceStatus` supply the
+shared value contracts. The parser uses exact Feature 4 errors. For simultaneous
+errors, this implementation checks unknown/repeated prefixes in input order, missing
+index, index syntax, missing m/w/s in that order, then course/week/status values.
+The source does not fully specify cross-category precedence; this ordering is an
+implementation choice for team review, not a new agreed requirement.
+
+Each immutable `Person` owns an immutable, sorted list of `AttendanceRecord` values.
+`withAttendance` validates enrollment, replaces the single course/week decision or
+removes it for Unrecorded, and returns a complete student copy. Contact identity
+(`isSamePerson`) remains independent of attendance; full equality includes records.
+`getAttendanceStatus(course, week)` returns Unrecorded when no decision is stored.
+Deleting the owning Person removes its records without orphan data. Student editing
+remains rejected by the existing edit guard, so it cannot discard attendance.
+
+`LogicManager` captures the target and displayed rows before execution, then runs
+`MarkCommand` on a detached model filtered to those rows. If the selected result
+matches the original student, it returns without saving. Otherwise it saves the
+candidate through the atomic JSON writer inherited from #44, then calls `setPerson`
+on the live model. The original predicate and row order remain in place. No live
+observable list event or selection request is emitted on validation or saving failure.
+`MainWindow` selects the result only after success, including a no-op.
+
+JSON stores `attendance` inside each student as an array, for example:
+
+```json
+"attendance": [{"course": "CS2103T", "week": "3", "status": "Present"}]
+```
+
+Missing/null attendance loads as an empty list for pre-attendance files. Explicit
+Unrecorded entries normalize away. Missing entry fields, invalid values, duplicate
+normalized course/week keys, unenrolled courses, null entries, and attendance on
+legacy contacts are rejected rather than silently losing data. Existing legacy
+contacts and students without attendance remain readable. Older application versions
+do not promise compatibility with attendance-bearing files; keep backups before downgrading.
+
+`AttendanceFormatter` supplies deterministic details and context-specific badges.
+`PersonListPanel` displays details in a bounded scroll area. Roster owner handoff:
+call `setAttendanceContext(ClassMembership, AttendanceWeek)` after a successful class
+query and `setAttendanceContext(null, null)` after list/name search. It refreshes the
+cards when only the week changes. On failed queries, leave the context untouched.
+Cards show badges only for an exact matching membership. This PR does not implement
+class queries, headings or class-filter selection clearing; those remain #45/#47 work.
+
+Validation includes parser boundaries, immutable record isolation, malformed storage,
+real JSON round trips, restart, filtered indices, corrections, clearing, no-op save
+counts, failed-save data/view preservation, deletion and existing-command compatibility.
+Codex assisted Min Thi Ha (`toomintyy`) with implementation, tests and documentation.
+
+Manual GUI acceptance checklist (requires a working JavaFX desktop):
+
+1. Add two students with different courses, find one by name, then mark row 1.
+2. Verify the selected student's details change, while the filter and row position stay fixed.
+3. Correct Present to Absent, repeat Absent, then clear with Unrecorded; verify messages and details.
+4. Record several weeks/courses, restart, and check details and scrolling at a small window size.
+5. After #45 integration, query a class/week, change attendance in that context and another
+   context, and verify only the matching badge changes. Change just the queried week.
+6. With an unwritable test data location, verify failed marks leave selection, details and data intact.
 
 ### Add-student foundation: Telegram handles
 
@@ -225,7 +287,8 @@ specification does not completely define cross-category precedence; review this 
 the new student to the live model. This preserves the live roster, predicate, observable-list contents
 and GUI selection on save failure without attempting to reconstruct view state. The successful command
 result identifies the new student; `MainWindow` selects and scrolls to it after persistence succeeds.
-Other commands retain their existing execution flow; generalized rollback remains a separate integration task.
+`mark` also uses save-before-publish as described below. Other commands retain their existing
+execution flow; generalized rollback remains a separate integration task.
 
 `JsonAdaptedPerson` stores students with `name`, `telegram`, `email` and `memberships`. Legacy
 phone/address/tag records retain their original values and schema fields. Incomplete student records,
