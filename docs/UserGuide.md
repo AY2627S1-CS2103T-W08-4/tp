@@ -58,8 +58,10 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 * Parameters can be in any order.<br>
   For example, if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
 
-* Extraneous parameters for `help`, `list`, and `clear` are ignored.<br>
+* Extraneous parameters for `help` and `clear` are ignored.<br>
   For example, `help 123` is interpreted as `help`.
+
+* `list` takes no parameters. Extra input, including tabs or line breaks, produces a format error.<br>
 
 * `exit` takes no parameters. Extra arguments produce a format error and keep the application open.<br>
   For example, `exit 123` is rejected.

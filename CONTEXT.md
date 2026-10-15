@@ -45,10 +45,13 @@ documentation or integration. Other members' unpublished work is not known here.
 - Status: published for teammate review in [PR #47](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/47); not merged.
 - Scope: `ListCommandParser` rejects any extra input with "Invalid command format!"
   and "Format: list"; `list` reports "{N} students listed!" ("1 student listed!" for one).
+  Only surrounding ordinary spaces are accepted: `AddressBookParser` passes `list` its
+  raw arguments, so tabs, line breaks and other whitespace are rejected (review fix).
 - Validation: `./gradlew check coverage` passed locally on Java 25.0.4.1 with 271 tests,
   zero failures/errors/skips. `ListCommand` and `ListCommandParser` have full line coverage.
-- Not yet done (Feature 3 spec): the "All students | {N} students" heading and the
-  "No students saved. Use add to create a student." empty-roster text need UI work;
+- Not yet done (Feature 3 spec): the "All students | {N} students" heading, the
+  "No students saved. Use add to create a student." empty-roster text, and clearing
+  the selected student and detail panel when `list` succeeds all need UI work;
   coordinate with PR #44, which also changes `PersonListPanel`.
 - Class/week `find c/COURSE:GROUP w/WEEK` needs `Person#getMemberships()` from PR #44;
   tracked in issue #45, to be moved to v1.4 if #44 is not merged in time.

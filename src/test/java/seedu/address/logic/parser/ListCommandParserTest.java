@@ -32,6 +32,12 @@ public class ListCommandParserTest {
         assertParseFailure(parser, " c/CS2103T:T04", expectedMessage);
         assertParseFailure(parser, " w/3", expectedMessage);
         assertParseFailure(parser, "  list  ", expectedMessage);
+        assertParseFailure(parser, "\t", expectedMessage);
+        assertParseFailure(parser, " \t ", expectedMessage);
+        assertParseFailure(parser, "\n", expectedMessage);
+        assertParseFailure(parser, "\r\n", expectedMessage);
+        assertParseFailure(parser, "\u00a0", expectedMessage);
+        assertParseFailure(parser, "\u2003", expectedMessage);
         assertParseFailure(parser, " 3", String.format(MESSAGE_INVALID_COMMAND_FORMAT, ListCommand.MESSAGE_USAGE));
     }
 }
