@@ -262,3 +262,6 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   resolve a CONTEXT.md conflict and recorded the review follow-ups.
 - 2026-10-15: Jian Yang updated `list` to the Feature 3 contract (issue #46);
   full local checks passed. Published PR #47 under v1.3.
+- 2026-10-15: Ethan adapted the existing `delete INDEX` command to use student
+  terminology in its success message, usage text and User Guide. The deletion
+  logic remains unchanged; membership and attendance removal need a later increment.
