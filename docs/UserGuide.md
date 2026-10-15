@@ -3,19 +3,12 @@ layout: page
 title: User Guide
 ---
 
-TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This version supports student creation and retains legacy AB3 contacts. Class/week filtering and attendance commands are being integrated separately.
+TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This version supports student creation and recording, correcting and clearing attendance, while retaining legacy AB3 contacts. Class/week filtering is being integrated separately.
 
 * Table of Contents
 {:toc}
 
 --------------------------------------------------------------------------------------------------------------------
-
-## Attendance availability
-
-Attendance marking and class/week filtering are not available in this version.
-The planned attendance feature uses teaching weeks 1–53, with no automatic
-calendar-date inference. Adding week validation internally does not enable
-attendance commands yet.
 
 ## Quick start
 
@@ -233,6 +226,54 @@ _Details coming soon ..._
 2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
 
 --------------------------------------------------------------------------------------------------------------------
+
+## Recording, correcting and clearing attendance: `mark`
+
+Format: `mark INDEX m/COURSE w/WEEK s/STATUS`
+
+Examples:
+
+* `mark 1 m/CS2103T w/3 s/present`
+* `mark 1 m/cs2103t w/3 s/ABSENT` corrects that decision to Absent.
+* `mark 1 m/CS2103T w/3 s/unrecorded` clears that decision.
+
+`INDEX` is the row number in the **currently displayed list**, including after a name
+search. It must be an ASCII integer from 1 to 2147483647 without leading zeros, and
+must identify a displayed student. The student must already be enrolled in `COURSE`;
+legacy contacts without course memberships cannot have attendance recorded.
+
+Specify `m/`, `w/` and `s/` exactly once, in any order, after the index. Commands and
+prefixes are lowercase. Values may have surrounding ordinary spaces. Course codes
+are 2–4 ASCII letters, four digits and an optional letter, normalized to uppercase.
+Weeks are 1–53 without signs, leading zeros or decimals; they are teaching weeks,
+not inferred calendar dates. Status is `present`, `absent` or `unrecorded`, ignoring case.
+
+Success reports `Attendance set: Alice | CS2103T | Week 3 | Present.` and selects the
+student. The current filter and roster order remain unchanged. The detail area lists
+recorded decisions by course/week; it is scrollable for students with many records.
+Other students, courses and weeks are unaffected. Clearing the final decision displays
+`No attendance recorded.` in the selected student's details.
+
+Repeating a state succeeds without saving again:
+`Attendance unchanged: Alice | CS2103T | Week 3 is already Present.`
+This also applies to clearing a week that is already Unrecorded.
+
+Invalid input changes nothing. Examples:
+
+* `mark 1 w/3 s/present`: `Missing required parameter: m/.`
+* `mark 1 m/CS2103T w/01 s/present`: `Week must be an integer from 1 to 53 without leading zeros.`
+* A row outside the display: `The student index provided is invalid.`
+* A course the student does not take: `Student Alice is not enrolled in MA2001.`
+* `s/late`: `Attendance status must be present, absent or unrecorded.`
+
+Accepted attendance changes are saved immediately and restored on restart. If saving
+fails, TutorTrack reports `Unable to save changes. No changes were applied. Check
+available disk space and file permissions, then try again.` The previous data and view
+remain intact. Deleting a student also removes their attendance; adding that contact
+again starts with no attendance records.
+
+Class/week queries and their roster badges still require the separate class-filtering
+integration. Use the selected-student details to inspect recorded attendance in this version.
 
 ## Command summary
 

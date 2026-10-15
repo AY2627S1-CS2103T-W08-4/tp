@@ -42,7 +42,16 @@ Unpublished teammate work is unknown. The open tutorial PR #26 is not product fu
   week)` after a successful query, and `(null, null)` after list/name search. Changing
   week refreshes cards even if the filtered list is unchanged. Class queries/headings
   remain Jian Yang's work; they are not enabled by this branch.
-- Validation: in progress; actual results will be added before publication.
+- Validation: `./gradlew check coverage shadowJar` passed on Zulu Java 25.0.3:
+  310 tests, zero failures/errors/skips; both Checkstyle tasks passed. JAR size:
+  12,520,434 bytes. The packaged command workflow passed with isolated data,
+  including add, name filter, record, correct, repeat, clear, save and reload.
+  Initial Checkstyle violations were corrected before the passing run.
+- GUI: the packaged application reached UI startup with isolated temporary data,
+  but the computer-use tool could not bind its Java window. Visual rendering,
+  selection and scrolling are unverified; use the DG manual checklist.
+- Integration limit: class/week commands and automatic badge-context wiring still
+  require #45. Do not call the integrated MVP complete before those checks pass.
 - AI assistance: OpenAI Codex. Reuses the team's existing attendance status,
   class membership, Telegram and AB3 architecture.
 
@@ -117,10 +126,10 @@ was yet recorded. They are implemented on this branch and need teammate PR revie
   targets rather than discarding fields, and prevents legacy email edits colliding with students.
 - Add saves a detached candidate before changing the live model; failed persistence
   leaves the live predicate, data and selection untouched. Disk writes use sibling-temp
-  atomic replacement, without a non-atomic fallback. Other commands retain their
+  atomic replacement, without a non-atomic fallback. Mark also uses a detached candidate in this branch. Other commands retain their
   existing model-before-save flow; this is not generalized transaction/rollback support.
 - All new course/week attendance is implicitly Unrecorded; add creates no attendance
-  records. The new selected detail area currently says `No attendance recorded.`
+  records. The selected detail area says `No attendance recorded.` until a decision is recorded.
   Attendance owner must integrate actual records and extend model/storage/UI together.
 - Class filtering remains Jian Yang's `find c/COURSE:GROUP w/WEEK` work. ClassMembership
   validation is reused; only its provisional error wording was aligned to the original spec.
