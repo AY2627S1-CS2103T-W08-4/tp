@@ -28,6 +28,20 @@ Verified team master: `b3e1cf4de2188a23d175b92cd1dd9b9167120275` (2026-10-12).
 Its Java CI passed: https://github.com/AY2627S1-CS2103T-W08-4/tp/actions/runs/38028391769
 Unpublished teammate work is unknown. The open tutorial PR #26 is not product functionality.
 
+## Merge repair (2026-10-15)
+
+- Owner: Vincent (`Eskalade`), with Codex assistance; issue #43 / PR #44.
+- Synced the user's conflict resolution at `88b1a798` with team master `d4e26e25`.
+  #40, #47 and #49 are now merged. #44/#51/#53 are still open.
+- Fixed the integration between strict add parsing and the merged list parser:
+  identify the command separately, then pass original argument text to strict parsers.
+  This restores the specific list-format error for leading tabs without accepting
+  control whitespace in add. Added a leading-control-whitespace add regression test.
+- Validation: `./gradlew check coverage` passed, 299 tests, no failures/errors/skips.
+  The initial run reproduced one list-format regression; the fix resolves it.
+- GitHub reports mergeability unknown and no checks for the latest pre-repair head;
+  Actions is enabled. The pushed repair must receive fresh CI/review; no merge claimed.
+
 ## Current increment: v1.3 add student
 
 - Owner: Vincent Peh (`Eskalade`); branch in fork: `codex/add-student-v13`.

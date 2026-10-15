@@ -40,6 +40,14 @@ public class AddressBookParserTest {
     }
 
     @Test
+    public void parseCommand_addWithLeadingControlWhitespace_rejected() {
+        for (String whitespace : new String[]{"\t", "\n", "\r"}) {
+            assertThrows(ParseException.class, () ->
+                    parser.parseCommand(whitespace + seedu.address.testutil.StudentBuilder.COMMAND));
+        }
+    }
+
+    @Test
     public void parseCommand_clear() throws Exception {
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD) instanceof ClearCommand);
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD + " 3") instanceof ClearCommand);
