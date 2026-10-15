@@ -1,6 +1,6 @@
 # TutorTrack team implementation context
 
-Last updated: 2026-10-08 (Singapore time).
+Last updated: 2026-10-15 (Singapore time).
 
 This file is a handoff for team members and their coding assistants. Read it with
 the code, issues and PRs; it is a snapshot, not proof of the live GitHub state.
@@ -12,12 +12,12 @@ Update it in every implementation PR and refresh the status when handing work of
 - Product: a local desktop app for teaching staff to manage student contacts,
   course/group memberships and weekly attendance using typed commands.
 - Stack: AB3 Java/JavaFX application, Java 25, Gradle, JSON storage.
-- Current iteration: v1.2, first functionality increment. Course deadline:
-  2026-10-08 at 23:59 SGT. No product release is required for this iteration.
+- Current iteration: v1.3, working MVP. Course deadline:
+  2026-10-15 at 23:59 SGT; a release with JAR, release notes and screenshots is required.
 - Create self-assigned issues and PRs under the relevant milestone. Work on a
   separate branch in your fork; obtain teammate review before merging to team master.
-- Week 8 instructions:
-  https://nus-cs2103-ay2627-s1.github.io/website/schedule/week8/project.html
+- Week 9 instructions:
+  https://nus-cs2103-ay2627-s1.github.io/website/schedule/week9/project.html
 - Grading and expectations:
   https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-grading.html
   https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-expectations.html
@@ -81,7 +81,7 @@ documentation or integration. Other members' unpublished work is not known here.
   storage schema or teammates' feature branches are changed.
 - Remaining work: teammate review, manual GUI validation, graceful shutdown
   verification and full MVP exit/reload integration as dependent features arrive.
-  
+
 ### Class membership for view class (2026-10-08)
 
 - Owner: Jian Yang (`jianyang999`); branch: `add-class-membership`; milestone: v1.2.
