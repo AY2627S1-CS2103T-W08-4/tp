@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Region;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.model.person.AttendanceWeek;
@@ -27,6 +28,8 @@ public class PersonListPanel extends UiPart<Region> {
     private ListView<Person> personListView;
     @FXML
     private Label studentDetails;
+    @FXML
+    private ScrollPane studentDetailsPane;
 
     /**
      * Creates a {@code PersonListPanel} with the given {@code ObservableList}.
@@ -37,8 +40,8 @@ public class PersonListPanel extends UiPart<Region> {
         personListView.setCellFactory(listView -> new PersonListViewCell());
         personListView.getSelectionModel().selectedItemProperty().addListener((observable, previous, selected) -> {
             boolean studentSelected = selected != null && selected.isStudent();
-            studentDetails.setManaged(studentSelected);
-            studentDetails.setVisible(studentSelected);
+            studentDetailsPane.setManaged(studentSelected);
+            studentDetailsPane.setVisible(studentSelected);
             studentDetails.setText(studentSelected ? selected.getName() + "\n"
                     + selected.getTelegramHandle().orElseThrow() + " | " + selected.getEmail() + "\n"
                     + selected.getMemberships() + "\n" + AttendanceFormatter.details(selected) : "");

@@ -39,7 +39,7 @@ public class MarkCommandParser implements Parser<MarkCommand> {
             if (!REQUIRED.contains(prefix)) {
                 throw new ParseException("Unknown parameter: " + prefix + "/.");
             }
-            if (values.containsKey(prefix) || prefix.equals(previous)) {
+            if (values.containsKey(prefix)) {
                 throw new ParseException("Parameter " + prefix + "/ must be specified only once.");
             }
             previous = prefix;
