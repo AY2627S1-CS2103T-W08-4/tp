@@ -10,6 +10,13 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
 --------------------------------------------------------------------------------------------------------------------
 
+## Attendance availability
+
+Attendance marking and class/week filtering are not available in this version.
+The planned attendance feature uses teaching weeks 1–53, with no automatic
+calendar-date inference. Adding week validation internally does not enable
+attendance commands yet.
+
 ## Quick start
 
 1. Ensure that Java `25` or later is installed on your computer.<br>
