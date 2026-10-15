@@ -9,6 +9,8 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Region;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.model.person.AttendanceWeek;
+import seedu.address.model.person.ClassMembership;
 import seedu.address.model.person.Person;
 
 /**
@@ -17,6 +19,9 @@ import seedu.address.model.person.Person;
 public class PersonListPanel extends UiPart<Region> {
     private static final String FXML = "PersonListPanel.fxml";
     private final Logger logger = LogsCenter.getLogger(PersonListPanel.class);
+
+    private ClassMembership attendanceClass;
+    private AttendanceWeek attendanceWeek;
 
     @FXML
     private ListView<Person> personListView;
@@ -36,8 +41,21 @@ public class PersonListPanel extends UiPart<Region> {
             studentDetails.setVisible(studentSelected);
             studentDetails.setText(studentSelected ? selected.getName() + "\n"
                     + selected.getTelegramHandle().orElseThrow() + " | " + selected.getEmail() + "\n"
-                    + selected.getMemberships() + "\nNo attendance recorded." : "");
+                    + selected.getMemberships() + "\n" + AttendanceFormatter.details(selected) : "");
         });
+    }
+
+    /**
+     * Roster integration hook: call after a successful class/week query; pass nulls on list/name search.
+     * Refreshes all visible badges, even when changing only the week leaves the student list unchanged.
+     */
+    public void setAttendanceContext(ClassMembership membership, AttendanceWeek week) {
+        if ((membership == null) != (week == null)) {
+            throw new IllegalArgumentException("Attendance class and week must be supplied together.");
+        }
+        attendanceClass = membership;
+        attendanceWeek = week;
+        personListView.refresh();
     }
 
     /** Selects and reveals a student after a successful persisted addition. */
@@ -58,7 +76,7 @@ public class PersonListPanel extends UiPart<Region> {
                 setGraphic(null);
                 setText(null);
             } else {
-                setGraphic(new PersonCard(person, getIndex() + 1).getRoot());
+                setGraphic(new PersonCard(person, getIndex() + 1, attendanceClass, attendanceWeek).getRoot());
             }
         }
     }
