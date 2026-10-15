@@ -51,6 +51,67 @@ Unpublished teammate work is unknown. The open tutorial PR #26 is not product fu
   Checkstyle and coverage passed. Added main-parser control-whitespace regression coverage.
 - Merge order remains #44 before #51. No upstream merge performed; GitHub CI is unverified.
 
+## Combined exit merge repair (2026-10-15)
+
+- Vincent (`Eskalade`), with Codex assistance, resolved #53's conflicts with
+  current master and integrated repaired #44/#51 without discarding feature code.
+  Both ExitCommand and MarkCommand imports/transaction paths are preserved.
+- Validation: `./gradlew check coverage shadowJar` passed locally on Java 25.0.4:
+  330 tests, zero failures/errors/skips, including real-window exit tests;
+  Checkstyle, coverage and JAR build passed. `git diff --check` passed.
+- Merge order: #44 -> #51 -> #53. These PRs remain open; no upstream merge is claimed.
+  GitHub confirmed #51 mergeable/clean after the repair; final-head CI still needs verification.
+
+## Exit integration
+
+### Exit handling and verification (2026-10-15)
+
+- Owner: Aston (`aston-ish`); branch: `exit-handling-verification`; milestone: v1.3.
+- Base: team master `b3e1cf4d`, fetched and verified on GitHub on 2026-10-15.
+- Issue: [#52](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/52).
+- Status: published in PR #53, not merged. Latest integration includes #44 and #51; merge those first.
+- Scope: route typed/menu/window-close Exit through saving; block closing on save
+  failure; show an actionable wrapped error; preserve both windows until save
+  succeeds; retain argument validation. Add 11 logic/real-window GUI tests, UG/DG
+  updates and accurate AI credit. Linux GUI CI uses Xvfb; Gradle dependencies are unchanged.
+- Branch validation: `./gradlew.bat check coverage shadowJar` passed on Temurin
+  Java 25.0.4 on Windows: 276 tests, zero failures/errors/skips, both Checkstyle
+  tasks and coverage passed. Tests cover IO/permission errors, failure/retry,
+  state/file preservation, all three close routes, open Help and legacy reload.
+- Remote branch CI: implementation commit `d8ee0a0e` passed Windows, macOS and
+  Linux builds, including the real-window tests and Linux repository scripts:
+  [run 38732753618](https://github.com/aston-ish/tp/actions/runs/38732753618).
+  Repository scripts and `git diff --check` also passed locally. Recheck the latest
+  PR checks after opening the PR or making further changes.
+- Combined local verification: isolated checkout of open PR #51 at `c7e88a57`
+  (includes PR #44 `8832ae33` and PR #49 `a135c683`), with this Exit patch and two
+  additional integration tests, passed 323 tests with zero failures/errors/skips,
+  Checkstyle, coverage and JAR build. A three-way patch application required only
+  combining the Exit and Mark imports; both feature paths were preserved.
+- Packaged-app smoke: an instrumented app launched in two separate JVMs using
+  isolated temporary data. It added two complete students, recorded/corrected/
+  cleared attendance, rejected invalid Exit, kept both windows open on injected
+  File > Exit failure, retried typed Exit, reloaded all data, and closed via the
+  window button. Both JVMs reached `MainApp.stop()` and exited normally; preferences
+  were saved. Student/course/week isolation and cleared-record removal were verified.
+- Artifacts: `build/exit-verification/` holds the isolated test source, process
+  probe/logs and screenshots. Exit failure feedback now wraps completely. Snapshot
+  inspection found light-on-light attendance detail text inherited from PR #51;
+  its owner needs to fix/verify that rendering before an integrated GUI release.
+- Integration: PRs #44/#49/#51 are still open at the recorded heads. No dependency
+  is merged into this feature branch. General storage/model changes remain with
+  their owners; the existing tutorial branch is retained separately.
+- Remaining: create the v1.3 PR, obtain review and CI on the latest commit, combine
+  reviewed dependencies in merge order, repeat acceptance checks on final team
+  master, complete independent manual/cross-platform GUI checks, and release as a team.
+
+### Completed Exit argument validation
+
+- Issue #37 and [PR #39](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/39)
+  merged into team master on 2026-10-09, verified through GitHub on 2026-10-15.
+  PR #38 was closed without merging after its source branch was renamed.
+- Original local validation: 252 tests, zero failures/errors/skips; the parser
+  reached 100% line/branch coverage. V1.3 lifecycle validation is recorded above.
 ## Current increment: v1.3 attendance
 
 - Owner: `toomintyy`; branch: `attendance-v13`; issue

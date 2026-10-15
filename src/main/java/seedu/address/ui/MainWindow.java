@@ -11,10 +11,12 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
 
@@ -156,10 +158,30 @@ public class MainWindow extends UiPart<Stage> {
     }
 
     /**
-     * Closes the application.
+     * Requests Exit through the same save-before-close path as a typed command.
      */
     @FXML
     private void handleExit() {
+        try {
+            executeCommand(ExitCommand.COMMAND_WORD);
+        } catch (CommandException | ParseException e) {
+            // executeCommand has displayed the error; leave both windows open for recovery.
+        }
+    }
+
+    /**
+     * Prevents the default window close until Exit has saved successfully.
+     */
+    @FXML
+    private void handleCloseRequest(WindowEvent event) {
+        event.consume();
+        handleExit();
+    }
+
+    /**
+     * Records window settings and closes both windows after a successful Exit result.
+     */
+    private void closeWindows() {
         GuiSettings guiSettings = new GuiSettings(primaryStage.getWidth(), primaryStage.getHeight(),
                 (int) primaryStage.getX(), (int) primaryStage.getY());
         logic.setGuiSettings(guiSettings);
@@ -189,7 +211,7 @@ public class MainWindow extends UiPart<Stage> {
             }
 
             if (commandResult.isExit()) {
-                handleExit();
+                closeWindows();
             }
 
             return commandResult;

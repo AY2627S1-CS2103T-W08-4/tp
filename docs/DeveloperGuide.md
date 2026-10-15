@@ -331,9 +331,39 @@ and `ExitCommand.MESSAGE_USAGE`. This implements UC05 extension 1a.
 Invalid Exit input throws `ParseException` before command execution or saving.
 `MainWindow` displays the error through its existing exception handler, so it does
 not receive an exit result or close the application. Student data and the current
-filtered view remain unchanged. Valid input retains the existing Exit execution
-and shutdown behavior; shutdown scheduling and full MVP reload integration remain
-follow-up work.
+filtered view remain unchanged. Valid input follows the Exit lifecycle below.
+
+### Exit lifecycle and save-failure recovery
+
+Typed `exit`, File > Exit and the main window's close button all execute
+`ExitCommand` through `LogicManager`. Command execution and data saving are
+synchronous; `MainWindow.closeWindows()` is reached only after an exit result is
+returned. It records GUI settings and hides the Help and main windows.
+
+The window-close handler consumes JavaFX's default close event before requesting
+Exit. A failed save therefore leaves both windows open instead of allowing the
+default handler to hide the main window. An `IOException`, including permission
+failures, becomes `ExitCommand.MESSAGE_SAVE_FAILURE`; the existing result display
+shows the recovery instructions with wrapping enabled. The user can retry after
+fixing the storage problem. Other commands retain their existing error handling.
+
+`MainWindowExitTest` exercises real JavaFX windows for typed, menu and window-close
+requests, invalid input, failure/retry and save-before-close ordering.
+`ExitIntegrationTest` covers IO/permission failures, state/file preservation and
+reloading existing contacts after editing and deleting. GUI tests run on the
+JavaFX thread with a bounded wait. Linux checks require a display; CI uses
+`xvfb-run -a ./gradlew check coverage`. No new Gradle dependencies are required.
+
+Full student/membership/attendance restart verification depends on the changes in
+PRs #44, #49 and #51. On 2026-10-15, an isolated checkout of published PR #51 head
+`c7e88a57`, with the Exit patch applied, passed 323 tests and a two-process smoke
+test against the packaged application. It preserved profiles, memberships,
+corrected/cleared attendance, other courses/weeks and other students. Both processes
+closed their main/Help windows, reached `MainApp.stop()` and exited normally using
+isolated data. These are local integration results; the dependencies remain open
+and need reviewed integration and CI before release. Snapshot inspection also
+found light-on-light text in the pending attendance detail pane; that owner must
+address its rendering before the integrated GUI is considered verified.
 
 ### View-class foundation: class memberships
 
@@ -723,6 +753,20 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `  exit  `<br>
       Expected: The app closes using the existing Exit behavior.
+
+### Exit lifecycle and restart checks
+
+1. Launch a test copy from an isolated directory and open Help. Try `exit 3`.
+   Expected: the usage error is visible and both windows remain open.
+2. Enter `exit`. Relaunch and repeat with File > Exit, then relaunch and use the
+   main window's close button. Expected: each successful request closes both windows.
+3. For save failures, `MainWindowExitTest` injects an IO failure without changing
+   real file permissions. Typed/menu/window-close requests must leave both windows
+   open with the recovery message; retry after restoring storage must close them.
+4. After the student and attendance dependencies are integrated, add two students
+   with memberships, record and correct attendance, and clear a different week's
+   record. Exit and relaunch. Verify all profiles/memberships, the correction,
+   cleared status, and other student/course/week decisions. Use test data only.
 
 ### Deleting a person
 
