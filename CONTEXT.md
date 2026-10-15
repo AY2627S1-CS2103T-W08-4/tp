@@ -32,7 +32,8 @@ Unpublished teammate work is unknown. The open tutorial PR #26 is not product fu
 
 - Owner: `toomintyy`; branch: `attendance-v13`; issue
   [#50](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/50), milestone v1.3.
-- Status: local implementation; not merged. This branch includes the published
+- PR: [#51](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/51), published for review; not merged.
+- This branch includes the published
   #44 student implementation (`8832ae33`) and #49 week type (`a135c683`). Merge
   those dependencies first; the local merge does not merge either upstream PR.
 - Scope: mark parser/command, immutable per-student/course/week records, JSON
