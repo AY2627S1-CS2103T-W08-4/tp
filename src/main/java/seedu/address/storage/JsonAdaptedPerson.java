@@ -2,6 +2,7 @@ package seedu.address.storage;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,10 +12,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.person.Address;
+import seedu.address.model.person.ClassMembership;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.TelegramHandle;
 import seedu.address.model.tag.Tag;
 
 /**
@@ -28,6 +31,8 @@ class JsonAdaptedPerson {
     private final String phone;
     private final String email;
     private final String address;
+    private final String telegram;
+    private final List<String> memberships;
     private final List<JsonAdaptedTag> tags = new ArrayList<>();
 
     /**
@@ -36,7 +41,10 @@ class JsonAdaptedPerson {
     @JsonCreator
     public JsonAdaptedPerson(@JsonProperty("name") String name, @JsonProperty("phone") String phone,
             @JsonProperty("email") String email, @JsonProperty("address") String address,
-            @JsonProperty("tags") List<JsonAdaptedTag> tags) {
+            @JsonProperty("tags") List<JsonAdaptedTag> tags,
+            @JsonProperty("telegram") String telegram, @JsonProperty("memberships") List<String> memberships) {
+        this.telegram = telegram;
+        this.memberships = memberships == null ? null : new ArrayList<>(memberships);
         this.name = name;
         this.phone = phone;
         this.email = email;
@@ -46,14 +54,22 @@ class JsonAdaptedPerson {
         }
     }
 
+    /** Retains the legacy adapter constructor for old contacts. */
+    public JsonAdaptedPerson(String name, String phone, String email, String address, List<JsonAdaptedTag> tags) {
+        this(name, phone, email, address, tags, null, null);
+    }
+
     /**
      * Converts a given {@code Person} into this class for Jackson use.
      */
     public JsonAdaptedPerson(Person source) {
         name = source.getName().fullName;
-        phone = source.getPhone().value;
+        phone = source.isStudent() ? null : source.getPhone().value;
         email = source.getEmail().value;
-        address = source.getAddress().value;
+        address = source.isStudent() ? null : source.getAddress().value;
+        telegram = source.getTelegramHandle().map(TelegramHandle::toString).orElse(null);
+        memberships = source.isStudent()
+                ? source.getMemberships().stream().map(ClassMembership::toString).collect(Collectors.toList()) : null;
         tags.addAll(source.getTags().stream()
                 .map(JsonAdaptedTag::new)
                 .collect(Collectors.toList()));
@@ -65,6 +81,9 @@ class JsonAdaptedPerson {
      * @throws IllegalValueException if there were any data constraints violated in the adapted person.
      */
     public Person toModelType() throws IllegalValueException {
+        if (telegram != null || memberships != null) {
+            return toStudent();
+        }
         final List<Tag> personTags = new ArrayList<>();
         for (JsonAdaptedTag tag : tags) {
             personTags.add(tag.toModelType());
@@ -104,6 +123,34 @@ class JsonAdaptedPerson {
 
         final Set<Tag> modelTags = new HashSet<>(personTags);
         return new Person(modelName, modelPhone, modelEmail, modelAddress, modelTags);
+    }
+
+    /** Validates all new-schema fields; incomplete students never fall back to legacy records. */
+    private Person toStudent() throws IllegalValueException {
+        if (name == null || email == null || telegram == null || memberships == null || memberships.isEmpty()) {
+            throw new IllegalValueException("Student name, Telegram, email and memberships are required.");
+        }
+        if (phone != null || address != null || !tags.isEmpty()) {
+            throw new IllegalValueException("Student records cannot also contain legacy phone, address or tags.");
+        }
+        try {
+            Set<ClassMembership> classes = new LinkedHashSet<>();
+            Set<String> courses = new HashSet<>();
+            for (String membership : memberships) {
+                if (membership == null) {
+                    throw new IllegalValueException(ClassMembership.MESSAGE_CONSTRAINTS);
+                }
+                ClassMembership parsed = new ClassMembership(membership);
+                if (!courses.add(parsed.courseCode)) {
+                    throw new IllegalValueException("Course " + parsed.courseCode
+                            + " may be specified only once per student.");
+                }
+                classes.add(parsed);
+            }
+            return new Person(Name.forStudent(name), new TelegramHandle(telegram), Email.forStudent(email), classes);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalValueException(e.getMessage());
+        }
     }
 
 }

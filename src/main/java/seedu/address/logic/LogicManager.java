@@ -7,12 +7,14 @@ import java.util.logging.Logger;
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.Model;
+import seedu.address.model.ModelManager;
 import seedu.address.model.person.Person;
 import seedu.address.storage.Storage;
 
@@ -24,6 +26,9 @@ public class LogicManager implements Logic {
 
     public static final String FILE_OPS_PERMISSION_ERROR_FORMAT =
             "Could not save data to file %s due to insufficient permissions to write to the file or the folder.";
+
+    public static final String ADD_SAVE_ERROR = "Unable to save changes. No changes were applied. "
+            + "Check available disk space and file permissions, then try again.";
 
     private final Logger logger = LogsCenter.getLogger(LogicManager.class);
 
@@ -46,6 +51,18 @@ public class LogicManager implements Logic {
 
         CommandResult commandResult;
         Command command = addressBookParser.parseCommand(commandText);
+        if (command instanceof AddCommand) {
+            // Execute against a detached candidate: failures leave the live list, predicate and selection untouched.
+            Model candidate = new ModelManager(model.getAddressBook(), model.getUserPrefs());
+            commandResult = command.execute(candidate);
+            try {
+                storage.saveAddressBook(candidate.getAddressBook());
+            } catch (IOException e) {
+                throw new CommandException(ADD_SAVE_ERROR, e);
+            }
+            model.addPerson(commandResult.getSelectedPerson().orElseThrow());
+            return commandResult;
+        }
         commandResult = command.execute(model);
 
         try {

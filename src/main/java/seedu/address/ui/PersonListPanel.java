@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Region;
@@ -19,6 +20,8 @@ public class PersonListPanel extends UiPart<Region> {
 
     @FXML
     private ListView<Person> personListView;
+    @FXML
+    private Label studentDetails;
 
     /**
      * Creates a {@code PersonListPanel} with the given {@code ObservableList}.
@@ -27,6 +30,20 @@ public class PersonListPanel extends UiPart<Region> {
         super(FXML);
         personListView.setItems(personList);
         personListView.setCellFactory(listView -> new PersonListViewCell());
+        personListView.getSelectionModel().selectedItemProperty().addListener((observable, previous, selected) -> {
+            boolean studentSelected = selected != null && selected.isStudent();
+            studentDetails.setManaged(studentSelected);
+            studentDetails.setVisible(studentSelected);
+            studentDetails.setText(studentSelected ? selected.getName() + "\n"
+                    + selected.getTelegramHandle().orElseThrow() + " | " + selected.getEmail() + "\n"
+                    + selected.getMemberships() + "\nNo attendance recorded." : "");
+        });
+    }
+
+    /** Selects and reveals a student after a successful persisted addition. */
+    public void selectPerson(Person person) {
+        personListView.getSelectionModel().select(person);
+        personListView.scrollTo(person);
     }
 
     /**

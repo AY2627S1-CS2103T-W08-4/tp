@@ -35,6 +35,10 @@ public class Messages {
      * Formats the {@code person} for display to the user.
      */
     public static String format(Person person) {
+        if (person.isStudent()) {
+            return person.getName() + "; Telegram: " + person.getTelegramHandle().orElseThrow()
+                    + "; Email: " + person.getEmail() + "; Classes: " + person.getMemberships();
+        }
         final StringBuilder builder = new StringBuilder();
         builder.append(person.getName())
                 .append("; Phone: ")
