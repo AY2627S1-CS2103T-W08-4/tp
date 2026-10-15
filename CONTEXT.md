@@ -58,12 +58,32 @@ Unpublished teammate work is unknown. The open tutorial PR #26 is not product fu
 
 ## Attendance week dependency
 
+### List command for Feature 3 (2026-10-15)
+
+- Owner: Jian Yang (`jianyang999`); branch: `update-list-command`; milestone: v1.3.
+- GitHub issue: [#46](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/46). AI assistance: Claude Code.
+- Status: [PR #47](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/47) approved by `Eskalade` with two fixes, now addressed; not merged.
+- Scope: `ListCommandParser` rejects any extra input with "Invalid command format!"
+  and "Format: list"; `list` reports "{N} students listed!" ("1 student listed!" for one).
+  Only surrounding ordinary spaces are accepted: `AddressBookParser` passes `list` its
+  raw arguments, so tabs, line breaks and other whitespace are rejected (review fix).
+- Validation: after the review fixes and merging team master (with AttendanceWeek),
+  `./gradlew check coverage` passed locally on Java 25.0.4.1 with 278 tests, zero
+  failures/errors/skips. Non-ASCII spaces next to `list` give "Unknown command."
+  because they are not command-word separators; they are still rejected.
+- Not yet done (Feature 3 spec): the "All students | {N} students" heading, the
+  "No students saved. Use add to create a student." empty-roster text, and clearing
+  the selected student and detail panel when `list` succeeds all need UI work;
+  coordinate with PR #44, which also changes `PersonListPanel`.
+- Class/week `find c/COURSE:GROUP w/WEEK` needs `Person#getMemberships()` from PR #44;
+  tracked in issue #45, to be moved to v1.4 if #44 is not merged in time.
+
 ### Attendance week (2026-10-15)
 
 - Owner: `toomintyy`; branch: `add-attendance-week`; milestone: v1.3.
 - Issue: [#48](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/48).
 - PR: [#49](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/49).
-- Status: published for teammate review; not merged. Remote CI is tracked on the PR.
+- Status: merged into team master in PR #49 (verified 2026-10-15).
 - Scope: immutable `AttendanceWeek`, exact Feature 3/4 WEEK validation, canonical
   numeric/display access, equality/hash code, tests and UG/DG documentation.
 - Integration: no Person, command, UI or JSON schema changes. Reuse this type for
