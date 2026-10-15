@@ -28,6 +28,24 @@ Verified team master: `b3e1cf4de2188a23d175b92cd1dd9b9167120275` (2026-10-12).
 Its Java CI passed: https://github.com/AY2627S1-CS2103T-W08-4/tp/actions/runs/38028391769
 Unpublished teammate work is unknown. The open tutorial PR #26 is not product functionality.
 
+## Current increment: v1.3 attendance
+
+- Owner: `toomintyy`; branch: `attendance-v13`; issue
+  [#50](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/50), milestone v1.3.
+- Status: local implementation; not merged. This branch includes the published
+  #44 student implementation (`8832ae33`) and #49 week type (`a135c683`). Merge
+  those dependencies first; the local merge does not merge either upstream PR.
+- Scope: mark parser/command, immutable per-student/course/week records, JSON
+  validation and persistence, save-before-live-update transaction, detail rendering
+  and an optional roster badge interface. No-op commands return selection without saving.
+- Roster handoff: #45 should call `PersonListPanel.setAttendanceContext(membership,
+  week)` after a successful query, and `(null, null)` after list/name search. Changing
+  week refreshes cards even if the filtered list is unchanged. Class queries/headings
+  remain Jian Yang's work; they are not enabled by this branch.
+- Validation: in progress; actual results will be added before publication.
+- AI assistance: OpenAI Codex. Reuses the team's existing attendance status,
+  class membership, Telegram and AB3 architecture.
+
 ## Attendance week dependency
 
 ### Attendance week (2026-10-15)
