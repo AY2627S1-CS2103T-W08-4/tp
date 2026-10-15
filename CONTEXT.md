@@ -42,7 +42,8 @@ documentation or integration. Other members' unpublished work is not known here.
 
 - Owner: `toomintyy`; branch: `add-attendance-week`; milestone: v1.3.
 - Issue: [#48](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/48).
-- Status: implementation committed locally; not merged. PR link follows after publication.
+- PR: [#49](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/49).
+- Status: published for teammate review; not merged. Remote CI is tracked on the PR.
 - Scope: immutable `AttendanceWeek`, exact Feature 3/4 WEEK validation, canonical
   numeric/display access, equality/hash code, tests and UG/DG documentation.
 - Integration: no Person, command, UI or JSON schema changes. Reuse this type for
