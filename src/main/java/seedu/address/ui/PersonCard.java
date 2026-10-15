@@ -7,6 +7,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import seedu.address.model.person.AttendanceWeek;
+import seedu.address.model.person.ClassMembership;
 import seedu.address.model.person.Person;
 
 /**
@@ -45,13 +47,21 @@ public class PersonCard extends UiPart<Region> {
      * Creates a {@code PersonCard} with the given {@code Person} and index to display.
      */
     public PersonCard(Person person, int displayedIndex) {
+        this(person, displayedIndex, null, null);
+    }
+
+    /** Creates a card with an optional course/week attendance badge supplied by the roster. */
+    public PersonCard(Person person, int displayedIndex, ClassMembership membership, AttendanceWeek week) {
         super(FXML);
         this.person = person;
         id.setText(displayedIndex + ". ");
         name.setText(person.getName().fullName);
-        phone.setText(person.getPhone().value);
-        address.setText(person.getAddress().value);
+        phone.setText(person.isStudent() ? person.getTelegramHandle().orElseThrow().value : person.getPhone().value);
+        address.setText(person.isStudent() ? "Classes: " + person.getMemberships() : person.getAddress().value);
         email.setText(person.getEmail().value);
+        if (membership != null && week != null && person.getMemberships().contains(membership)) {
+            tags.getChildren().add(new Label(AttendanceFormatter.badge(person, membership, week)));
+        }
         person.getTags().stream()
                 .sorted(Comparator.comparing(tag -> tag.tagName))
                 .forEach(tag -> tags.getChildren().add(new Label(tag.tagName)));

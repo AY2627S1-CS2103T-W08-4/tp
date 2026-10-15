@@ -10,7 +10,7 @@ title: Developer Guide
 ## **Acknowledgements**
 
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
-  implement and test the Telegram handle value type, and draft its developer documentation.
+  implement and test the Telegram handle value type and v1.3 add-student integration, and draft the related UG/DG and implementation context. The integration reuses the team’s `ClassMembership` type and existing SE-EDU AB3 architecture.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to help implement and test the class membership value type
   and the `list` command update, and draft their documentation.
@@ -170,15 +170,77 @@ same `MESSAGE_CONSTRAINTS` error as other invalid weeks. Null input throws
 `toString()` supplies its canonical display, and equality/hash code use that number.
 
 This type deliberately does not infer a calendar week or impose a current-date
-restriction. Future attendance keys must also identify the student and course;
-a week alone is not a complete record identity. `mark` command parsing,
-student/course/week storage and `find w/` integration remain follow-up work.
-There is no storage schema or command behavior change in this increment.
+restriction. Attendance records also identify their course and are owned by a student;
+a week alone is not a complete record identity. The integration below uses this
+type for `mark`; `find w/` remains a separate roster integration.
 
 `AttendanceWeekTest` checks all 53 supported weeks, normalization, invalid syntax,
 whitespace and Unicode digits, overflow-sized input, nulls, equality and replacing
 an equal week key in a map. OpenAI Codex assisted `toomintyy` with implementation,
 tests and documentation.
+
+### Record and correct attendance (v1.3)
+
+`MarkCommandParser` validates the displayed index and required singleton `m/`, `w/`,
+`s/` prefixes without discarding control whitespace. `AttendanceRecord` normalizes
+course codes with `Locale.ROOT`; `AttendanceWeek` and `AttendanceStatus` supply the
+shared value contracts. The parser uses exact Feature 4 errors. For simultaneous
+errors, this implementation checks unknown/repeated prefixes in input order, missing
+index, index syntax, missing m/w/s in that order, then course/week/status values.
+The source does not fully specify cross-category precedence; this ordering is an
+implementation choice for team review, not a new agreed requirement.
+
+Each immutable `Person` owns an immutable, sorted list of `AttendanceRecord` values.
+`withAttendance` validates enrollment, replaces the single course/week decision or
+removes it for Unrecorded, and returns a complete student copy. Contact identity
+(`isSamePerson`) remains independent of attendance; full equality includes records.
+`getAttendanceStatus(course, week)` returns Unrecorded when no decision is stored.
+Deleting the owning Person removes its records without orphan data. Student editing
+remains rejected by the existing edit guard, so it cannot discard attendance.
+
+`LogicManager` captures the target and displayed rows before execution, then runs
+`MarkCommand` on a detached model filtered to those rows. If the selected result
+matches the original student, it returns without saving. Otherwise it saves the
+candidate through the atomic JSON writer inherited from #44, then calls `setPerson`
+on the live model. The original predicate and row order remain in place. No live
+observable list event or selection request is emitted on validation or saving failure.
+`MainWindow` selects the result only after success, including a no-op.
+
+JSON stores `attendance` inside each student as an array, for example:
+
+```json
+"attendance": [{"course": "CS2103T", "week": "3", "status": "Present"}]
+```
+
+Missing/null attendance loads as an empty list for pre-attendance files. Explicit
+Unrecorded entries normalize away. Missing entry fields, invalid values, duplicate
+normalized course/week keys, unenrolled courses, null entries, and attendance on
+legacy contacts are rejected rather than silently losing data. Existing legacy
+contacts and students without attendance remain readable. Older application versions
+do not promise compatibility with attendance-bearing files; keep backups before downgrading.
+
+`AttendanceFormatter` supplies deterministic details and context-specific badges.
+`PersonListPanel` displays details in a bounded scroll area. Roster owner handoff:
+call `setAttendanceContext(ClassMembership, AttendanceWeek)` after a successful class
+query and `setAttendanceContext(null, null)` after list/name search. It refreshes the
+cards when only the week changes. On failed queries, leave the context untouched.
+Cards show badges only for an exact matching membership. This PR does not implement
+class queries, headings or class-filter selection clearing; those remain #45/#47 work.
+
+Validation includes parser boundaries, immutable record isolation, malformed storage,
+real JSON round trips, restart, filtered indices, corrections, clearing, no-op save
+counts, failed-save data/view preservation, deletion and existing-command compatibility.
+Codex assisted Min Thi Ha (`toomintyy`) with implementation, tests and documentation.
+
+Manual GUI acceptance checklist (requires a working JavaFX desktop):
+
+1. Add two students with different courses, find one by name, then mark row 1.
+2. Verify the selected student's details change, while the filter and row position stay fixed.
+3. Correct Present to Absent, repeat Absent, then clear with Unrecorded; verify messages and details.
+4. Record several weeks/courses, restart, and check details and scrolling at a small window size.
+5. After #45 integration, query a class/week, change attendance in that context and another
+   context, and verify only the matching badge changes. Change just the queried week.
+6. With an unwritable test data location, verify failed marks leave selection, details and data intact.
 
 ### Add-student foundation: Telegram handles
 
@@ -195,11 +257,69 @@ value: `@Alice_1` and ` @alice_1 ` represent the same handle. Invalid constructi
 throws `IllegalArgumentException` with `MESSAGE_CONSTRAINTS`; null input is a
 programming error and throws `NullPointerException`.
 
-This increment introduces the value type and its automated tests only. It is not yet
-connected to `Person`, commands, storage or the UI; the existing `add` command still
-uses AB3's phone field. Follow-up increments will use this type for the MVP's `p/`
-Telegram parameter and contact uniqueness checks. No new user command is available
-in this increment.
+The v1.3 add-student integration connects this type to `Person`, parsing, JSON and the UI.
+`p/` in `add` now means Telegram. Legacy `edit` retains phone semantics for legacy contacts only.
+
+### Add-student integration (v1.3)
+
+The public student constructor is `Person(Name, TelegramHandle, Email, Set<ClassMembership>)`.
+`Name.forStudent` and `Email.forStudent` enforce and normalize the exact Feature 1 contracts;
+the original constructors retain the old validation rules for lossless legacy contact loading.
+`Person.isStudent()` distinguishes the two representations. `getTelegramHandle()` returns an
+`Optional<TelegramHandle>` and `getMemberships()` returns an immutable, defensively copied set in input
+order. Existing `getPhone()` and `getAddress()` return null for students; callers must check the
+representation before accessing legacy fields. No placeholder contact data is created.
+
+The student constructor requires at least one membership and at most one group per course. Add parsing
+validates every membership before checking repeated courses in appearance order. A student conflicts
+with another record by case-insensitive email, or with another student by Telegram. Names never
+identify students. Two legacy records retain AB3's name identity rule. The add command searches the
+entire saved roster, checking email before Telegram, independently of any active filter.
+
+`AddCommandParser` recognizes prefix tokens at ordinary-space boundaries. It preserves field contents
+for validation instead of using AB3's whitespace-trimming tokenizer. For simultaneous errors, the
+implemented order is: preamble/unknown/repeated prefix errors as encountered, missing required prefixes
+in `n,p,e,c` order, name/Telegram/email validation, all class values, then repeated courses. The supplied
+specification does not completely define cross-category precedence; review this order during integration.
+`AddressBookParser` preserves control whitespace so it cannot silently turn an invalid add into a valid one.
+
+`LogicManager` executes additions on a detached `ModelManager`. It saves the candidate before publishing
+the new student to the live model. This preserves the live roster, predicate, observable-list contents
+and GUI selection on save failure without attempting to reconstruct view state. The successful command
+result identifies the new student; `MainWindow` selects and scrolls to it after persistence succeeds.
+`mark` also uses save-before-publish as described below. Other commands retain their existing
+execution flow; generalized rollback remains a separate integration task.
+
+`JsonAdaptedPerson` stores students with `name`, `telegram`, `email` and `memberships`. Legacy
+phone/address/tag records retain their original values and schema fields. Incomplete student records,
+hybrid student/legacy records and repeated courses are rejected. `JsonAddressBookStorage` writes a sibling
+temporary file and atomically replaces the target; no non-atomic fallback is used. A failed replacement
+retains the old data file. Unsupported atomic moves are reported as save failures. This protects disk
+contents for all callers; only add has the new save-before-live-model behavior.
+
+The inherited edit command explicitly rejects student profiles, preserving their new fields. It still
+edits legacy contacts and rejects email changes that would collide with a student. Editing student
+contacts/memberships is outside the Feature 1 must-have scope. Class filtering, attendance and deletion
+behavior remain with their respective owners. The initial detail text is `No attendance recorded.`;
+the attendance owner must replace it with actual records when that feature is integrated.
+
+#### Add-student validation and manual checks
+
+Automated tests cover Unicode/ASCII boundaries, locale independence, prefix errors, repeated courses,
+contact collisions across different students, namesakes, immutable memberships, mixed legacy/student
+round trips, malformed storage, atomic-write failures and unchanged live data/view on failed saves.
+Run `./gradlew check coverage` before opening the PR.
+
+For a GUI smoke test, use a separate temporary working directory:
+
+1. Start the JAR; run `find Alex` to activate a filter.
+2. Run `add n/Anne-Marie Tan p/@Anne_Tan e/Anne@Example.com c/cs2103t:t04 c/MA2001:T02`.
+   Check the success message, full roster, new selected row, normalized details and initial attendance text.
+3. Submit the same command again. Check the duplicate-email error, unchanged selection/data and retained input.
+4. Exit and restart in the same directory. Check both memberships and contacts survived reload.
+5. On a disposable dataset, make the data directory unwritable and attempt an add. Check that no success
+   is announced and the existing view remains unchanged. Automated tests inject save failures reproducibly.
+
 
 ### Exit argument validation
 
@@ -262,10 +382,9 @@ at most one tutorial group per course. Invalid construction throws
 `IllegalArgumentException` with `MESSAGE_CONSTRAINTS`; null input throws
 `NullPointerException`.
 
-This increment introduces the value type and its automated tests only. It is not yet
-connected to `Person`, commands, storage or the UI. Follow-up increments will store
-memberships on students, and extend `find` as `find c/COURSE:GROUP w/WEEK` to show
-the students in a chosen class (UC02). The add-student feature can reuse this type for its `c/` parameter.
+Add-student now stores this type on `Person` and persists it through JSON. Its error wording matches
+the original Feature 1 specification. Extending `find` as `find c/COURSE:GROUP w/WEEK` remains with the
+view-class owner; that command is not introduced by the add-student increment.
 
 ### \[Proposed\] Undo/redo feature
 

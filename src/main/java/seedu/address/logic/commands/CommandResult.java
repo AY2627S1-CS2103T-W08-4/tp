@@ -3,8 +3,10 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.person.Person;
 
 /**
  * Represents the result of a command execution.
@@ -18,6 +20,7 @@ public class CommandResult {
 
     /** The application should exit. */
     private final boolean exit;
+    private final Person selectedPerson;
 
     /**
      * Constructs a {@code CommandResult} with the specified fields.
@@ -26,6 +29,7 @@ public class CommandResult {
         this.feedbackToUser = requireNonNull(feedbackToUser);
         this.showHelp = showHelp;
         this.exit = exit;
+        selectedPerson = null;
     }
 
     /**
@@ -34,6 +38,18 @@ public class CommandResult {
      */
     public CommandResult(String feedbackToUser) {
         this(feedbackToUser, false, false);
+    }
+
+    /** Requests selection only after a successful, persisted addition. */
+    public CommandResult(String feedbackToUser, Person selectedPerson) {
+        this.feedbackToUser = requireNonNull(feedbackToUser);
+        this.selectedPerson = requireNonNull(selectedPerson);
+        showHelp = false;
+        exit = false;
+    }
+
+    public Optional<Person> getSelectedPerson() {
+        return Optional.ofNullable(selectedPerson);
     }
 
     public String getFeedbackToUser() {
@@ -61,12 +77,13 @@ public class CommandResult {
 
         return feedbackToUser.equals(otherCommandResult.feedbackToUser)
                 && showHelp == otherCommandResult.showHelp
-                && exit == otherCommandResult.exit;
+                && exit == otherCommandResult.exit
+                && Objects.equals(selectedPerson, otherCommandResult.selectedPerson);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(feedbackToUser, showHelp, exit);
+        return Objects.hash(feedbackToUser, showHelp, exit, selectedPerson);
     }
 
     @Override

@@ -34,9 +34,26 @@ public class AddressBookParserTest {
 
     @Test
     public void parseCommand_add() throws Exception {
-        Person person = new PersonBuilder().build();
-        AddCommand command = (AddCommand) parser.parseCommand(PersonUtil.getAddCommand(person));
+        Person person = seedu.address.testutil.StudentBuilder.typicalStudent();
+        AddCommand command = (AddCommand) parser.parseCommand(seedu.address.testutil.StudentBuilder.COMMAND);
         assertEquals(new AddCommand(person), command);
+    }
+
+    @Test
+    public void parseCommand_addWithLeadingControlWhitespace_rejected() {
+        for (String whitespace : new String[]{"\t", "\n", "\r"}) {
+            assertThrows(ParseException.class, () ->
+                    parser.parseCommand(whitespace + seedu.address.testutil.StudentBuilder.COMMAND));
+        }
+    }
+
+    @Test
+    public void parseCommand_markWithControlWhitespace_rejected() {
+        String command = "mark 1 m/CS2103T w/1 s/present";
+        for (String whitespace : new String[]{"\t", "\n", "\r"}) {
+            assertThrows(ParseException.class, () -> parser.parseCommand(whitespace + command));
+            assertThrows(ParseException.class, () -> parser.parseCommand(command + whitespace));
+        }
     }
 
     @Test

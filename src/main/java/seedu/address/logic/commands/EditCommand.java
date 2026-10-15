@@ -49,6 +49,8 @@ public class EditCommand extends Command {
             + PREFIX_EMAIL + "johndoe@example.com";
 
     public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited person: %1$s";
+    public static final String MESSAGE_STUDENT_EDIT_UNSUPPORTED =
+            "Editing student profiles is not supported in this version.";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
 
@@ -77,9 +79,14 @@ public class EditCommand extends Command {
         }
 
         Person personToEdit = lastShownList.get(index.getZeroBased());
+        if (personToEdit.isStudent()) {
+            throw new CommandException(MESSAGE_STUDENT_EDIT_UNSUPPORTED);
+        }
         Person editedPerson = createEditedPerson(personToEdit, editPersonDescriptor);
 
-        if (!personToEdit.isSamePerson(editedPerson) && model.hasPerson(editedPerson)) {
+        boolean studentCollision = model.getAddressBook().getPersonList().stream()
+                .anyMatch(person -> person.isStudent() && person.isSamePerson(editedPerson));
+        if (studentCollision || !personToEdit.isSamePerson(editedPerson) && model.hasPerson(editedPerson)) {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
 
