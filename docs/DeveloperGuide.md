@@ -12,8 +12,8 @@ title: Developer Guide
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type, and draft its developer documentation.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
-* Jian Yang used Claude Code to help implement and test the class membership value type,
-  and draft its developer documentation.
+* Jian Yang used Claude Code to help implement and test the class membership value type
+  and the `list` command update, and draft their documentation.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -158,6 +158,27 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 ## **Implementation**
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### Attendance week foundation
+
+`AttendanceWeek` is an immutable value object for the shared Feature 3/4 WEEK
+contract. Its string constructor and `isValidAttendanceWeek` accept only ASCII
+integers 1–53 without leading zeros, after trimming surrounding U+0020 spaces.
+Validation happens before numeric conversion, so oversized input receives the
+same `MESSAGE_CONSTRAINTS` error as other invalid weeks. Null input throws
+`NullPointerException`. The public final `value` exposes the week number;
+`toString()` supplies its canonical display, and equality/hash code use that number.
+
+This type deliberately does not infer a calendar week or impose a current-date
+restriction. Future attendance keys must also identify the student and course;
+a week alone is not a complete record identity. `mark` command parsing,
+student/course/week storage and `find w/` integration remain follow-up work.
+There is no storage schema or command behavior change in this increment.
+
+`AttendanceWeekTest` checks all 53 supported weeks, normalization, invalid syntax,
+whitespace and Unicode digits, overflow-sized input, nulls, equality and replacing
+an equal week key in a map. OpenAI Codex assisted `toomintyy` with implementation,
+tests and documentation.
 
 ### Add-student foundation: Telegram handles
 

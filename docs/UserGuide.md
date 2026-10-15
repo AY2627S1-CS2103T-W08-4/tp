@@ -10,6 +10,13 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
 --------------------------------------------------------------------------------------------------------------------
 
+## Attendance availability
+
+Attendance marking and class/week filtering are not available in this version.
+The planned attendance feature uses teaching weeks 1–53, with no automatic
+calendar-date inference. Adding week validation internally does not enable
+attendance commands yet.
+
 ## Quick start
 
 1. Ensure that Java `25` or later is installed on your computer.<br>
@@ -58,8 +65,10 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 * Parameters can be in any order.<br>
   For example, if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
 
-* Extraneous parameters for `help`, `list`, and `clear` are ignored.<br>
+* Extraneous parameters for `help` and `clear` are ignored.<br>
   For example, `help 123` is interpreted as `help`.
+
+* `list` takes no parameters. Extra input, including tabs or line breaks, produces a format error.<br>
 
 * `exit` takes no parameters. Extra arguments produce a format error and keep the application open.<br>
   For example, `exit 123` is rejected.
@@ -90,11 +99,14 @@ Examples:
 * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
 * `add n/Betsy Crowe t/friend e/betsycrowe@example.com a/Newgate Prison p/1234567 t/criminal`
 
-### Listing all persons: `list`
+### Listing all students: `list`
 
-Shows a list of all persons in the address book.
+Removes any active filter and shows every saved student once, in roster order.
 
 Format: `list`
+
+* `list` takes no parameters. Any extra input, such as `list 3` or `list c/CS2103T:T04`, is rejected with the list format error, so you never mistake an unfiltered list for a filtered one.
+* The result shows how many students are listed, for example `3 students listed!`, `1 student listed!` or `0 students listed!`.
 
 ### Editing a person: `edit`
 

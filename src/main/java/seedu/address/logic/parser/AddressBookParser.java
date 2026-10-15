@@ -57,7 +57,7 @@ public class AddressBookParser {
             case DeleteCommand.COMMAND_WORD -> new DeleteCommandParser().parse(arguments);
             case ClearCommand.COMMAND_WORD -> new ClearCommand();
             case FindCommand.COMMAND_WORD -> new FindCommandParser().parse(arguments);
-            case ListCommand.COMMAND_WORD -> new ListCommand();
+            case ListCommand.COMMAND_WORD -> new ListCommandParser().parse(getRawArguments(userInput, commandWord));
             case ExitCommand.COMMAND_WORD -> new ExitCommandParser().parse(arguments);
             case HelpCommand.COMMAND_WORD -> new HelpCommand();
             default -> {
@@ -65,6 +65,16 @@ public class AddressBookParser {
                 throw new ParseException(MESSAGE_UNKNOWN_COMMAND);
             }
         };
+    }
+
+    /**
+     * Returns the arguments of {@code userInput} after {@code commandWord}, removing only leading ordinary spaces
+     * (U+0020) before the command word. Other surrounding whitespace is kept so that parsers which accept only
+     * ordinary spaces can reject it. If other whitespace precedes the command word, the whole input is returned.
+     */
+    private static String getRawArguments(String userInput, String commandWord) {
+        String input = userInput.replaceFirst("^ +", "");
+        return input.startsWith(commandWord) ? input.substring(commandWord.length()) : input;
     }
 
 }
