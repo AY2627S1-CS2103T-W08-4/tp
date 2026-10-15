@@ -159,6 +159,16 @@ Surrounding spaces are accepted, for example `  exit  `. Extra arguments such as
 `exit 3`, `exit anything`, or `exit n/Alice` show the correct usage without closing
 the application or changing your data or current view. Enter `exit` to close the application.
 
+Exit saves your current data before closing the main window and any open Help window.
+Choosing **File > Exit** or the main window's close button uses the same save-before-close behavior.
+Your previously saved records are loaded when you launch the application again.
+
+If saving fails, the windows stay open and TutorTrack displays:
+
+> Unable to save changes. TutorTrack will remain open. Check available disk space and file permissions, then try again.
+
+Resolve the storage problem and try Exit again. The feedback wraps to keep the recovery instructions readable.
+
 ### Saving the data
 
 AddressBook automatically saves data after every command. You do not need to save manually.

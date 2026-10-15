@@ -1,6 +1,6 @@
 # TutorTrack team implementation context
 
-Last updated: 2026-10-08 (Singapore time).
+Last updated: 2026-10-15 (Singapore time).
 
 This file is a handoff for team members and their coding assistants. Read it with
 the code, issues and PRs; it is a snapshot, not proof of the live GitHub state.
@@ -12,12 +12,12 @@ Update it in every implementation PR and refresh the status when handing work of
 - Product: a local desktop app for teaching staff to manage student contacts,
   course/group memberships and weekly attendance using typed commands.
 - Stack: AB3 Java/JavaFX application, Java 25, Gradle, JSON storage.
-- Current iteration: v1.2, first functionality increment. Course deadline:
-  2026-10-08 at 23:59 SGT. No product release is required for this iteration.
+- Current iteration: v1.3, first working MVP release. Course deadline:
+  2026-10-15 at 23:59 SGT; the team must publish the JAR, release notes and screenshots.
 - Create self-assigned issues and PRs under the relevant milestone. Work on a
   separate branch in your fork; obtain teammate review before merging to team master.
-- Week 8 instructions:
-  https://nus-cs2103-ay2627-s1.github.io/website/schedule/week8/project.html
+- Week 9 instructions:
+  https://nus-cs2103-ay2627-s1.github.io/website/schedule/week9/project.html
 - Grading and expectations:
   https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-grading.html
   https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-expectations.html
@@ -26,11 +26,11 @@ Update it in every implementation PR and refresh the status when handing work of
 
 | MVP feature | Confirmed owner | Status |
 | --- | --- | --- |
-| Add student | Vincent Peh (`Eskalade`) | First increment (Telegram handle) merged in PR #28 |
+| Add student | Vincent Peh (`Eskalade`) | Telegram type merged in PR #28; full student flow in open PR #44 |
 | Delete student | Not recorded yet | Coordinate with team |
-| List students and view a class | Jian Yang (`jianyang999`) | First increment (class membership) in PR #34, approved |
-| Record and correct attendance | `toomintyy` (confirmed in owner conversation) | First increment (attendance status) merged in PR #36 |
-| Exit | Aston (`aston-ish`) | Argument validation in open PR #39; latest changes need review, unmerged |
+| List students and view a class | Jian Yang (`jianyang999`) | Class membership merged in PR #34; list work in open PR #47 |
+| Record and correct attendance | `toomintyy` (confirmed in owner conversation) | Status type merged in PR #36; commands/persistence in open PR #51 |
+| Exit | Aston (`aston-ish`) | Validation merged in PR #39; v1.3 lifecycle fixes verified locally for issue #52, unmerged |
 | Save and reload | Not recorded yet | Coordinate with team |
 
 Do not infer feature assignments from AboutUs responsibilities such as testing,
@@ -38,35 +38,49 @@ documentation or integration. Other members' unpublished work is not known here.
 
 ## Current increment
 
-### Exit argument validation (2026-10-08)
+### Exit handling and verification (2026-10-15)
 
-- Owner: `aston-ish`; Branch: `exit-command-validation`; milestone: v1.2.
-- Status: approved by Jian Yang, not merged.
-- GitHub issue: [#37](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/37),
-  `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
-- GitHub PR: [#39](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/39),
-  `Reject extra arguments in the exit command`, assigned to `aston-ish`, v1.2.
-  Replaces [#38](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/38), which GitHub
-  closed without merging when the source branch was renamed to fit the MVP feature.
-- Scope: `ExitCommandParser`, explicit usage feedback, main-parser integration,
-  parser and logic regression tests, UG/DG updates and AI acknowledgement.
-- Validation: `./gradlew.bat check coverage` passed on Temurin Java 25.0.4, with
-  252 tests and zero failures/errors/skips; both main and test Checkstyle passed.
-  `ExitCommandParser` has 100% line and branch coverage. `git diff --check` passed.
-  Initial runs exposed a filtered-view assumption in a new test helper and one
-  lambda-formatting violation; both were corrected before the successful run.
-  GUI manual testing has not been performed. PR #38's commit `ad004f1b` passed
-  Windows, macOS, Linux and Codecov patch checks before the branch rename.
-- User-visible behavior: lowercase `exit` with surrounding spaces still closes
-  the app. Extra arguments such as `exit 3`, `exit anything` and `exit n/Alice`
-  produce a format error with `Example: exit`; no exit result is returned and the
-  data, saved JSON and current filtered view remain unchanged.
-- Integration: implements DG UC05 extension 1a before command execution or saving.
-  Existing valid-Exit, save and shutdown paths are retained; no shared model,
-  storage schema or teammates' feature branches are changed.
-- Remaining work: teammate review, manual GUI validation, graceful shutdown
-  verification and full MVP exit/reload integration as dependent features arrive.
-  
+- Owner: Aston (`aston-ish`); branch: `exit-handling-verification`; milestone: v1.3.
+- Base: team master `b3e1cf4d`, fetched and verified on GitHub on 2026-10-15.
+- Issue: [#52](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/52).
+- Status: implemented and verified locally; no PR opened, no merge performed.
+- Scope: route typed/menu/window-close Exit through saving; block closing on save
+  failure; show an actionable wrapped error; preserve both windows until save
+  succeeds; retain argument validation. Add 11 logic/real-window GUI tests, UG/DG
+  updates and accurate AI credit. Linux GUI CI uses Xvfb; Gradle dependencies are unchanged.
+- Branch validation: `./gradlew.bat check coverage shadowJar` passed on Temurin
+  Java 25.0.4 on Windows: 276 tests, zero failures/errors/skips, both Checkstyle
+  tasks and coverage passed. Tests cover IO/permission errors, failure/retry,
+  state/file preservation, all three close routes, open Help and legacy reload.
+- Combined local verification: isolated checkout of open PR #51 at `c7e88a57`
+  (includes PR #44 `8832ae33` and PR #49 `a135c683`), with this Exit patch and two
+  additional integration tests, passed 323 tests with zero failures/errors/skips,
+  Checkstyle, coverage and JAR build. A three-way patch application required only
+  combining the Exit and Mark imports; both feature paths were preserved.
+- Packaged-app smoke: an instrumented app launched in two separate JVMs using
+  isolated temporary data. It added two complete students, recorded/corrected/
+  cleared attendance, rejected invalid Exit, kept both windows open on injected
+  File > Exit failure, retried typed Exit, reloaded all data, and closed via the
+  window button. Both JVMs reached `MainApp.stop()` and exited normally; preferences
+  were saved. Student/course/week isolation and cleared-record removal were verified.
+- Artifacts: `build/exit-verification/` holds the isolated test source, process
+  probe/logs and screenshots. Exit failure feedback now wraps completely. Snapshot
+  inspection found light-on-light attendance detail text inherited from PR #51;
+  its owner needs to fix/verify that rendering before an integrated GUI release.
+- Integration: PRs #44/#49/#51 are still open at the recorded heads. No dependency
+  is merged into this feature branch. General storage/model changes remain with
+  their owners; the existing tutorial branch is retained separately.
+- Remaining: create the v1.3 PR, obtain review and CI on the latest commit, combine
+  reviewed dependencies in merge order, repeat acceptance checks on final team
+  master, complete independent manual/cross-platform GUI checks, and release as a team.
+
+### Completed Exit argument validation
+
+- Issue #37 and [PR #39](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/39)
+  merged into team master on 2026-10-09, verified through GitHub on 2026-10-15.
+  PR #38 was closed without merging after its source branch was renamed.
+- Original local validation: 252 tests, zero failures/errors/skips; the parser
+  reached 100% line/branch coverage. V1.3 lifecycle validation is recorded above.
 ### Class membership for view class (2026-10-08)
 
 - Owner: Jian Yang (`jianyang999`); branch: `add-class-membership`; milestone: v1.2.
@@ -184,6 +198,7 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
 
 1. Keep each increment's status accurate: verify reviews, CI and merges on GitHub
    before recording them here.
+   Exit issue #52 is locally verified but still needs its PR, review and remote CI.
 2. Agree shared student/membership interfaces and legacy-data handling with teammates,
    including how `Person` stores its `ClassMembership` set.
 3. Implement Telegram model/parser/storage/UI integration as the next bounded PR.
@@ -205,7 +220,8 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   parsing, storage and UI integration remain; `p/` still means AB3 phone.
 - 2026-10-08: Aston published Exit argument validation in PR #39 for issue #37,
   with UG/DG updates. Java 25.0.4 checks passed: 252 tests, no
-  failures/errors/skips; new parser has 100% line/branch coverage. Approved and merged.
+  failures/errors/skips; new parser has 100% line/branch coverage. PR #39 merged
+  on 2026-10-09; verified through GitHub on 2026-10-15.
 - 2026-10-06: Vincent implemented the first Telegram value-type increment; full
   local checks passed. Added this handoff and AGENTS.md. Published issue #27 and
   PR #28 under v1.2; PR #28 was later merged.
@@ -215,3 +231,7 @@ add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]
   merged in PR #36.
 - 2026-10-08: PR #34 approved by `Eskalade`. Merged team master into the branch to
   resolve a CONTEXT.md conflict and recorded the review follow-ups.
+- 2026-10-15: Aston completed local Exit lifecycle/failure verification for issue
+  #52: 276 branch tests and 323 combined-dependency tests passed, plus a packaged
+  two-process restart smoke test. The feature branch and dependency PRs remain
+  unmerged; review, remote CI and final integrated release checks remain.
