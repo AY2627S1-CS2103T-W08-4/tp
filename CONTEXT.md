@@ -52,6 +52,11 @@ documentation or integration. Other members' unpublished work is not known here.
   Java 25.0.4 on Windows: 276 tests, zero failures/errors/skips, both Checkstyle
   tasks and coverage passed. Tests cover IO/permission errors, failure/retry,
   state/file preservation, all three close routes, open Help and legacy reload.
+- Remote branch CI: implementation commit `d8ee0a0e` passed Windows, macOS and
+  Linux builds, including the real-window tests and Linux repository scripts:
+  [run 38732753618](https://github.com/aston-ish/tp/actions/runs/38732753618).
+  Repository scripts and `git diff --check` also passed locally. Recheck the latest
+  PR checks after opening the PR or making further changes.
 - Combined local verification: isolated checkout of open PR #51 at `c7e88a57`
   (includes PR #44 `8832ae33` and PR #49 `a135c683`), with this Exit patch and two
   additional integration tests, passed 323 tests with zero failures/errors/skips,
