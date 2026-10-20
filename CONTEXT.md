@@ -8,8 +8,10 @@ Last verified: 2026-10-20 (Singapore time).
 - Issue: [#55](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/55), v1.3.
 - Base: team master `0a0944cb4701709fbd5b258f544a7b132f460647`.
   GitHub confirms #44, #51 and #53 merged. Earlier entries below are historical.
-- Status: implemented and locally validated; PR/merge/release not yet completed. The v1.3 milestone
-  was already closed, but no tag or release existed at audit time. Release deadline
+- PR: [#56](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/56), open and mergeable.
+- Status: implemented and locally validated; not merged or released. The v1.3 milestone
+  was already closed at audit, then reopened for issue #55 and PR #56; no tag or release existed.
+  Release deadline
   was 15 October 23:59 SGT; this completion is after that deadline.
 - Scope: exact class/week query, headings, badges and empty states; selection/context
   handling; strict batch deletion and save-before-live-update; strict Exit format;
@@ -31,7 +33,12 @@ Last verified: 2026-10-20 (Singapore time).
 - The user explicitly authorized review and merge without teammate review for this
   release. Do not describe this exception as teammate approval. Implementation/test
   assistance: OpenAI Codex; existing teammate work and SE-EDU reuse are retained.
-- Remaining: final checks, review, fork PR, GitHub CI verification, merge, build exact
+- Review: checked parsing/error precedence, displayed-index snapshots, save-before-live-update,
+  view transitions, attendance isolation, native packaging and documentation. The repeated-index
+  defect found during validation is fixed; no known blocking findings remain.
+- Remote CI: fork Java CI [run 39385173412](https://github.com/Eskalade/tp/actions/runs/39385173412)
+  is running for implementation commit `9aa8dfaf`; no team check runs exist yet.
+- Remaining: GitHub CI verification, merge, build exact
   merged revision, publish JARs/checksums/notes with screenshots, verify downloads.
   Actual Windows/Linux launches are not yet verified locally. The standard JAR uses
   Intel Mac natives; plain ARM Java must use the separate Apple Silicon JAR.
