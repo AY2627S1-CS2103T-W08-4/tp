@@ -1,5 +1,46 @@
 # TutorTrack team implementation context
 
+Last verified: 2026-10-20 (Singapore time).
+
+## Active release completion
+
+- Owner: Vincent Peh (`Eskalade`); fork branch `codex/v1.3-mvp-release`.
+- Issue: [#55](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/55), v1.3.
+- Base: team master `0a0944cb4701709fbd5b258f544a7b132f460647`.
+  GitHub confirms #44, #51 and #53 merged. Earlier entries below are historical.
+- Status: implemented and locally validated; PR/merge/release not yet completed. The v1.3 milestone
+  was already closed, but no tag or release existed at audit time. Release deadline
+  was 15 October 23:59 SGT; this completion is after that deadline.
+- Scope: exact class/week query, headings, badges and empty states; selection/context
+  handling; strict batch deletion and save-before-live-update; strict Exit format;
+  readable detail text; v1.3 version/title; separate Apple Silicon JAR; UG/DG/README.
+- Validation: baseline passed 330 tests. The completion build passed 335 tests with
+  zero failures/errors/skips, Checkstyle, coverage and both JAR tasks on the final code.
+  Repository scripts and `git diff --check` passed.
+  Packaged Apple Silicon JAR passed an instrumented real-window MVP workflow and a
+  second-JVM reload, using isolated synthetic data. Actual scene screenshots are in
+  `docs/images/release-v1.3/`. The standard JAR passed the same workflow and second-JVM reload on Zulu Java
+  25.0.3 FX (ARM64); Apple Silicon used plain Temurin Java 25.0.4 (ARM64).
+- Failures resolved during development: obsolete AB3 name-query expectations;
+  import/style violations; duplicate Index objects bypassed hash-based deduplication
+  because Index has no hashCode (now deduplicated by integer value).
+- Integration: preserves existing Person/storage contracts. Queries never write;
+  deletion retains the live predicate. Repeated batch indices delete each target once
+  in first-appearance order (the supplied specification does not define duplicates).
+  `find` now follows the required class/week grammar; name search is outside the MVP.
+- The user explicitly authorized review and merge without teammate review for this
+  release. Do not describe this exception as teammate approval. Implementation/test
+  assistance: OpenAI Codex; existing teammate work and SE-EDU reuse are retained.
+- Remaining: final checks, review, fork PR, GitHub CI verification, merge, build exact
+  merged revision, publish JARs/checksums/notes with screenshots, verify downloads.
+  Actual Windows/Linux launches are not yet verified locally. The standard JAR uses
+  Intel Mac natives; plain ARM Java must use the separate Apple Silicon JAR.
+- 2026-10-20: audited the agreed MVP document, found missing class query and complete
+  deletion behavior despite the closed milestone; implemented release completion.
+
+## Historical handoffs (superseded by the active summary above)
+
+
 Last verified: 2026-10-15 (Singapore time). This is a handoff, not a substitute for
 live GitHub status, issues, teammate review or UG/DG updates.
 

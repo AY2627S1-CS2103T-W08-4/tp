@@ -11,7 +11,10 @@ import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.ExitCommand;
+import seedu.address.logic.commands.FindCommand;
+import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.MarkCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
@@ -54,6 +57,24 @@ public class LogicManager implements Logic {
 
         CommandResult commandResult;
         Command command = addressBookParser.parseCommand(commandText);
+        if (command instanceof FindCommand || command instanceof ListCommand) {
+            // Queries are read-only and must also work when the data directory is not writable.
+            return command.execute(model);
+        }
+        if (command instanceof DeleteCommand delete) {
+            List<Person> targets = delete.getTargets(model);
+            Model candidate = new ModelManager(model.getAddressBook(), model.getUserPrefs());
+            List<Person> displayed = List.copyOf(model.getFilteredPersonList());
+            candidate.updateFilteredPersonList(displayed::contains);
+            commandResult = delete.execute(candidate);
+            try {
+                storage.saveAddressBook(candidate.getAddressBook());
+            } catch (IOException e) {
+                throw new CommandException(ADD_SAVE_ERROR, e);
+            }
+            targets.forEach(model::deletePerson);
+            return commandResult;
+        }
         if (command instanceof MarkCommand mark) {
             Person target = mark.getTarget(model);
             Model candidate = new ModelManager(model.getAddressBook(), model.getUserPrefs());

@@ -225,7 +225,7 @@ call `setAttendanceContext(ClassMembership, AttendanceWeek)` after a successful 
 query and `setAttendanceContext(null, null)` after list/name search. It refreshes the
 cards when only the week changes. On failed queries, leave the context untouched.
 Cards show badges only for an exact matching membership. This PR does not implement
-class queries, headings or class-filter selection clearing; those remain #45/#47 work.
+class queries, headings or class-filter selection clearing; those are now integrated by the v1.3 release completion increment described above.
 
 Validation includes parser boundaries, immutable record isolation, malformed storage,
 real JSON round trips, restart, filtered indices, corrections, clearing, no-op save
@@ -384,7 +384,7 @@ at most one tutorial group per course. Invalid construction throws
 
 Add-student now stores this type on `Person` and persists it through JSON. Its error wording matches
 the original Feature 1 specification. Extending `find` as `find c/COURSE:GROUP w/WEEK` remains with the
-view-class owner; that command is not introduced by the add-student increment.
+view-class owner; that command is integrated by the v1.3 release completion increment.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -455,7 +455,34 @@ The following activity diagram summarizes what happens when a user executes a ne
 
 <img src="images/CommitActivityDiagram.png" width="250" />
 
-#### Design considerations:
+#### v1.3 roster and deletion integration
+
+The release completion increment is tracked in [issue #55](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/55).
+`FindCommandParser` validates exact class/week queries using `ClassMembership` and
+`AttendanceWeek`. `FindCommand` applies a membership predicate; `list` removes it.
+Both queries return without saving. `CommandResult` explicitly carries whether the
+UI should replace its roster context or clear selection, so failed commands never
+change those UI properties. `PersonListPanel` updates headings/counts as rows change,
+refreshes badges when only the week changes, and supplies separate empty states.
+
+`DeleteCommand` resolves all indices against a snapshot of the displayed roster,
+validates every target, and deduplicates integer indices in first-appearance order.
+`LogicManager` executes deletion on a detached candidate, saves it, then removes
+those exact targets from the live model without replacing its filter. A failed save
+leaves data, selection and context untouched. This extends the existing add/mark
+transaction pattern; legacy `clear` and `edit` are not generalized transactions.
+
+Regression coverage includes filtered batch indices, duplicate indices, a late invalid
+target, disk failure/retry, query operation without write access, independent course/week
+attendance and restart. Real-window tests verify badges after a week-only change,
+selection clearing, empty headings, failed-delete input retention and add returning
+to the full roster. See `MvpRosterIntegrationTest` and `MvpRosterUiTest`.
+
+Release validation and remaining work are recorded in `CONTEXT.md`. Implementation
+and tests for this increment were prepared with OpenAI Codex assistance, reusing AB3
+and the team's existing model, parser and storage contracts.
+
+## Design considerations:
 
 **Aspect: How undo & redo execute:**
 

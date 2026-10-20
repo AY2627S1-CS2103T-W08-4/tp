@@ -6,20 +6,19 @@ TutorTrack is a desktop application being developed for teaching assistants and 
 prefer typing to manage student contact details, course memberships and weekly
 attendance in one place.
 
-![Proposed TutorTrack interface showing a course roster and weekly attendance](docs/images/Ui.png)
+![TutorTrack class attendance](docs/images/release-v1.3/attendance.png)
 
-*Planned MVP interface, adapted from the team feature specification (M1).
-The mockup uses sample data and does not depict the current release.*
+*TutorTrack v1.3 running with synthetic demonstration data.*
 
 TutorTrack aims to help teaching assistants:
 
-* Find and update student contact details quickly.
+* Create and view student contact details quickly.
 * Organize students by the courses they attend.
 * Record and review weekly attendance alongside each student's details.
 
-The project is currently in its documentation and planning iteration. Course and
-attendance features are planned; the current implementation inherits AB3's
-contact-management functionality.
+Version 1.3 supports adding students, exact class/week rosters, attendance
+recording/correction/clearing, atomic batch deletion and save/reload/exit.
+See [releases](https://github.com/AY2627S1-CS2103T-W08-4/tp/releases) for published packages.
 
 Visit the [project website](https://ay2627s1-cs2103t-w08-4.github.io/tp/) for the
 [User Guide](https://ay2627s1-cs2103t-w08-4.github.io/tp/UserGuide.html),

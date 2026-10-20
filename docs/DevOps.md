@@ -74,6 +74,12 @@ Any warnings or errors will be printed out to the console.
 Here are the steps to create a new release.
 
 1. Update the version number in [`MainApp.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/MainApp.java).
-1. Generate a fat JAR file using Gradle (i.e., `./gradlew shadowJar`).
+1. Run `./gradlew check coverage shadowJar shadowJarMacArm` and `./.github/run-checks.sh`.
+   `build/libs/addressbook.jar` is the standard build; `build/libs/tutortrack-macos-arm64.jar`
+   is a separate Apple Silicon build. The additional task keeps ARM and Intel native libraries
+   out of the same archive, where their identical filenames would collide. JavaFX remains 17.0.7.
+1. Launch each supported package/runtime combination, exercise the MVP and restart with isolated
+   data. Record actual platform verification; do not infer launch success from unit tests.
+1. Capture current screenshots and write release notes listing implemented behavior and limitations.
 1. Tag the repo with the version number. e.g. `v0.1`
 1. [Create a new release using GitHub](https://help.github.com/articles/creating-releases/). Upload the JAR file you created.

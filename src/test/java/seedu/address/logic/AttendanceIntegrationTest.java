@@ -141,7 +141,7 @@ public class AttendanceIntegrationTest {
         logic.execute("mark 1 m/CS2103T w/1 s/present");
         Person recorded = model.getFilteredPersonList().getFirst();
         logic.execute("list");
-        logic.execute("find Alice");
+        model.updateFilteredPersonList(person -> person.getName().fullName.equals("Alice"));
         logic.execute("help");
         assertThrows(CommandException.class, EditCommand.MESSAGE_STUDENT_EDIT_UNSUPPORTED, () ->
                 logic.execute("edit 1 n/Alicia"));

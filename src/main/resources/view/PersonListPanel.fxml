@@ -6,11 +6,12 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+  <Label fx:id="rosterHeading" wrapText="true" style="-fx-padding: 12; -fx-text-fill: white;" />
   <ListView fx:id="personListView" VBox.vgrow="ALWAYS" />
   <ScrollPane fx:id="studentDetailsPane" fitToWidth="true" prefHeight="180" maxHeight="180"
               minHeight="80" visible="false" managed="false">
     <content>
-      <Label fx:id="studentDetails" wrapText="true" style="-fx-padding: 12; -fx-text-fill: white;" />
+      <Label fx:id="studentDetails" wrapText="true" style="-fx-padding: 12; -fx-text-fill: #222222;" />
     </content>
   </ScrollPane>
 </VBox>
