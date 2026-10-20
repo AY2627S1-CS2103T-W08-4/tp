@@ -76,3 +76,29 @@ shadowJar {
 }
 
 defaultTasks 'clean', 'test'
+
+// Separate native libraries avoid x86/ARM filename collisions inside a fat JAR.
+configurations {
+    macArmRuntime {
+        extendsFrom implementation
+        exclude group: 'org.openjfx'
+    }
+    macArmJavafx
+}
+
+dependencies {
+    ['base', 'controls', 'fxml', 'graphics'].each { module ->
+        macArmJavafx("org.openjfx:javafx-${module}:17.0.7:mac-aarch64") {
+            transitive = false
+        }
+    }
+}
+
+tasks.register('shadowJarMacArm', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    archiveFileName = 'tutortrack-macos-arm64.jar'
+    from sourceSets.main.output
+    configurations = [project.configurations.macArmRuntime, project.configurations.macArmJavafx]
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
+}

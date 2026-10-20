@@ -2,36 +2,37 @@ package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Objects;
+
 import seedu.address.commons.util.ToStringBuilder;
-import seedu.address.logic.Messages;
 import seedu.address.model.Model;
-import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.AttendanceWeek;
+import seedu.address.model.person.ClassMembership;
 
 /**
- * Finds and lists all persons in the address book whose name contains any of the argument keywords.
- * Keyword matching is case insensitive.
+ * Lists students belonging to an exact class for a chosen teaching week.
  */
 public class FindCommand extends Command {
 
     public static final String COMMAND_WORD = "find";
 
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Finds all persons whose names contain any of "
-            + "the specified keywords (case-insensitive) and displays them as a list with index numbers.\n"
-            + "Parameters: KEYWORD [MORE_KEYWORDS]...\n"
-            + "Example: " + COMMAND_WORD + " alice bob charlie";
+    public static final String MESSAGE_USAGE = "Format: find c/COURSE:GROUP w/WEEK";
 
-    private final NameContainsKeywordsPredicate predicate;
+    private final ClassMembership membership;
+    private final AttendanceWeek week;
 
-    public FindCommand(NameContainsKeywordsPredicate predicate) {
-        this.predicate = predicate;
+    /** Creates an exact normalized class/week query. */
+    public FindCommand(ClassMembership membership, AttendanceWeek week) {
+        this.membership = requireNonNull(membership);
+        this.week = requireNonNull(week);
     }
 
     @Override
     public CommandResult execute(Model model) {
         requireNonNull(model);
-        model.updateFilteredPersonList(predicate);
-        return new CommandResult(
-                String.format(Messages.MESSAGE_PERSONS_LISTED_OVERVIEW, model.getFilteredPersonList().size()));
+        model.updateFilteredPersonList(person -> person.isStudent() && person.getMemberships().contains(membership));
+        return CommandResult.roster(ListCommand.getSuccessMessage(model.getFilteredPersonList().size()),
+                membership, week);
     }
 
     @Override
@@ -45,13 +46,15 @@ public class FindCommand extends Command {
             return false;
         }
 
-        return predicate.equals(otherFindCommand.predicate);
+        return Objects.equals(membership, otherFindCommand.membership)
+                && Objects.equals(week, otherFindCommand.week);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .add("predicate", predicate)
+                .add("membership", membership)
+                .add("week", week)
                 .toString();
     }
 }

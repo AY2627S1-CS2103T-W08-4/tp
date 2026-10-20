@@ -204,6 +204,12 @@ public class MainWindow extends UiPart<Stage> {
             logger.info("Result: " + commandResult.getFeedbackToUser());
             resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
 
+            if (commandResult.isReplaceRosterContext()) {
+                personListPanel.setAttendanceContext(commandResult.getRosterClass(), commandResult.getRosterWeek());
+            }
+            if (commandResult.isClearSelection()) {
+                personListPanel.clearSelection();
+            }
             commandResult.getSelectedPerson().ifPresent(personListPanel::selectPerson);
 
             if (commandResult.isShowHelp()) {

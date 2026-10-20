@@ -2,6 +2,7 @@ package seedu.address.ui;
 
 import java.util.logging.Logger;
 
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -25,6 +26,10 @@ public class PersonListPanel extends UiPart<Region> {
     private AttendanceWeek attendanceWeek;
 
     @FXML
+    private Label rosterHeading;
+    private final Label emptyRoster = new Label();
+
+    @FXML
     private ListView<Person> personListView;
     @FXML
     private Label studentDetails;
@@ -37,6 +42,11 @@ public class PersonListPanel extends UiPart<Region> {
     public PersonListPanel(ObservableList<Person> personList) {
         super(FXML);
         personListView.setItems(personList);
+        emptyRoster.setWrapText(true);
+        emptyRoster.setStyle("-fx-text-fill: white; -fx-padding: 12;");
+        personListView.setPlaceholder(emptyRoster);
+        personList.addListener((ListChangeListener<Person>) change -> updateRosterHeading());
+        updateRosterHeading();
         personListView.setCellFactory(listView -> new PersonListViewCell());
         personListView.getSelectionModel().selectedItemProperty().addListener((observable, previous, selected) -> {
             boolean studentSelected = selected != null && selected.isStudent();
@@ -59,6 +69,24 @@ public class PersonListPanel extends UiPart<Region> {
         attendanceClass = membership;
         attendanceWeek = week;
         personListView.refresh();
+        updateRosterHeading();
+    }
+
+    private void updateRosterHeading() {
+        int count = personListView.getItems().size();
+        String number = count + (count == 1 ? " student" : " students");
+        rosterHeading.setText(attendanceClass == null ? "All students | " + number
+                : attendanceClass + " | Week " + attendanceWeek + " | " + number);
+        emptyRoster.setText(attendanceClass == null ? "No students saved. Use add to create a student."
+                : "No students found in " + attendanceClass + ". Use list to view all students.");
+    }
+
+    /** Clears both the selected row and its details after a successful query or deletion. */
+    public void clearSelection() {
+        personListView.getSelectionModel().clearSelection();
+        studentDetails.setText("");
+        studentDetailsPane.setVisible(false);
+        studentDetailsPane.setManaged(false);
     }
 
     /** Selects and reveals a student after a successful persisted addition. */

@@ -58,11 +58,11 @@ public class AddressBookParser {
             case MarkCommand.COMMAND_WORD -> new MarkCommandParser().parse(getRawArguments(userInput, commandWord));
             case AddCommand.COMMAND_WORD -> new AddCommandParser().parse(getRawArguments(userInput, commandWord));
             case EditCommand.COMMAND_WORD -> new EditCommandParser().parse(arguments);
-            case DeleteCommand.COMMAND_WORD -> new DeleteCommandParser().parse(arguments);
+            case DeleteCommand.COMMAND_WORD -> new DeleteCommandParser().parse(getRawArguments(userInput, commandWord));
             case ClearCommand.COMMAND_WORD -> new ClearCommand();
-            case FindCommand.COMMAND_WORD -> new FindCommandParser().parse(arguments);
+            case FindCommand.COMMAND_WORD -> new FindCommandParser().parse(getRawArguments(userInput, commandWord));
             case ListCommand.COMMAND_WORD -> new ListCommandParser().parse(getRawArguments(userInput, commandWord));
-            case ExitCommand.COMMAND_WORD -> new ExitCommandParser().parse(arguments);
+            case ExitCommand.COMMAND_WORD -> new ExitCommandParser().parse(getRawArguments(userInput, commandWord));
             case HelpCommand.COMMAND_WORD -> new HelpCommand();
             default -> {
                 logger.finer("This user input caused a ParseException: " + userInput);

@@ -27,14 +27,16 @@ public class ExitCommandParserTest {
     }
 
     @Test
-    public void parse_whitespaceArguments_success() throws Exception {
+    public void parse_ordinarySpaces_success() throws Exception {
         CommandResult expectedResult = new CommandResult(ExitCommand.MESSAGE_EXIT_ACKNOWLEDGEMENT, false, true);
-        assertEquals(expectedResult, parser.parse("  \t  ").execute(new ModelManager()));
+        assertEquals(expectedResult, parser.parse("     ").execute(new ModelManager()));
     }
 
     @Test
     public void parse_extraArguments_throwsParseException() {
         String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, ExitCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, "\t", expectedMessage);
+        assertParseFailure(parser, "\n", expectedMessage);
         assertParseFailure(parser, " 3", expectedMessage);
         assertParseFailure(parser, " anything", expectedMessage);
         assertParseFailure(parser, " n/Alice", expectedMessage);

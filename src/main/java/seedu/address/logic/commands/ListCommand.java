@@ -22,7 +22,7 @@ public class ListCommand extends Command {
     public CommandResult execute(Model model) {
         requireNonNull(model);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return new CommandResult(getSuccessMessage(model.getFilteredPersonList().size()));
+        return CommandResult.roster(getSuccessMessage(model.getFilteredPersonList().size()), null, null);
     }
 
     /**

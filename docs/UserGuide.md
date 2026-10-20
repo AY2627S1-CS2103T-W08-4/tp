@@ -3,7 +3,7 @@ layout: page
 title: User Guide
 ---
 
-TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This version supports student creation and recording, correcting and clearing attendance, while retaining legacy AB3 contacts. Class/week filtering is being integrated separately.
+TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. Version 1.3 supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
 
 * Table of Contents
 {:toc}
@@ -12,16 +12,20 @@ TutorTrack is a desktop application for teaching staff to manage student contact
 
 ## Quick start
 
-1. Ensure that Java `25` or later is installed on your computer.<br>
-   **Mac users:** Ensure you have the precise JDK version prescribed [here](https://se-education.org/guides/tutorials/javaInstallationMac.html).
+1. Install Java `25`. The release was validated with Java 25; newer major versions are not yet verified.
+
+1. Choose the JAR matching your Java installation:
+   * `addressbook.jar`: standard build with Windows, Linux and Intel Mac JavaFX natives. On macOS, follow the [course Java installation guide](https://se-education.org/guides/tutorials/javaInstallationMac.html). A Java 25 distribution with bundled JavaFX also works; Zulu Java 25 FX on Apple Silicon was verified locally.
+   * `tutortrack-macos-arm64.jar`: Apple Silicon Macs using an ARM64 Java 25 installation (for example Temurin). Run `java -jar tutortrack-macos-arm64.jar`.
+   * Do not run the standard JAR with a plain ARM64 JDK without JavaFX; use the Apple Silicon JAR instead.
 
 1. Download the latest `.jar` file from [here](https://github.com/AY2627S1-CS2103T-W08-4/tp/releases).
 
-1. Copy the file to the folder you want to use as the _home folder_ for your AddressBook.
+1. Copy the file to the folder you want to use as the _home folder_ for TutorTrack.
 
 1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar addressbook.jar`.<br>
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
-   ![Ui](images/Ui.png)
+   ![TutorTrack v1.3 roster](images/release-v1.3/roster.png)
 
 1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to open the help window.<br>
    Some example commands you can try:
@@ -133,6 +137,7 @@ Removes any active filter and shows every saved student once, in roster order.
 
 Format: `list`
 
+* The heading shows `All students | N students` (singular for one); selection/details are cleared. An empty roster says `No students saved. Use add to create a student.`
 * `list` takes no parameters. Any extra input, such as `list 3` or `list c/CS2103T:T04`, is rejected with the list format error, so you never mistake an unfiltered list for a filtered one.
 * The result shows how many students are listed, for example `3 students listed!`, `1 student listed!` or `0 students listed!`.
 
@@ -152,36 +157,51 @@ Examples:
 *  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
 *  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
 
-### Locating persons by name: `find`
+### Viewing a class and teaching week: `find`
 
-Finds persons whose names contain any of the given keywords.
-
-Format: `find KEYWORD [MORE_KEYWORDS]`
-
-* The search is case-insensitive; for example, `hans` matches `Hans`.
-* Keyword order does not matter; for example, `Hans Bo` matches `Bo Hans`.
-* The search considers only names.
-* Only full words match; for example, `Han` does not match `Hans`.
-* Persons matching at least one keyword are returned (an `OR` search); for example, `Hans Bo` returns `Hans Gruber` and `Bo Yang`.
+Format: `find c/COURSE:GROUP w/WEEK`
 
 Examples:
-* `find John` returns `john` and `John Doe`
-* `find alex david` returns `Alex Yeoh`, `David Li`<br>
-  ![result for 'find alex david'](images/findAlexDavidResult.png)
 
-### Deleting a student: `delete`
+* `find c/cs2103t:t04 w/3`
+* `find w/13 c/CS1101S:T02`
 
-Deletes the specified student from TutorTrack.
+Both prefixes are required exactly once, in either order. Class codes use the same
+rules as `add` and normalize to uppercase. Weeks are integers 1–53 without leading
+zeros. A query matches the complete course **and** group; the same group code in
+another course does not match. Name search is outside this MVP: `find John` is rejected.
 
-Format: `delete INDEX`
+The heading includes the class, week and student count. Rows remain in roster order
+and display attendance for that course/week, including **Unrecorded** when no decision
+exists. Changing only the week refreshes the badges without changing class membership.
+A successful query clears selection and details. A failed query retains the old view.
 
-* Deletes the student at the specified `INDEX`.
-* The index refers to the index number shown in the displayed student list.
-* The index **must be a positive integer** 1, 2, 3, …​
+A valid class with no students succeeds with `0 students listed!` and
+`No students found in COURSE:GROUP. Use list to view all students.` It creates no records.
+Use `list` to remove the filter. Queries are read-only and do not save the data file.
 
-Examples:
-* `list` followed by `delete 2` deletes the 2nd student in the address book.
-* `find Betsy` followed by `delete 1` deletes the 1st student in the search results.
+![Class attendance](images/release-v1.3/attendance.png)
+
+### Deleting students: `delete`
+
+Format: `delete INDEX [INDEX...]`
+
+Examples: `delete 1` or `delete 1 3 2`.
+
+Indices refer to the **currently displayed roster before the command**. Each must
+be an ASCII integer from 1 to 2147483647 without signs or leading zeros, and identify
+a displayed row. Every target is validated before any deletion. Repeated indices
+within one command delete that target once, in first-appearance order.
+
+Removal includes all memberships and attendance. Success reports
+`Deleted student(s): Alice | Carol`, retains the class/week filter, renumbers rows
+and clears selection/details. Deleting the final row shows the appropriate empty state.
+There is no confirmation dialog or undo. Repeating `delete 1` in a later submission
+targets the new row 1.
+
+Invalid indices and save failures leave all records, the view and selection unchanged.
+No success is reported until the complete batch is saved. Saving failures use the
+same recovery message as `add`.
 
 ### Clearing all entries: `clear`
 
@@ -211,7 +231,7 @@ Resolve the storage problem and try Exit again. The feedback wraps to keep the r
 
 ### Saving the data
 
-AddressBook automatically saves data after every command. You do not need to save manually.
+TutorTrack saves accepted additions, deletions and attendance changes before reporting success, and saves before Exit. `list` and `find` are read-only. You do not need to save manually.
 
 ### Editing the data file
 
@@ -287,8 +307,8 @@ available disk space and file permissions, then try again.` The previous data an
 remain intact. Deleting a student also removes their attendance; adding that contact
 again starts with no attendance records.
 
-Class/week queries and their roster badges still require the separate class-filtering
-integration. Use the selected-student details to inspect recorded attendance in this version.
+Class/week queries display a badge for the requested course/week. Marking that context
+refreshes the badge immediately; marking another course/week preserves the displayed context.
 
 ## Command summary
 
@@ -296,8 +316,10 @@ Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]`<br>e.g., `add n/John Doe p/@johndoe e/john@example.com c/CS2103T:T04`
 **Clear** | `clear`
-**Delete** | `delete INDEX`<br> e.g., `delete 3`
+**Delete** | `delete INDEX [INDEX...]`<br> e.g., `delete 3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
-**Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
+**Find** | `find c/COURSE:GROUP w/WEEK`<br> e.g., `find c/CS2103T:T04 w/3`
 **List** | `list`
 **Help** | `help`
+**Mark** | `mark INDEX m/COURSE w/WEEK s/STATUS`
+**Exit** | `exit`

@@ -2,8 +2,8 @@ package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
-import static seedu.address.logic.Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
+import static seedu.address.logic.commands.DeleteCommand.MESSAGE_INVALID_INDEX;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.AMY;
 import static seedu.address.testutil.TypicalPersons.BOB;
@@ -60,7 +60,7 @@ public class LogicManagerTest {
     @Test
     public void execute_commandExecutionError_throwsCommandException() {
         String deleteCommand = "delete 9";
-        assertCommandException(deleteCommand, MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        assertCommandException(deleteCommand, MESSAGE_INVALID_INDEX);
     }
 
     @Test
@@ -79,7 +79,8 @@ public class LogicManagerTest {
     public void execute_exitWithArguments_preservesDataAndView() throws Exception {
         model.addPerson(AMY);
         model.addPerson(BOB);
-        logic.execute("find Amy");
+        logic.execute("exit");
+        model.updateFilteredPersonList(AMY::equals);
         Model expectedModel = new ModelManager(model.getAddressBook(), model.getUserPrefs());
         List<Person> expectedView = List.copyOf(model.getFilteredPersonList());
         assertEquals(List.of(AMY), expectedView);

@@ -32,20 +32,23 @@ public class ListCommandTest {
     @Test
     public void execute_listIsNotFiltered_showsSameList() {
         String expectedMessage = ListCommand.getSuccessMessage(expectedModel.getFilteredPersonList().size());
-        assertCommandSuccess(new ListCommand(), model, expectedMessage, expectedModel);
+        assertCommandSuccess(new ListCommand(), model, CommandResult.roster(expectedMessage, null, null),
+                expectedModel);
     }
 
     @Test
     public void execute_listIsFiltered_showsEverything() {
         showPersonAtIndex(model, INDEX_FIRST_PERSON);
         String expectedMessage = ListCommand.getSuccessMessage(expectedModel.getFilteredPersonList().size());
-        assertCommandSuccess(new ListCommand(), model, expectedMessage, expectedModel);
+        assertCommandSuccess(new ListCommand(), model, CommandResult.roster(expectedMessage, null, null),
+                expectedModel);
     }
 
     @Test
     public void execute_emptyAddressBook_showsZeroStudents() {
         Model emptyModel = new ModelManager();
-        assertCommandSuccess(new ListCommand(), emptyModel, "0 students listed!", new ModelManager());
+        assertCommandSuccess(new ListCommand(), emptyModel, CommandResult.roster("0 students listed!", null, null),
+                new ModelManager());
     }
 
     @Test
@@ -54,7 +57,8 @@ public class ListCommandTest {
         addressBook.addPerson(ALICE);
         Model oneStudentModel = new ModelManager(addressBook, new UserPrefs());
         Model expectedOneStudentModel = new ModelManager(addressBook, new UserPrefs());
-        assertCommandSuccess(new ListCommand(), oneStudentModel, "1 student listed!", expectedOneStudentModel);
+        assertCommandSuccess(new ListCommand(), oneStudentModel, CommandResult.roster("1 student listed!", null, null),
+                expectedOneStudentModel);
     }
 
     @Test
