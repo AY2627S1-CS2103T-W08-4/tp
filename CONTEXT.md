@@ -1,50 +1,54 @@
 # TutorTrack team implementation context
 
-Last verified: 2026-10-20 (Singapore time).
+Last verified: 2026-10-20 (Singapore time). This is a dated snapshot; verify GitHub
+before starting the next increment.
 
-## Active release completion
+## Released v1.3 MVP
 
-- Owner: Vincent Peh (`Eskalade`); fork branch `codex/v1.3-mvp-release`.
-- Issue: [#55](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/55), v1.3.
-- Base: team master `0a0944cb4701709fbd5b258f544a7b132f460647`.
-  GitHub confirms #44, #51 and #53 merged. Earlier entries below are historical.
-- PR: [#56](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/56), open and mergeable.
-- Status: implemented and locally validated; not merged or released. The v1.3 milestone
-  was already closed at audit, then reopened for issue #55 and PR #56; no tag or release existed.
-  Release deadline
-  was 15 October 23:59 SGT; this completion is after that deadline.
-- Scope: exact class/week query, headings, badges and empty states; selection/context
-  handling; strict batch deletion and save-before-live-update; strict Exit format;
-  readable detail and empty-roster text; v1.3 version/title; separate Apple Silicon JAR; UG/DG/README.
-- Validation: baseline passed 330 tests. The completion build passed 335 tests with
-  zero failures/errors/skips, Checkstyle, coverage and both JAR tasks on the final code.
-  Repository scripts and `git diff --check` passed.
-  Packaged Apple Silicon JAR passed an instrumented real-window MVP workflow and a
-  second-JVM reload, using isolated synthetic data. Actual scene screenshots are in
-  `docs/images/release-v1.3/`. The standard JAR passed the same workflow and second-JVM reload on Zulu Java
-  25.0.3 FX (ARM64); Apple Silicon used plain Temurin Java 25.0.4 (ARM64).
-- Failures resolved during development: obsolete AB3 name-query expectations;
-  import/style violations; duplicate Index objects bypassed hash-based deduplication
-  because Index has no hashCode (now deduplicated by integer value).
-- Integration: preserves existing Person/storage contracts. Queries never write;
-  deletion retains the live predicate. Repeated batch indices delete each target once
-  in first-appearance order (the supplied specification does not define duplicates).
-  `find` now follows the required class/week grammar; name search is outside the MVP.
-- The user explicitly authorized review and merge without teammate review for this
-  release. Do not describe this exception as teammate approval. Implementation/test
-  assistance: OpenAI Codex; existing teammate work and SE-EDU reuse are retained.
-- Review: checked parsing/error precedence, displayed-index snapshots, save-before-live-update,
-  view transitions, attendance isolation, native packaging and documentation. The repeated-index
-  defect found during validation is fixed; no known blocking findings remain.
-- Remote CI: fork Java CI [run 39385173412](https://github.com/Eskalade/tp/actions/runs/39385173412)
-  passed on Windows, macOS and Linux for implementation commit `9aa8dfaf`.
-  Final-head verification remains required; no team check runs existed at the last check.
-- Remaining: GitHub CI verification, merge, build exact
-  merged revision, publish JARs/checksums/notes with screenshots, verify downloads.
-  Actual Windows/Linux launches are not yet verified locally. The standard JAR uses
-  Intel Mac natives; plain ARM Java must use the separate Apple Silicon JAR.
-- 2026-10-20: audited the agreed MVP document, found missing class query and complete
-  deletion behavior despite the closed milestone; implemented release completion.
+- Owner: Vincent Peh (`Eskalade`); release completion tracked by
+  [issue #55](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/55), now closed.
+- [PR #56](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/56) is **merged**.
+  Source/tag commit: `ae8834e03f86ee67f38aca5895476a6ed22cb122`.
+- [TutorTrack v1.3](https://github.com/AY2627S1-CS2103T-W08-4/tp/releases/tag/v1.3)
+  is **published**, with `addressbook.jar`, `tutortrack-macos-arm64.jar`, SHA-256
+  checksums, detailed notes and real screenshots using synthetic data. All public
+  downloads matched local hashes; all screenshot URLs and the tag target were verified.
+- The release completes the agreed five MVP feature groups: add student; delete
+  students; list/class-week views; record/correct/clear attendance; save/reload/exit.
+  The audit found and fixed missing class queries and atomic batch deletion despite
+  the previously closed milestone. Headings, empty states, badge refresh, selection,
+  readable text, strict Exit format, branding and runtime instructions are integrated.
+- Clean validation on the exact merged commit:
+  `./gradlew clean check coverage shadowJar shadowJarMacArm` passed, **335 tests**,
+  zero failures/errors/skips. Checkstyle, coverage, repository scripts and
+  `git diff --check` passed.
+- [Final-head CI](https://github.com/Eskalade/tp/actions/runs/39386261849) passed on
+  Windows, macOS and Linux at `81985c29`; the merge has the identical source tree.
+- Both uploaded JARs passed an instrumented real-window workflow and a second-JVM
+  reload on macOS: standard package with Zulu Java 25.0.3 FX ARM64; Apple Silicon
+  package with plain Temurin Java 25.0.4 ARM64. Standard `java -jar` startup also passed.
+  Screenshots were visually checked, including correction of low-contrast empty text.
+  Separate Windows/Linux packaged-app launches were not performed locally.
+- Integration: existing Person/storage contracts are preserved. Queries do not save.
+  Deletion validates the pre-command display, saves a detached candidate, then updates
+  live data without replacing the filter. Repeated indices delete each target once
+  in first-appearance order; the specification did not define duplicate batch indices.
+  `find` now uses class/week syntax. Legacy `clear`/`edit` retain AB3 behavior.
+- Review covered parser errors, snapshots/rollback, view transitions, attendance
+  isolation, native packaging and documentation. The user authorized merge without
+  teammate review; no teammate approval is claimed. Implementation/test assistance
+  and reuse are acknowledged in the Developer Guide.
+- Known scope limits: editing students, name/Telegram search, undo, bulk attendance
+  and multiple sessions per course/week are outside the agreed MVP. Use the separate
+  Apple Silicon JAR with plain ARM Java; the standard JAR contains Intel Mac natives.
+- Timing: published 20 October, after the course deadline of 15 October 23:59 SGT.
+  Publication does not retroactively satisfy the on-time requirement.
+
+## Release history
+
+- 2026-10-20: verified merged prerequisites #44/#51/#53; completed and merged #56;
+  built the exact merged revision, published v1.3 and verified assets/screenshots.
+  The remaining work is future iteration planning and broader platform acceptance.
 
 ## Historical handoffs (superseded by the active summary above)
 
