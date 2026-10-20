@@ -43,6 +43,7 @@ public class PersonListPanel extends UiPart<Region> {
         super(FXML);
         personListView.setItems(personList);
         emptyRoster.setWrapText(true);
+        emptyRoster.setStyle("-fx-text-fill: white; -fx-padding: 12;");
         personListView.setPlaceholder(emptyRoster);
         personList.addListener((ListChangeListener<Person>) change -> updateRosterHeading());
         updateRosterHeading();

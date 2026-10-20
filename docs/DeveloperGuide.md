@@ -222,10 +222,11 @@ do not promise compatibility with attendance-bearing files; keep backups before 
 `AttendanceFormatter` supplies deterministic details and context-specific badges.
 `PersonListPanel` displays details in a bounded scroll area. Roster owner handoff:
 call `setAttendanceContext(ClassMembership, AttendanceWeek)` after a successful class
-query and `setAttendanceContext(null, null)` after list/name search. It refreshes the
+query and `setAttendanceContext(null, null)` after list. It refreshes the
 cards when only the week changes. On failed queries, leave the context untouched.
 Cards show badges only for an exact matching membership. This PR does not implement
-class queries, headings or class-filter selection clearing; those are now integrated by the v1.3 release completion increment described above.
+class queries, headings or class-filter selection clearing. These are now implemented
+by the v1.3 roster/deletion integration section below.
 
 Validation includes parser boundaries, immutable record isolation, malformed storage,
 real JSON round trips, restart, filtered indices, corrections, clearing, no-op save
@@ -312,7 +313,7 @@ Run `./gradlew check coverage` before opening the PR.
 
 For a GUI smoke test, use a separate temporary working directory:
 
-1. Start the JAR; run `find Alex` to activate a filter.
+1. Start the JAR; run `find c/CS2103T:T04 w/3` to activate a filter.
 2. Run `add n/Anne-Marie Tan p/@Anne_Tan e/Anne@Example.com c/cs2103t:t04 c/MA2001:T02`.
    Check the success message, full roster, new selected row, normalized details and initial attendance text.
 3. Submit the same command again. Check the duplicate-email error, unchanged selection/data and retained input.

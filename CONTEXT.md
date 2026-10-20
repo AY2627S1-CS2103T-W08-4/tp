@@ -15,7 +15,7 @@ Last verified: 2026-10-20 (Singapore time).
   was 15 October 23:59 SGT; this completion is after that deadline.
 - Scope: exact class/week query, headings, badges and empty states; selection/context
   handling; strict batch deletion and save-before-live-update; strict Exit format;
-  readable detail text; v1.3 version/title; separate Apple Silicon JAR; UG/DG/README.
+  readable detail and empty-roster text; v1.3 version/title; separate Apple Silicon JAR; UG/DG/README.
 - Validation: baseline passed 330 tests. The completion build passed 335 tests with
   zero failures/errors/skips, Checkstyle, coverage and both JAR tasks on the final code.
   Repository scripts and `git diff --check` passed.
@@ -37,7 +37,8 @@ Last verified: 2026-10-20 (Singapore time).
   view transitions, attendance isolation, native packaging and documentation. The repeated-index
   defect found during validation is fixed; no known blocking findings remain.
 - Remote CI: fork Java CI [run 39385173412](https://github.com/Eskalade/tp/actions/runs/39385173412)
-  is running for implementation commit `9aa8dfaf`; no team check runs exist yet.
+  passed on Windows, macOS and Linux for implementation commit `9aa8dfaf`.
+  Final-head verification remains required; no team check runs existed at the last check.
 - Remaining: GitHub CI verification, merge, build exact
   merged revision, publish JARs/checksums/notes with screenshots, verify downloads.
   Actual Windows/Linux launches are not yet verified locally. The standard JAR uses
