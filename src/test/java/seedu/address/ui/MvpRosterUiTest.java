@@ -110,6 +110,30 @@ public class MvpRosterUiTest {
         });
     }
 
+    @Test
+    public void update_refreshesDetailsAndPreservesContext_failureRetainsSelectionAndInput() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 1 m/CS2103T w/3 s/present");
+            enter("update 1 n/Alice Tan e/new@example.com");
+            assertEquals(0, list().getSelectionModel().getSelectedIndex());
+            assertTrue(label("studentDetails").getText().contains("new@example.com"));
+            assertTrue(label("studentDetails").getText().contains("Present"));
+            assertTrue(hasBadge("CS2103T | Week 3 | Present"));
+            assertEquals("CS2103T:T04 | Week 3 | 2 students", label("rosterHeading").getText());
+            Object selected = list().getSelectionModel().getSelectedItem();
+            String details = label("studentDetails").getText();
+            storage.fail = true;
+            enter("update 1 n/Unsaved");
+            assertEquals(selected, list().getSelectionModel().getSelectedItem());
+            assertEquals(details, label("studentDetails").getText());
+            assertEquals("update 1 n/Unsaved", input().getText());
+            storage.fail = false;
+            enter("update 1 n/Retry");
+            assertTrue(label("studentDetails").getText().contains("Retry"));
+        });
+    }
+
     private boolean hasBadge(String text) {
         stage.getScene().getRoot().applyCss();
         stage.getScene().getRoot().layout();

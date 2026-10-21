@@ -1,5 +1,50 @@
 # TutorTrack team implementation context
 
+## Active v1.4 increment — verified 21 October 2026 (SGT)
+
+- Owner: Vincent Peh (`Eskalade`); branch `codex/student-update-v14`, based on
+  team master `e83a798ec0e0b2de611a7bb49bedc9055a6705e8`.
+- Status: implemented and validated locally; PR publication/review pending.
+  This increment is **not merged or released**. v1.3 remains the published release.
+- Implementation issue [#58](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/58);
+  planning issue [#59](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/59), both
+  assigned to Eskalade under v1.4. Proposed teammate tasks are #60–#63.
+- Scope: `update INDEX [n/NAME] [p/TELEGRAM] [e/EMAIL]`, strict add-equivalent
+  field validation, normalized uniqueness excluding the target, filtered indices,
+  preserved memberships/attendance/order/context, selected refreshed details,
+  no-op without saving and save-before-live-update failure recovery.
+- Integration: no JSON schema change. `Person.withContactDetails` preserves immutable
+  attendance. Mark/update share `LogicManager.executeStudentReplacement`; coordinate
+  other transaction changes in this method. Legacy edit directs students to update.
+- Local validation: `./gradlew check coverage shadowJar shadowJarMacArm` passed on
+  Zulu Java 25.0.3 FX; **346 tests**, zero failures/errors/skips. Both Checkstyle
+  tasks, coverage generation, repository scripts and `git diff --check` passed. Initial test fixture filter-reset and
+  Checkstyle test-name failures were corrected before the passing run.
+- Packaged verification: both JARs passed instrumented real-window update/collision/
+  attendance-preservation tests and a second JVM reload on macOS. Standard JAR used
+  Zulu 25.0.3 FX; ARM JAR used plain Temurin 25.0.4. Screenshot visually inspected.
+  Separate Windows/Linux packaged GUI runs have not been performed.
+- UG/DG, S04, manual testing and PlantUML sequence source/render updated. Notation
+  checked against course reference sheet and modeling syllabus; rendered image
+  visually inspected. Jekyll site build is currently unverified: local Ruby lacks
+  the locked Bundler 2.5.11. Do not claim published guide rendering passed.
+- Plan: [v1.4 scope and release gates](docs/project/v1.4-plan.md). Freeze unrelated
+  new features; retain the five MVP workflows plus contact correction. v1.4 due
+  22 October 23:59 SGT; formal feature freeze at v1.5 deadline, 29 October 23:59 SGT.
+- Remaining: publish PR, obtain real teammate review and remote CI; teammates confirm
+  #60–#63 and complete acceptance/safety work (especially legacy clear); record actual
+  postmortem discussion; integrate and verify exact release JARs before publication.
+- Assistance: OpenAI Codex for planning, implementation, tests, UML and guides,
+  credited in the DG. No teammate approval or retrospective meeting is fabricated.
+
+## Dated history
+
+- 2026-10-21: Vincent completed the local student contact-update increment and
+  created v1.4 planning/acceptance issues. Review and integration remain pending.
+- 2026-10-20: v1.3 release and merged #56/#57 verified on GitHub on 21 October.
+
+## Previous v1.3 handoff (historical snapshot)
+
 Last verified: 2026-10-20 (Singapore time). This is a dated snapshot; verify GitHub
 before starting the next increment.
 

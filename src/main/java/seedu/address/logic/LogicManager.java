@@ -16,6 +16,7 @@ import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.MarkCommand;
+import seedu.address.logic.commands.UpdateCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -76,21 +77,10 @@ public class LogicManager implements Logic {
             return commandResult;
         }
         if (command instanceof MarkCommand mark) {
-            Person target = mark.getTarget(model);
-            Model candidate = new ModelManager(model.getAddressBook(), model.getUserPrefs());
-            List<Person> displayed = List.copyOf(model.getFilteredPersonList());
-            candidate.updateFilteredPersonList(displayed::contains);
-            commandResult = mark.execute(candidate);
-            Person updated = commandResult.getSelectedPerson().orElseThrow();
-            if (!updated.equals(target)) {
-                try {
-                    storage.saveAddressBook(candidate.getAddressBook());
-                } catch (IOException e) {
-                    throw new CommandException(ADD_SAVE_ERROR, e);
-                }
-                model.setPerson(target, updated);
-            }
-            return commandResult;
+            return executeStudentReplacement(mark, mark.getTarget(model));
+        }
+        if (command instanceof UpdateCommand update) {
+            return executeStudentReplacement(update, update.getTarget(model));
         }
         if (command instanceof AddCommand) {
             // Execute against a detached candidate: failures leave the live list, predicate and selection untouched.
@@ -119,6 +109,25 @@ public class LogicManager implements Logic {
         }
 
         return commandResult;
+    }
+
+    /** Saves a detached student replacement before publishing it to the live roster. */
+    private CommandResult executeStudentReplacement(Command command, Person target) throws CommandException {
+        Model candidate = new ModelManager(model.getAddressBook(), model.getUserPrefs());
+        List<Person> displayed = List.copyOf(model.getFilteredPersonList());
+        candidate.updateFilteredPersonList(displayed::contains);
+        CommandResult result = command.execute(candidate);
+        Person updated = result.getSelectedPerson().orElseThrow();
+        if (!updated.equals(target)) {
+            try {
+                storage.saveAddressBook(candidate.getAddressBook());
+            } catch (IOException e) {
+                logger.warning("Student change could not be saved; live data was retained.");
+                throw new CommandException(ADD_SAVE_ERROR, e);
+            }
+            model.setPerson(target, updated);
+        }
+        return result;
     }
 
     @Override

@@ -1,0 +1,62 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+participant ":MainWindow" as UI
+participant ":LogicManager" as Logic
+participant "update:UpdateCommand" as Command
+participant "candidate:ModelManager" as Candidate
+participant ":StorageManager" as Storage
+participant "live:ModelManager" as Live
+UI -> Logic : execute("update 1 e/new@example.com")
+activate UI
+activate Logic
+note over Logic, Command
+Parsing and target lookup omitted.
+Command is created during parsing.
+end note
+create Candidate
+Logic -> Candidate : new ModelManager(...)
+activate Candidate
+Candidate --> Logic
+deactivate Candidate
+Logic -> Candidate : updateFilteredPersonList(...)
+activate Candidate
+Candidate --> Logic
+deactivate Candidate
+Logic -> Command : execute(candidate)
+activate Command
+note over Command
+Validate replacement contacts.
+Reject collisions with other records.
+end note
+opt contacts changed
+Command -> Candidate : setPerson(target, updated)
+activate Candidate
+Candidate --> Command
+deactivate Candidate
+end
+Command --> Logic : result
+deactivate Command
+opt contacts changed
+Logic -> Storage : saveAddressBook(...)
+activate Storage
+note right of Storage
+On save failure, LogicManager throws CommandException;
+no live replacement or success result.
+end note
+Storage --> Logic
+deactivate Storage
+Logic -> Live : setPerson(target, updated)
+activate Live
+Live --> Logic
+deactivate Live
+end
+Logic --> UI : result
+deactivate Logic
+note right of UI
+Select the resulting student;
+retain class/week context.
+end note
+deactivate UI
+@enduml
