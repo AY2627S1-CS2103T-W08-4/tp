@@ -5,7 +5,7 @@
 - Owner: Vincent Peh (`Eskalade`); branch `codex/student-update-v14`, based on
   team master `e83a798ec0e0b2de611a7bb49bedc9055a6705e8`.
 - Status: published in [PR #64](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/64)
-  for teammate review; local checks passed, remote CI pending.
+  for teammate review; local checks and three-platform CI passed at `93a01e7a`.
   This increment is **not merged or released**. v1.3 remains the published release.
 - Implementation issue [#58](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/58);
   planning issue [#59](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/59), both
@@ -32,7 +32,10 @@
 - Plan: [v1.4 scope and release gates](docs/project/v1.4-plan.md). Freeze unrelated
   new features; retain the five MVP workflows plus contact correction. v1.4 due
   22 October 23:59 SGT; formal feature freeze at v1.5 deadline, 29 October 23:59 SGT.
-- Remaining: obtain real teammate review and remote CI; teammates confirm
+- Remote validation: [Java CI run 39523604490](https://github.com/Eskalade/tp/actions/runs/39523604490)
+  passed on Windows, macOS and Linux at `93a01e7a`. This handoff-only commit records
+  that result; production/test sources are unchanged. Recheck checks before merging.
+- Remaining: obtain real teammate review; teammates confirm
   #60–#63 and complete acceptance/safety work (especially legacy clear); record actual
   postmortem discussion; integrate and verify exact release JARs before publication.
 - Assistance: OpenAI Codex for planning, implementation, tests, UML and guides,
