@@ -4,7 +4,8 @@
 
 - Owner: Vincent Peh (`Eskalade`); branch `codex/student-update-v14`, based on
   team master `e83a798ec0e0b2de611a7bb49bedc9055a6705e8`.
-- Status: implemented and validated locally; PR publication/review pending.
+- Status: published in [PR #64](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/64)
+  for teammate review; local checks passed, remote CI pending.
   This increment is **not merged or released**. v1.3 remains the published release.
 - Implementation issue [#58](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/58);
   planning issue [#59](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/59), both
@@ -31,7 +32,7 @@
 - Plan: [v1.4 scope and release gates](docs/project/v1.4-plan.md). Freeze unrelated
   new features; retain the five MVP workflows plus contact correction. v1.4 due
   22 October 23:59 SGT; formal feature freeze at v1.5 deadline, 29 October 23:59 SGT.
-- Remaining: publish PR, obtain real teammate review and remote CI; teammates confirm
+- Remaining: obtain real teammate review and remote CI; teammates confirm
   #60–#63 and complete acceptance/safety work (especially legacy clear); record actual
   postmortem discussion; integrate and verify exact release JARs before publication.
 - Assistance: OpenAI Codex for planning, implementation, tests, UML and guides,
@@ -40,7 +41,7 @@
 ## Dated history
 
 - 2026-10-21: Vincent completed the local student contact-update increment and
-  created v1.4 planning/acceptance issues. Review and integration remain pending.
+  created v1.4 planning/acceptance issues and published PR #64. Review and integration remain pending.
 - 2026-10-20: v1.3 release and merged #56/#57 verified on GitHub on 21 October.
 
 ## Previous v1.3 handoff (historical snapshot)
