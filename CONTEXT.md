@@ -47,9 +47,17 @@
   deletion does) and hashing their numeric values fixed this without modifying the
   shared Index type. Initial failing tests and formatting checks were corrected
   before the passing run above.
-- Status: implementation and automated GUI verification complete locally. Remaining
-  in this increment: finish documentation review and commits; then teammate review,
-  remote CI and release verification. No push, PR, merge or release for #67.
+- Documentation: UG batch syntax/examples and DG transaction, precedence and manual
+  checks updated. MarkSequenceDiagram source/PNG updated for batch loops and whole-roster
+  comparison; rendered with PlantUML 1.2023.10 and visually inspected. Existing update
+  and find diagrams remain accurate and unchanged. The v1.4 plan retains its original
+  text with a dated amendment recording this owner-authorized scope change.
+- Repository checks: `.github/run-checks.sh` and `git diff --check` passed. Separate
+  packaged-app/manual platform checks and a Jekyll guide build were not performed;
+  automated GUI checks used the real-window harness on the local macOS host.
+- Status: implementation, documentation and local verification complete. No push,
+  PR, merge or release for #67. Remaining: teammate review of scope/shared transaction
+  and roster behaviour, remote CI, release verification and delivery/milestone decision.
 - Assistance: OpenAI Codex for code, tests and documentation prose; reuses team
   attendance types, storage and the existing JavaFX test harness.
 
