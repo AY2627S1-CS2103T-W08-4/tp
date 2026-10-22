@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import javafx.event.ActionEvent;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -30,9 +32,11 @@ import javafx.stage.WindowEvent;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.logic.LogicManager;
 import seedu.address.logic.commands.ExitCommand;
+import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.ReadOnlyAddressBook;
+import seedu.address.model.UserPrefs;
 import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.StorageManager;
@@ -161,6 +165,62 @@ public class MainWindowExitTest {
             assertEquals(2, storage.saveCount);
         });
         assertEquals(model.getAddressBook(), storage.readAddressBook().orElseThrow());
+    }
+
+    @Test
+    public void command_studentChangesAndFailedExitRetry_preserveClassViewAndReload() throws Exception {
+        assertStudentChangesSurviveExitFailureAndRetry(() -> enterCommand("exit"));
+    }
+
+    @Test
+    public void menu_studentChangesAndFailedExitRetry_preserveClassViewAndReload() throws Exception {
+        assertStudentChangesSurviveExitFailureAndRetry(this::exitMenu);
+    }
+
+    @Test
+    public void windowClose_studentChangesAndFailedExitRetry_preserveClassViewAndReload() throws Exception {
+        assertStudentChangesSurviveExitFailureAndRetry(() -> primaryStage.fireEvent(
+                new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST)));
+    }
+
+    private void assertStudentChangesSurviveExitFailureAndRetry(Runnable requestExit) throws Exception {
+        runOnFxThread(() -> {
+            model.setAddressBook(new AddressBook());
+            enterCommand("add n/Alice p/@alice_1 e/alice@example.com c/CS2103T:T04 c/MA2001:T01");
+            enterCommand("add n/Bobby p/@bobby_1 e/bob@example.com c/CS2103T:T05");
+            enterCommand("find c/CS2103T:T04 w/3");
+            enterCommand("mark 1 m/CS2103T w/3 s/present");
+            enterCommand("update 1 n/Alice Tan e/new@example.com");
+        });
+        String saved = Files.readString(storage.getAddressBookFilePath());
+        ReadOnlyAddressBook expectedData = new AddressBook(model.getAddressBook());
+        runOnFxThread(() -> {
+            ListView<?> roster = (ListView<?>) primaryStage.getScene().lookup("#personListView");
+            Label details = (Label) primaryStage.getScene().lookup("#studentDetails");
+            Label heading = (Label) primaryStage.getScene().lookup("#rosterHeading");
+            Object selected = roster.getSelectionModel().getSelectedItem();
+            String expectedDetails = details.getText();
+            assertTrue(expectedDetails.contains("new@example.com"));
+            assertTrue(expectedDetails.contains("Present"));
+            storage.failSave = true;
+            requestExit.run();
+            assertBothWindowsOpen();
+            assertEquals(ExitCommand.MESSAGE_SAVE_FAILURE, feedback());
+            assertEquals(selected, roster.getSelectionModel().getSelectedItem());
+            assertEquals(expectedDetails, details.getText());
+            assertEquals("CS2103T:T04 | Week 3 | 1 student", heading.getText());
+            assertEquals(expectedData, model.getAddressBook());
+        });
+        assertEquals(saved, Files.readString(storage.getAddressBookFilePath()));
+        runOnFxThread(() -> {
+            storage.failSave = false;
+            storage.beforeSave = this::assertBothWindowsOpen;
+            requestExit.run();
+            assertBothWindowsClosed();
+        });
+        Model restarted = new ModelManager(new JsonAddressBookStorage(storage.getAddressBookFilePath())
+                .readAddressBook().orElseThrow(), new UserPrefs());
+        assertEquals(expectedData, restarted.getAddressBook());
     }
 
     private void enterCommand(String command) {
