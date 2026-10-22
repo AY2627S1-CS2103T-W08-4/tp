@@ -126,6 +126,36 @@ public class ClassViewUiTest {
         });
     }
 
+    @Test
+    public void summary_shownOnlyInNonEmptyClassViewAndUpdatesAfterMark() throws Exception {
+        runOnFxThread(() -> {
+            assertFalse(label("rosterSummary").isVisible()); // full roster has no class/week context
+
+            enter("find c/CS2103T:T04 w/3");
+            assertTrue(label("rosterSummary").isVisible());
+            assertEquals("0 present, 0 absent, 2 unrecorded", label("rosterSummary").getText());
+
+            enter("mark 1 m/CS2103T w/3 s/present");
+            enter("mark 2 m/CS2103T w/3 s/absent");
+            assertEquals("1 present, 1 absent, 0 unrecorded", label("rosterSummary").getText());
+
+            enter("mark 1 m/CS2103T w/4 s/absent"); // another week does not change this week's totals
+            assertEquals("1 present, 1 absent, 0 unrecorded", label("rosterSummary").getText());
+
+            enter("find c/CS2103T:T04 w/4");
+            assertEquals("0 present, 1 absent, 1 unrecorded", label("rosterSummary").getText());
+
+            enter("find c/CS2103T:T04 w/0"); // a failed query keeps the previous summary
+            assertEquals("0 present, 1 absent, 1 unrecorded", label("rosterSummary").getText());
+
+            enter("find c/MA2001:T09 w/4");
+            assertFalse(label("rosterSummary").isVisible()); // empty class shows only the empty-state text
+
+            enter("list");
+            assertFalse(label("rosterSummary").isVisible());
+        });
+    }
+
     private String displayedName(int index) {
         return ((Person) list().getItems().get(index)).getName().fullName;
     }

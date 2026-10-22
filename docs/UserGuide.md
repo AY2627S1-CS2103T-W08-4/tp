@@ -217,6 +217,10 @@ and display attendance for that course/week, including **Unrecorded** when no de
 exists. Changing only the week refreshes the badges without changing class membership.
 A successful query clears selection and details. A failed query retains the old view.
 
+Below the heading, a non-empty class view also shows the class's totals for that week,
+for example `3 present, 1 absent, 1 unrecorded`. The totals update as soon as you `mark`
+attendance for the viewed course and week.
+
 A valid class with no students succeeds with `0 students listed!` and
 `No students found in COURSE:GROUP. Use list to view all students.` It creates no records.
 Use `list` to remove the filter. Queries are read-only and do not save the data file.
