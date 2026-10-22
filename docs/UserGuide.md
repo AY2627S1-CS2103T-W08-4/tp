@@ -205,9 +205,19 @@ same recovery message as `add`.
 
 ### Clearing all entries: `clear`
 
-Clears all entries from the address book.
+Removes all students and legacy contacts, including their attendance records, even
+when a class filter hides some entries. This action has no undo.
 
 Format: `clear`
+
+Only surrounding ordinary spaces are accepted. Extra arguments such as `clear 1`
+or `clear n/Alice`, tabs and line breaks are rejected without saving or changing
+records. Use `delete INDEX [INDEX...]` to remove selected displayed students.
+
+TutorTrack saves the empty roster before clearing the screen. On success, the
+current class/week context remains and the selected student's details disappear.
+If saving fails, records, attendance, selection and the current view remain intact.
+Resolve the storage problem and enter `clear` again.
 
 ### Exiting the program: `exit`
 
@@ -231,7 +241,7 @@ Resolve the storage problem and try Exit again. The feedback wraps to keep the r
 
 ### Saving the data
 
-TutorTrack saves accepted additions, deletions and attendance changes before reporting success, and saves before Exit. `list` and `find` are read-only. You do not need to save manually.
+TutorTrack saves accepted additions, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list` and `find` are read-only. You do not need to save manually.
 
 ### Editing the data file
 

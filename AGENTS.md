@@ -18,3 +18,18 @@ Follow the existing Java style and the course's Java/Git conventions. Add meanin
 tests for changed behavior, run `./gradlew check coverage`, and record failures or
 checks that could not run. Credit AI assistance and external reuse according to the
 course policy. Preserve teammates' work and coordinate shared model changes.
+
+## Mac and Windows verification
+
+Run focused Java 25 tests on the Mac during development. Before opening a PR or
+preparing a release, run the full `check coverage` tasks using the Gradle wrapper
+on both macOS (`./gradlew`) and the Windows PC (`gradlew.bat` via `ssh pc`).
+
+Read the `pc-gpu` skill for remote execution. Java tests do not use the GPU; this
+additional run checks Windows behavior. Transfer the exact source snapshot into
+a separate PC directory, record its revision/checksum, and exclude secrets,
+application data, build output and local handoffs. Do not commit or push solely
+for transfer, overwrite PC edits, or alter login/firewall settings. Retrieve logs
+and test reports; record Java version, test totals, failures and skipped checks in
+`CONTEXT.md`. If the PC is unavailable, finish Mac validation and leave Windows
+verification pending. Test-suite success is not a packaged-app GUI smoke test.
