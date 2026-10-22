@@ -1,6 +1,42 @@
 # TutorTrack team implementation context
 
-## Active v1.4 attendance verification — 22 October 2026 (SGT)
+## Active batch attendance extension — 22 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#67](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/67);
+  branch `67-atomic-batch-attendance`, based on team master `2e2a3579` (equal at start).
+  PR #72 (attendance verification) and #66 (sample students) are merged. Historical
+  pending-status entries below describe their earlier state.
+- Scope authorized by the owner on 22 October; this is not confirmed team consensus.
+  Extend `mark INDEX [INDEX ...] m/COURSE w/WEEK s/STATUS` with atomic batch marking.
+  This revises the earlier local proposal to defer bulk attendance, without editing
+  the unmodified exported MVP specification or claiming team approval.
+- Contract recorded before implementation: deduplicate in first-appearance order;
+  resolve one pre-command displayed roster; validate all bounds, then every enrolment
+  in input order, before changing anything. Preserve existing parser error precedence
+  (prefix structure, index syntax, required prefixes, course/week/status values).
+- One unique target keeps existing single-student messages. Multiple unique targets
+  report `Attendance set: COURSE | Week WEEK | STATUS | X changed, Y unchanged.`;
+  all-unchanged batches use `Attendance unchanged:` with the same count format.
+  Success selects the first supplied unique target, even when unchanged, and clears
+  input. Filters, order and class/week context remain. Failures retain the entire
+  view and attempted input; changed batches save once before any live replacement.
+- No mark-all, ranges, per-student statuses, new statuses or storage-schema changes.
+  Reuse attendance records and the shared save-before-live-update transaction;
+  regression-check contact updates and coordinate these changes through team review.
+- Course pages checked on 22 October: [v1.4 deadline](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week10/project.html)
+  is 22 October 23:59 SGT; [v1.5 deadline](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week11/project.html)
+  and start of feature freeze is 29 October 23:59 SGT. Freeze limits functional-code
+  changes per member to 15% or 150 lines, whichever is higher. Local completion alone
+  cannot satisfy v1.4 delivery: review, merge and release verification remain required.
+  If those miss tonight's deadline, the team must revise delivery scope/milestone;
+  no GitHub milestone is changed by this local work.
+- Status: implementation starting; no new validation result, publication or delivery
+  claimed. Remaining: implementation, tests, guides, UML, local checks and commits,
+  followed by teammate review and release verification.
+- Assistance: OpenAI Codex for code, tests and documentation prose; reuses team
+  attendance types, storage and the existing JavaFX test harness.
+
+## Previous v1.4 attendance verification — historical snapshot, 22 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); issue [#61](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/61);
   branch `61-attendance-isolation-recovery`. User confirmed this scope on 22 October.
