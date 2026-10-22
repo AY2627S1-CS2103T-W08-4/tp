@@ -13,7 +13,8 @@ title: Developer Guide
   implement and test the Telegram handle value type and v1.3 add-student integration, and draft the related UG/DG and implementation context. The integration reuses the team’s `ClassMembership` type and existing SE-EDU AB3 architecture.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to help implement and test the class membership value type
-  and the `list` command update, and draft their documentation.
+  and the `list` command update, write the class-view regression tests and `find` sequence diagram,
+  and draft their documentation.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -386,6 +387,36 @@ at most one tutorial group per course. Invalid construction throws
 Add-student now stores this type on `Person` and persists it through JSON. Its error wording matches
 the original Feature 1 specification. Extending `find` as `find c/COURSE:GROUP w/WEEK` remains with the
 view-class owner; that command is integrated by the v1.3 release completion increment.
+
+#### Viewing a class: `find c/COURSE:GROUP w/WEEK`
+
+The sequence diagram below shows how `find c/cs2103t:t04 w/3` is executed. `FindCommandParser` validates
+both values with `ClassMembership` and `AttendanceWeek`, so an invalid class or week fails before any state
+changes. `FindCommand` then replaces the model's filter with one that keeps only students whose memberships
+contain the exact class, and returns a `CommandResult` carrying that class and week.
+
+<img src="images/FindSequenceDiagram.png" width="750" />
+
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `FindCommandParser`
+should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
+</div>
+
+The UI uses the returned class and week to set the roster heading (e.g., `CS2103T:T04 | Week 3 | 2 students`)
+and each row's attendance badge, and to clear the selection. Because `find` is a read-only query,
+`LogicManager` returns its result without saving, so it also works when the data file is not writable.
+
+Design considerations:
+
+* **Exact class matching (current choice):** a student matches only if they have the complete
+  `COURSE:GROUP` membership, so `CS2103T:T04` does not match `CS2101:T04` or `CS2103T:T05`.
+  The alternative, matching the group code alone, would mix students from different courses who share
+  a group code such as `T04`.
+* **The week does not filter students:** changing only `w/` re-renders the badges for the same students.
+  Class membership is per course, not per week, so filtering by week would hide students who have no
+  decision yet; they are shown as **Unrecorded** instead.
+
+`ClassViewUiTest` checks these behaviours in a real window: exact matching, badges and details after marking
+another week or course, unchanged views after invalid queries, and repeated queries.
 
 ### \[Proposed\] Undo/redo feature
 

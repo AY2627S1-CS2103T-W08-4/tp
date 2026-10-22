@@ -1,0 +1,80 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
+participant ":FindCommandParser" as FindCommandParser LOGIC_COLOR
+participant "f:FindCommand" as FindCommand LOGIC_COLOR
+participant "r:CommandResult" as CommandResult LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant "m:Model" as Model MODEL_COLOR
+end box
+
+[-> LogicManager : execute("find c/cs2103t:t04 w/3")
+activate LogicManager
+
+LogicManager -> AddressBookParser : parseCommand("find c/cs2103t:t04 w/3")
+activate AddressBookParser
+
+create FindCommandParser
+AddressBookParser -> FindCommandParser
+activate FindCommandParser
+
+FindCommandParser --> AddressBookParser
+deactivate FindCommandParser
+
+AddressBookParser -> FindCommandParser : parse(" c/cs2103t:t04 w/3")
+activate FindCommandParser
+
+note right of FindCommandParser
+  Validates and normalizes
+  CS2103T:T04 and week 3
+end note
+
+create FindCommand
+FindCommandParser -> FindCommand : FindCommand(class, week)
+activate FindCommand
+
+FindCommand --> FindCommandParser
+deactivate FindCommand
+
+FindCommandParser --> AddressBookParser : f
+deactivate FindCommandParser
+'Hidden arrow to position the destroy marker below the end of the activation bar.
+FindCommandParser -[hidden]-> AddressBookParser
+destroy FindCommandParser
+
+AddressBookParser --> LogicManager : f
+deactivate AddressBookParser
+
+LogicManager -> FindCommand : execute(m)
+activate FindCommand
+
+FindCommand -> Model : updateFilteredPersonList(in class CS2103T:T04)
+activate Model
+
+Model --> FindCommand
+deactivate Model
+
+create CommandResult
+FindCommand -> CommandResult : roster(..., class, week)
+activate CommandResult
+
+CommandResult --> FindCommand
+deactivate CommandResult
+
+FindCommand --> LogicManager : r
+deactivate FindCommand
+
+note over LogicManager
+  Read-only query:
+  storage is not saved
+end note
+
+[<--LogicManager : r
+deactivate LogicManager
+@enduml
