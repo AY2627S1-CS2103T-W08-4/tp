@@ -1,5 +1,42 @@
 # TutorTrack team implementation context
 
+## Active Ethan v1.4 increment — 22 October 2026 (SGT)
+
+- Owner: Ethan Quek (`eatenquek`), issue [#62](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/62).
+- Local branch: `codex/safe-clear`, based on team master `e83a798e`.
+  Published for teammate review in [PR #71](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/71)
+  from commit `06f9a3f2`. No teammate approval, merge or release is claimed.
+- Scope: reject arguments/control whitespace for `clear`; save an empty roster
+  before changing live data; clear selection only on success and retain class/week
+  context. Clear includes hidden contacts and all attendance. No new features.
+- Regression tests first reproduced four failures, including acceptance of `clear 1`
+  and mutation before saving. Existing filtered batch deletion/repeated indices,
+  invalid later targets and failure/retry tests remain part of the suite.
+- Validation: Java 25.0.3 FX `./gradlew check coverage shadowJar` passed with
+  341 tests, zero failures/errors/skips; both Checkstyle tasks passed. Overall line
+  coverage: 1513 / 1686 (89.7%). New real-window test verifies failed clear preserves
+  selection/details/input/context and successful retry clears selection.
+- Initial full-check attempt found two overlong test lines; wrapped them and reran
+  successfully. UG/DG and AI acknowledgment updated. Source changes applied cleanly to
+  teammate PR #64 in an isolated checkout; combined Java 25 check/coverage passed
+  with 352 tests, zero failures/errors/skips. Documentation overlaps require
+  reconciliation when integrating. No remote CI or packaged manual smoke result claimed.
+- Windows PC validation (22 October): `gradlew.bat --no-daemon check coverage shadowJar`
+  passed on Zulu Java 25.0.3 FX, Windows build 26300: **341 tests**, zero
+  failures/errors/skips; both Checkstyle reports contain zero errors. Line coverage
+  matches macOS (1513 / 1686, 89.7%). Scheduler exit code verified as 0.
+- Exact uncommitted source snapshot: base `e83a798e`, archive SHA-256
+  `bcecfddd03068489f2867d87c4ba246a4b92dd3f4d4c621b06100a8e799099bc`.
+  The snapshot includes the updated AGENTS.md; later handoff/evidence edits do not
+  change production/test sources. Evidence pulled to Ethan's local iP
+  `.codex-artifacts/tp-clear-62/windows/`. No packaged manual GUI smoke claimed.
+- Independent AI review found no actionable correctness/test/documentation issues;
+  this is not teammate approval. Teammate review and integration remain outstanding.
+- AGENTS.md now records focused local tests during editing and final Mac/Windows
+  checks before PR/release. The Windows runtime was portable; default Java unchanged.
+- Assistance: OpenAI Codex, credited in the Developer Guide.
+
+
 Last verified: 2026-10-20 (Singapore time). This is a dated snapshot; verify GitHub
 before starting the next increment.
 

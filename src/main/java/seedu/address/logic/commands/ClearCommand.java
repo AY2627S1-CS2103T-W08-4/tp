@@ -6,11 +6,12 @@ import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 
 /**
- * Clears the address book.
+ * Clears all records while retaining the current roster context.
  */
 public class ClearCommand extends Command {
 
     public static final String COMMAND_WORD = "clear";
+    public static final String MESSAGE_USAGE = "Format: " + COMMAND_WORD;
     public static final String MESSAGE_SUCCESS = "Address book has been cleared!";
 
 
@@ -18,6 +19,6 @@ public class ClearCommand extends Command {
     public CommandResult execute(Model model) {
         requireNonNull(model);
         model.setAddressBook(new AddressBook());
-        return new CommandResult(MESSAGE_SUCCESS);
+        return CommandResult.deletion(MESSAGE_SUCCESS);
     }
 }
