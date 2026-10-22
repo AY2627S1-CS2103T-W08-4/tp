@@ -1,5 +1,17 @@
 # TutorTrack team implementation context
 
+## v1.4 persistence and startup protection — 22 October 2026
+
+- Owner: Aston (`aston-ish`); [issue #63](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/63); milestone v1.4.
+- Branch: `exit-persistence-verification`, based on team master `3c5c440c`.
+- Implementation commit: `8b086cb5`. PR not created. Review, remote CI and merge remain pending.
+- Scope: stop startup when existing student data cannot be loaded; show recovery guidance; preserve the original file; handle null JSON records through the data-loading error path.
+- Verification: add/update/delete, attendance correction/clearing, restart, preferences, and failure/retry through all three Exit routes.
+- Validation: Windows, Temurin Java 25.0.4; 362 tests passed with zero failures/errors/skips. Checkstyle, coverage generation, repository formatting checks and both JAR builds passed.
+- Packaged verification: instrumented Windows checks passed across separate JVMs for persistence/reload and invalid-data startup/shutdown. Mac ARM package built only; Mac/Linux packaged execution is unverified.
+- Integration: no JSON schema change. Clear-command safety remains with its owner.
+
+## Active v1.4 increment — verified 21 October 2026 (SGT)
 ## Active v1.4 attendance verification — 22 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); issue [#61](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/61);

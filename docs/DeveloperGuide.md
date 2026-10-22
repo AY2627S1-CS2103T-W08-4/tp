@@ -433,16 +433,29 @@ reloading existing contacts after editing and deleting. GUI tests run on the
 JavaFX thread with a bounded wait. Linux checks require a display; CI uses
 `xvfb-run -a ./gradlew check coverage`. No new Gradle dependencies are required.
 
-Full student/membership/attendance restart verification depends on the changes in
-PRs #44, #49 and #51. On 2026-10-15, an isolated checkout of published PR #51 head
-`c7e88a57`, with the Exit patch applied, passed 323 tests and a two-process smoke
-test against the packaged application. It preserved profiles, memberships,
-corrected/cleared attendance, other courses/weeks and other students. Both processes
-closed their main/Help windows, reached `MainApp.stop()` and exited normally using
-isolated data. These are local integration results; the dependencies remain open
-and need reviewed integration and CI before release. Snapshot inspection also
-found light-on-light text in the pending attendance detail pane; that owner must
-address its rendering before the integrated GUI is considered verified.
+### Startup data protection
+
+`MainApp.initialize(Storage)` loads student data before constructing the model, logic and main UI. If loading raises `DataLoadingException`, initialization stops. `MainApp.start()` displays recovery guidance through `UiManager.showDataLoadingErrorAndWait()`, then exits after the dialog closes.
+
+This prevents an empty fallback roster from overwriting an unreadable or invalid existing file through a later saving command or Exit. `MainApp.stop()` skips preference saving when no model was initialized.
+
+`JsonUtil.readJsonFile()` returns an empty result only when the file is confirmed missing. Null JSON roots, null person entries and null legacy tag entries follow the data-loading error path. Missing files retain sample-data initialization; valid empty rosters remain empty.
+
+The following activity diagram shows startup after preference initialization. A missing student data file uses sample data, while a successfully loaded file supplies the saved roster, including a valid empty roster.
+
+<img src="images/StartupActivityDiagram.png" alt="Startup activity diagram showing sample data, saved data and safe shutdown after a data-loading failure" width="768" />
+
+If loading fails, initialization stops before creating the model, logic or main UI. TutorTrack displays the file location and recovery instructions, then exits when the dialog closes. The original student data file remains unchanged.
+
+Editable source: [StartupActivityDiagram.puml](diagrams/StartupActivityDiagram.puml).
+
+### Persistence and Exit verification
+
+`MainAppTest` covers invalid and unreadable data, recovery after repair, missing files and saved empty rosters. `DataLoadingErrorTest` checks the recovery dialog. `PersistenceWorkflowTest` verifies add, update, attendance correction/clearing, deletion and preference restoration through a fresh application initialization.
+
+`MainWindowExitTest` additionally verifies that typed, menu and window-close Exit failures preserve updated student data, selection, details and class context, followed by successful retry and reload.
+
+Local validation on Windows with Temurin Java 25.0.4 passed: **362 tests, zero failures/errors/skips**, Checkstyle, coverage generation, repository formatting checks and both JAR builds. Instrumented Windows packaged-app checks passed through separate creation and reload processes, plus invalid-data startup and shutdown. The Mac ARM package was built but not run.
 
 ### View-class foundation: class memberships
 
@@ -815,7 +828,7 @@ Use case ends.
 **MSS**
 
 1. The user requests to exit TutorTrack.
-2. TutorTrack waits for any in-progress command to finish, then closes.
+2. TutorTrack saves the current student data, then closes the main window and any open Help window.
 3. The user launches TutorTrack again.
 4. TutorTrack loads all previously saved student, membership and attendance records.
 
@@ -826,6 +839,13 @@ Use case ends.
 * 1a. The exit command contains extra arguments.
   * 1a1. TutorTrack explains the correct format and keeps the application open.
   * Use case resumes at step 1.
+* 2a. Saving fails.
+  * 2a1. TutorTrack reports the failure and keeps the windows open without changing the current data or view.
+  * The user resolves the storage problem and resumes at step 1.
+* 4a. The existing data file is unreadable or invalid.
+  * 4a1. TutorTrack shows the file location and recovery instructions without opening an editable roster or overwriting the student data file.
+  * 4a2. Closing the dialog exits the application. The user repairs or restores the file before relaunching.
+  * Use case ends.
 
 ### Non-Functional Requirements
 
@@ -989,12 +1009,19 @@ contacts and the actual displayed index instead of assuming row 1.
 
 1. _{ more test cases …​ }_
 
-### Saving data
+### Manual startup recovery checks
 
-1. Dealing with missing/corrupted data files
+Use an isolated test folder and synthetic data.
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
-
+1. Close TutorTrack and keep a valid copy of the test data file.
+2. Replace the test file's contents with invalid JSON and launch the app.
+   Expected: recovery guidance identifies the file; no editable roster opens.
+3. Close the dialog.
+   Expected: the application exits and the invalid file remains unchanged.
+4. Restore the valid copy and relaunch.
+   Expected: the saved records load successfully.
+5. Repeat with `{"persons":[]}`.
+   Expected: an empty roster opens without sample records.
 1. _{ more test cases …​ }_
 
 ### First-run sample students
