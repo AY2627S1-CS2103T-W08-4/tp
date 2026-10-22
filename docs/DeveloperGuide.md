@@ -412,6 +412,14 @@ This prevents an empty fallback roster from overwriting an unreadable or invalid
 
 `JsonUtil.readJsonFile()` returns an empty result only when the file is confirmed missing. Null JSON roots, null person entries and null legacy tag entries follow the data-loading error path. Missing files retain sample-data initialization; valid empty rosters remain empty.
 
+The following activity diagram shows startup after preference initialization. A missing student data file uses sample data, while a successfully loaded file supplies the saved roster, including a valid empty roster.
+
+<img src="images/StartupActivityDiagram.png" alt="Startup activity diagram showing sample data, saved data and safe shutdown after a data-loading failure" width="768" />
+
+If loading fails, initialization stops before creating the model, logic or main UI. TutorTrack displays the file location and recovery instructions, then exits when the dialog closes. The original student data file remains unchanged.
+
+Editable source: [StartupActivityDiagram.puml](diagrams/StartupActivityDiagram.puml).
+
 ### Persistence and Exit verification
 
 `MainAppTest` covers invalid and unreadable data, recovery after repair, missing files and saved empty rosters. `DataLoadingErrorTest` checks the recovery dialog. `PersistenceWorkflowTest` verifies add, update, attendance correction/clearing, deletion and preference restoration through a fresh application initialization.

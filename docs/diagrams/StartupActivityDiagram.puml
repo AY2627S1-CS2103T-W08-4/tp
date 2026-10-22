@@ -1,0 +1,36 @@
+@startuml
+skin rose
+skinparam shadowing false
+skinparam ActivityFontName Arial
+skinparam ActivityFontSize 15
+skinparam ArrowFontName Arial
+skinparam ArrowFontSize 13
+skinparam NoteFontName Arial
+skinparam NoteFontSize 13
+skinparam defaultTextAlignment center
+
+start
+:Attempt to load student data;
+
+'Guards are placed on outgoing edges, matching the existing activity-diagram style.
+if () then ([load failed])
+    :Record startup failure;
+    note left
+      No editable roster is created.
+      The student data file is unchanged.
+    end note
+    :Show file location and\nrecovery instructions;
+    :Wait for the user to close the dialog;
+    :Exit application;
+    stop
+else ([no load failure])
+    if () then ([file missing])
+        :Use sample data;
+    else ([saved data loaded])
+        :Use saved data;
+    endif
+    :Create model, logic and main UI;
+    :Open main window;
+    stop
+endif
+@enduml
