@@ -52,6 +52,22 @@
 Last verified: 2026-10-20 (Singapore time). This is a dated snapshot; verify GitHub
 before starting the next increment.
 
+## Local increment: TutorTrack sample students (2026-10-22)
+
+- Owner: `toomintyy`; issue [#65](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/65).
+- Branch: `65-tutortrack-sample-students`, based on team master `e83a798e`.
+- Status: implemented locally; no PR, merge or release claimed.
+- Replaces six first-run legacy examples with fictional student profiles, unique
+  contacts and memberships across two courses/four classes, including one student
+  in both courses. Attendance starts Unrecorded. Existing saved data is unchanged;
+  this does not migrate or remove the user's existing legacy contacts.
+- Validation: `./gradlew check coverage` passed (337 tests, zero failures,
+  errors or skips), including Checkstyle. New tests cover sample contact uniqueness,
+  all weeks initially Unrecorded, class filtering, marking and JSON reload using
+  temporary storage. No manual GUI launch was performed for this increment.
+- UG/DG updated. Reuses AB3 bootstrap and team models; OpenAI Codex assistance.
+- Remaining: publish/review PR and merge; existing user data cleanup is separate.
+
 ## Released v1.3 MVP
 
 - Owner: Vincent Peh (`Eskalade`); release completion tracked by

@@ -922,3 +922,13 @@ contacts and the actual displayed index instead of assuming row 1.
    1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
 
 1. _{ more test cases …​ }_
+
+### First-run sample students
+
+`SampleDataUtil` supplies fictional student profiles only when startup finds no
+saved address book. Samples use the student validation factories, unique contacts
+and course/group memberships, with no stored attendance decisions. Existing-file
+loading and legacy compatibility are unchanged. Sample-data regression tests cover
+contact uniqueness, class filtering, marking and JSON reload using temporary files.
+This increment was implemented with OpenAI Codex assistance, reusing AB3's sample
+bootstrap and the team's existing student and attendance models.
