@@ -12,6 +12,14 @@ TutorTrack is a desktop application for teaching staff to manage student contact
 
 ## Quick start
 
+When no saved data file exists, TutorTrack starts with six fictional sample students.
+They have Telegram handles and memberships across CS2103T (T04/T05) and CS1101S
+(T02/T03); Alex Yeoh belongs to both courses. All attendance starts as Unrecorded.
+Try `find c/CS2103T:T04 w/3`, then `mark 1 m/CS2103T w/3 s/present`.
+Existing saved data, including legacy contacts, is loaded unchanged instead of these
+examples. Updating the application does not replace your saved contacts.
+
+
 1. Install Java `25`. The release was validated with Java 25; newer major versions are not yet verified.
 
 1. Choose the JAR matching your Java installation:
