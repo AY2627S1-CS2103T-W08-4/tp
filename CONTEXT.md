@@ -1,6 +1,28 @@
 # TutorTrack team implementation context
 
-## Active v1.4 increment — verified 21 October 2026 (SGT)
+## Active v1.4 attendance verification — 22 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#61](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/61);
+  branch `61-attendance-isolation-recovery`. User confirmed this scope on 22 October.
+- Base: `3c5c440c`, verified equal to team master before editing. PR #64 (contact
+  updates), #69 (Gradle run assertions) and #70 (class-view verification) are merged.
+  This supersedes the pending-merge claims in the historical snapshots below.
+- Status: local verification increment; no push, PR, merge or release for #61.
+- Tests cover failed initial attendance recording, correction and clearing followed
+  by retry and JSON reload; student/course/week isolation; mark -> contact update ->
+  mark -> reload; and real JavaFX selection, details, badges, heading, row order and
+  input preservation when another student's mark fails or is invalid.
+- Validation: focused attendance/update/class-view tests and `./gradlew check coverage`
+  passed; full suite **356 tests**, zero failures/errors/skips, Checkstyle passed.
+  The new GUI checks use the existing real-window JavaFX harness and temporary data.
+  No production defect was found and no functional code or model interface changed.
+- Remaining in this increment: attendance DG corrections, rendered sequence diagram
+  and final repository checks. Packaged-app/manual platform checks are not claimed.
+- Assistance: OpenAI Codex; reuses existing team models, fixtures and GUI test harness.
+- After local completion: user will publish and obtain teammate review/CI before
+  merging and closing #61. Do not close the issue merely because local tests pass.
+
+## Previous contact-update handoff — historical snapshot, 21 October 2026 (SGT)
 
 - Owner: Vincent Peh (`Eskalade`); branch `codex/student-update-v14`, based on
   team master `e83a798ec0e0b2de611a7bb49bedc9055a6705e8`.
