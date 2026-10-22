@@ -143,6 +143,18 @@ before starting the next increment.
 - Timing: published 20 October, after the course deadline of 15 October 23:59 SGT.
   Publication does not retroactively satisfy the on-time requirement.
 
+## Class-view attendance summary (2026-10-22)
+
+- Owner: Jian Yang (`jianyang999`); [issue #74](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/74);
+  branch `class-attendance-summary`; milestone v1.4. AI assistance: Claude Code.
+- Status: PR open for teammate review; not merged. Proposed to the team as UI clarity on the
+  existing class view; confirm it fits the v1.4 scope before merging, otherwise move it to v1.5.
+- Scope: `AttendanceSummary` (Model) counts Present/Absent/Unrecorded for the displayed class
+  students in the viewed course/week; `PersonListPanel` shows it in a `rosterSummary` label below
+  the unchanged heading, only in non-empty class views, recomputed on list or context changes.
+  No new command, storage or schema change.
+- Tests: `AttendanceSummaryTest` (6) and a real-window case in `ClassViewUiTest`.
+
 ## v1.4 class-view verification (2026-10-22)
 
 - Owner: Jian Yang (`jianyang999`); [issue #60](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/60);
