@@ -524,6 +524,12 @@ Design considerations:
   Class membership is per course, not per week, so filtering by week would hide students who have no
   decision yet; they are shown as **Unrecorded** instead.
 
+**Attendance summary:** below the heading, `PersonListPanel` shows an `AttendanceSummary` of the displayed
+students for the viewed class and week (e.g., `3 present, 1 absent, 1 unrecorded`). The panel recomputes it
+whenever the displayed list or the class/week context changes, so a `mark` updates it immediately. It is
+hidden on the full roster and in an empty class view. `AttendanceSummary` lives in the Model so that the
+counting rules (only students in the class, only the viewed course and week) are unit-tested without the UI.
+
 `ClassViewUiTest` checks these behaviours in a real window: exact matching, badges and details after marking
 another week or course, unchanged views after invalid queries, and repeated queries.
 
