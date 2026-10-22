@@ -7,7 +7,9 @@
 - Base: `3c5c440c`, verified equal to team master before editing. PR #64 (contact
   updates), #69 (Gradle run assertions) and #70 (class-view verification) are merged.
   This supersedes the pending-merge claims in the historical snapshots below.
-- Status: local verification increment; no push, PR, merge or release for #61.
+- Status: published from `toomintyy:61-attendance-isolation-recovery` in
+  [PR #72](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/72) against team master,
+  under v1.4. Open for teammate review; not merged or released.
 - Tests cover failed initial attendance recording, correction and clearing followed
   by retry and JSON reload; student/course/week isolation; mark -> contact update ->
   mark -> reload; and real JavaFX selection, details, badges, heading, row order and
@@ -26,11 +28,11 @@
 - Repository validation: `.github/run-checks.sh` and `git diff --check` passed.
   Automated GUI verification ran through the real-window JavaFX harness with
   isolated data. Separate packaged-app/manual platform checks and a Jekyll guide
-  build were not performed for this increment; remote CI remains pending publication.
+  build were not performed for this increment; remote CI results are not yet verified.
 - Assistance: OpenAI Codex for tests and documentation prose; reuses existing team
   models, fixtures and GUI test harness.
-- After local completion: user will publish and obtain teammate review/CI before
-  merging and closing #61. Do not close the issue merely because local tests pass.
+- Remaining: obtain teammate review and passing remote CI before merging and closing
+  #61. Do not close the issue merely because local tests pass.
 
 ## Previous contact-update handoff — historical snapshot, 21 October 2026 (SGT)
 
