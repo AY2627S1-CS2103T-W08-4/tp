@@ -6,6 +6,12 @@
   branch `67-atomic-batch-attendance`, based on team master `2e2a3579` (equal at start).
   PR #72 (attendance verification) and #66 (sample students) are merged. Historical
   pending-status entries below describe their earlier state.
+- Before publication, merged team master `b072a989` containing PR #75 (class-view
+  attendance totals), preserving existing commits. Extended the batch UI recovery
+  test to verify totals remain unchanged on failure and refresh after retry/clearing.
+  Re-ran `./gradlew check coverage`: **383 tests**, zero failures/errors/skips,
+  Checkstyle and coverage passed; repository scripts and whitespace checks passed.
+  This supersedes the pre-integration 376-test result below.
 - Scope authorized by the owner on 22 October; this is not confirmed team consensus.
   Extend `mark INDEX [INDEX ...] m/COURSE w/WEEK s/STATUS` with atomic batch marking.
   This revises the earlier local proposal to defer bulk attendance, without editing

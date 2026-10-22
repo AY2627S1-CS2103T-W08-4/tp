@@ -213,6 +213,7 @@ public class MvpRosterUiTest {
             List<Person> before = displayedStudents();
             List<String> badges = attendanceBadges();
             String command = "mark 2 1 2 m/CS2103T w/3 s/absent";
+            assertEquals("1 present, 0 absent, 1 unrecorded", label("rosterSummary").getText());
             storage.fail = true;
             enter(command);
             assertEquals(LogicManager.ADD_SAVE_ERROR, feedback());
@@ -222,10 +223,12 @@ public class MvpRosterUiTest {
             assertEquals(before, displayedStudents());
             assertEquals(badges, attendanceBadges());
             assertEquals(command, input().getText());
+            assertEquals("1 present, 0 absent, 1 unrecorded", label("rosterSummary").getText());
 
             storage.fail = false;
             enter(command);
             assertEquals("Attendance set: CS2103T | Week 3 | Absent | 2 changed, 0 unchanged.", feedback());
+            assertEquals("0 present, 2 absent, 0 unrecorded", label("rosterSummary").getText());
             assertEquals(1, list().getSelectionModel().getSelectedIndex());
             assertEquals("", input().getText());
             assertEquals(heading, label("rosterHeading").getText());
@@ -235,6 +238,7 @@ public class MvpRosterUiTest {
             assertTrue(label("studentDetails").getText().contains("Absent"));
             assertEquals(List.of("CS2103T | Week 3 | Absent", "CS2103T | Week 3 | Absent"), attendanceBadges());
             enter("mark 1 2 m/CS2103T w/3 s/unrecorded");
+            assertEquals("0 present, 0 absent, 2 unrecorded", label("rosterSummary").getText());
             assertEquals(0, list().getSelectionModel().getSelectedIndex());
             assertTrue(label("studentDetails").getText().contains("No attendance recorded."));
             assertEquals(List.of("CS2103T | Week 3 | Unrecorded", "CS2103T | Week 3 | Unrecorded"), attendanceBadges());
