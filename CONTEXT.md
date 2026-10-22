@@ -30,9 +30,26 @@
   cannot satisfy v1.4 delivery: review, merge and release verification remain required.
   If those miss tonight's deadline, the team must revise delivery scope/milestone;
   no GitHub milestone is changed by this local work.
-- Status: implementation starting; no new validation result, publication or delivery
-  claimed. Remaining: implementation, tests, guides, UML, local checks and commits,
-  followed by teammate review and release verification.
+- Implementation: parser accepts space-separated indices; `MarkCommand` validates
+  the entire snapshot and builds all replacements before applying them. Shared
+  `LogicManager.executeStudentReplacement` compares complete original/proposed rosters,
+  saves once if changed, then publishes only changed rows. It no longer relies on
+  the selected student to detect changes. Single-target and contact-update behaviour
+  remain covered; no storage-schema or UI production-code change was needed.
+- Validation: 48 focused tests passed; `./gradlew check coverage` passed with
+  **376 tests**, zero failures/errors/skips, both Checkstyle tasks and coverage
+  generation. Includes 18 added tests across parser, command, integration and the
+  existing real-window JavaFX harness. All test data uses temporary storage.
+  Full-roster comparisons cover isolated courses/weeks/students and updated contacts;
+  storage hooks verify the complete proposal is saved before any live event.
+- During development, duplicate-index tests exposed reliance on hashing `Index`,
+  which defines equality without `hashCode`. Normalizing numeric indices (as batch
+  deletion does) and hashing their numeric values fixed this without modifying the
+  shared Index type. Initial failing tests and formatting checks were corrected
+  before the passing run above.
+- Status: implementation and automated GUI verification complete locally. Remaining
+  in this increment: finish documentation review and commits; then teammate review,
+  remote CI and release verification. No push, PR, merge or release for #67.
 - Assistance: OpenAI Codex for code, tests and documentation prose; reuses team
   attendance types, storage and the existing JavaFX test harness.
 
