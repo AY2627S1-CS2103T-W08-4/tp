@@ -16,8 +16,17 @@
   passed; full suite **356 tests**, zero failures/errors/skips, Checkstyle passed.
   The new GUI checks use the existing real-window JavaFX harness and temporary data.
   No production defect was found and no functional code or model interface changed.
-- Remaining in this increment: attendance DG corrections, rendered sequence diagram
-  and final repository checks. Packaged-app/manual platform checks are not claimed.
+- Documentation: corrected stale attendance instructions and pending-integration
+  wording in the DG, documented the shared replacement transaction, and added
+  concrete manual checks with expected outcomes. The UG already matches this flow.
+  `docs/diagrams/MarkSequenceDiagram.puml` and its PNG show unchanged, successful-save
+  and failed-save paths. Rendered with PlantUML 1.2023.10 and visually inspected;
+  notation checked against the current course modeling guidance and UML reference.
+  Existing update and find diagrams are unchanged.
+- Repository validation: `.github/run-checks.sh` and `git diff --check` passed.
+  Automated GUI verification ran through the real-window JavaFX harness with
+  isolated data. Separate packaged-app/manual platform checks and a Jekyll guide
+  build were not performed for this increment; remote CI remains pending publication.
 - Assistance: OpenAI Codex; reuses existing team models, fixtures and GUI test harness.
 - After local completion: user will publish and obtain teammate review/CI before
   merging and closing #61. Do not close the issue merely because local tests pass.

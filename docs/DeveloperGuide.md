@@ -14,6 +14,9 @@ title: Developer Guide
 * Vincent also used OpenAI Codex for v1.4 scope planning, student contact updates, regression tests, the sequence diagram and related documentation. The implementation reuses team value types and the existing attendance transaction pattern; Vincent must understand and review the generated work.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to assist with parts of the class membership, `list` and class-view work.
+* Min Thi Ha used OpenAI Codex for attendance recovery and contact-update integration tests,
+  JavaFX failure checks, the attendance sequence diagram and related documentation (#61).
+  This work reuses the team's existing model, storage and JavaFX test infrastructure.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -221,15 +224,15 @@ same `MESSAGE_CONSTRAINTS` error as other invalid weeks. Null input throws
 
 This type deliberately does not infer a calendar week or impose a current-date
 restriction. Attendance records also identify their course and are owned by a student;
-a week alone is not a complete record identity. The integration below uses this
-type for `mark`; `find w/` remains a separate roster integration.
+a week alone is not a complete record identity. Both `mark` and
+`find c/COURSE:GROUP w/WEEK` use this type for their week parameter.
 
 `AttendanceWeekTest` checks all 53 supported weeks, normalization, invalid syntax,
 whitespace and Unicode digits, overflow-sized input, nulls, equality and replacing
 an equal week key in a map. OpenAI Codex assisted `toomintyy` with implementation,
 tests and documentation.
 
-### Record and correct attendance (v1.3)
+### Record and correct attendance
 
 `MarkCommandParser` validates the displayed index and required singleton `m/`, `w/`,
 `s/` prefixes without discarding control whitespace. `AttendanceRecord` normalizes
@@ -248,13 +251,33 @@ removes it for Unrecorded, and returns a complete student copy. Contact identity
 Deleting the owning Person removes its records without orphan data. Student contact
 correction uses `update` and preserves attendance; legacy `edit` rejects students.
 
-`LogicManager` captures the target and displayed rows before execution, then runs
+`LogicManager.executeStudentReplacement`, shared by `mark` and `update`, captures
+an immutable snapshot of the displayed rows after the target is resolved. It runs
 `MarkCommand` on a detached model filtered to those rows. If the selected result
 matches the original student, it returns without saving. Otherwise it saves the
 candidate through the atomic JSON writer inherited from #44, then calls `setPerson`
 on the live model. The original predicate and row order remain in place. No live
 observable list event or selection request is emitted on validation or saving failure.
-`MainWindow` selects the result only after success, including a no-op.
+`MainWindow` selects the result only after success, including a no-op. On failure,
+`MainWindow` displays the error and rethrows it to `CommandBox`, which retains the
+attempted input. Restoring storage and resubmitting starts a fresh transaction.
+
+<img src="images/MarkSequenceDiagram.png" alt="Attendance sequence diagram showing unchanged status, successful saving and failed saving" width="1100" />
+
+The diagram focuses on `executeStudentReplacement`. Parsing, command creation,
+initial target lookup and detailed `Person` calls are omitted; the scenario assumes
+valid input and enrolment. An unchanged result bypasses both storage and live
+replacement. The two save outcomes are mutually exclusive: only a successful save
+reaches `live.setPerson`. A failed save returns an error, not a success result, and
+never publishes the candidate. A correction replaces a course/week decision;
+Unrecorded removes it using the same transaction.
+
+Editable source: [MarkSequenceDiagram.puml](diagrams/MarkSequenceDiagram.puml).
+It uses activation bars, object creation and `opt`/`alt` fragments from the
+[course UML modeling guidance](https://nus-cs2103-ay2627-s1.github.io/website/se-book-adapted/chapters/modeling.html)
+and [UML reference sheet](https://nus-cs2103-ay2627-s1.github.io/website/admin/uml-reference-sheet.html).
+Render with PlantUML 1.2023.10, matching the class-view diagram's renderer, from the
+repository root: `java -Djava.awt.headless=true -jar /path/to/plantuml-1.2023.10.jar -tpng -o ../images docs/diagrams/MarkSequenceDiagram.puml`.
 
 JSON stores `attendance` inside each student as an array, for example:
 
@@ -270,28 +293,34 @@ contacts and students without attendance remain readable. Older application vers
 do not promise compatibility with attendance-bearing files; keep backups before downgrading.
 
 `AttendanceFormatter` supplies deterministic details and context-specific badges.
-`PersonListPanel` displays details in a bounded scroll area. Roster owner handoff:
-call `setAttendanceContext(ClassMembership, AttendanceWeek)` after a successful class
-query and `setAttendanceContext(null, null)` after list. It refreshes the
-cards when only the week changes. On failed queries, leave the context untouched.
-Cards show badges only for an exact matching membership. This PR does not implement
-class queries, headings or class-filter selection clearing. These are now implemented
-by the v1.3 roster/deletion integration section below.
+`PersonListPanel` displays details in a bounded scroll area. On a successful class
+query, `MainWindow` applies the returned class/week context with
+`setAttendanceContext(ClassMembership, AttendanceWeek)`; `list` clears it with
+`setAttendanceContext(null, null)`. Changing only the week refreshes the cards.
+A failed command leaves this context untouched. Marking another course/week changes
+student details without changing the badge for the currently displayed context.
 
 Validation includes parser boundaries, immutable record isolation, malformed storage,
-real JSON round trips, restart, filtered indices, corrections, clearing, no-op save
-counts, failed-save data/view preservation, deletion and existing-command compatibility.
-Codex assisted Min Thi Ha (`toomintyy`) with implementation, tests and documentation.
+JSON round trips, filtered indices, correction/clearing, no-op save counts and
+existing-command compatibility. `AttendanceIntegrationTest` adds failed initial saves,
+corrections and clears followed by retry and reload, plus marking after contact updates.
+The tests compare the full roster so unrelated students, courses and weeks remain intact.
+`MvpRosterUiTest` checks that a failed mark targeting a different student preserves
+selection, details, badges, heading, order and input, and that retry refreshes the
+correct student. It also checks invalid mark input. `ClassViewUiTest` supplies the
+existing other-course/week display-isolation coverage; `StudentUpdateIntegrationTest`
+covers contact replacement and attendance preservation.
 
-Manual GUI acceptance checklist (requires a working JavaFX desktop):
+Run the focused checks with
+`./gradlew test --tests '*AttendanceIntegrationTest' --tests '*MvpRosterUiTest' --tests '*StudentUpdateIntegrationTest' --tests '*ClassViewUiTest'`,
+then `./gradlew check coverage`. Tests use temporary datasets and injected I/O failures.
+They do not modify the user's storage file or permissions. Current results and
+platform limitations are recorded in `CONTEXT.md`.
 
-1. Add two students with different courses, find one by name, then mark row 1.
-2. Verify the selected student's details change, while the filter and row position stay fixed.
-3. Correct Present to Absent, repeat Absent, then clear with Unrecorded; verify messages and details.
-4. Record several weeks/courses, restart, and check details and scrolling at a small window size.
-5. After #45 integration, query a class/week, change attendance in that context and another
-   context, and verify only the matching badge changes. Change just the queried week.
-6. With an unwritable test data location, verify failed marks leave selection, details and data intact.
+For commands and expected outcomes, see
+[Attendance isolation and recovery](#attendance-isolation-and-recovery) in the manual
+verification appendix. Codex assisted Min Thi Ha (`toomintyy`) with attendance
+implementation, regression tests, the diagram and documentation.
 
 ### Add-student foundation: Telegram handles
 
@@ -832,6 +861,45 @@ Given below are instructions to test the app manually.
 testers are expected to do more *exploratory* testing.
 
 </div>
+
+### Attendance isolation and recovery
+
+Use a disposable application copy in a separate working directory with its own data
+file. Never change permissions on your real dataset. The commands below use fictional
+contacts and distinctive test groups; confirm the filtered names/indices before marking.
+If these contacts already exist, start a fresh disposable dataset or use unique values.
+
+1. Add the test students:
+   - `add n/Review Alice p/@review_alice e/review.alice@example.com c/CS2103T:T98 c/MA2001:T98`
+   - `add n/Review Bob p/@review_bobby e/review.bob@example.com c/CS2103T:T99`
+2. Run `find c/CS2103T:T98 w/1`. Expected: only Review Alice, at row 1, with an
+   Unrecorded badge. Record `mark 1 m/CS2103T w/1 s/present`, then
+   `mark 1 m/MA2001 w/1 s/absent` and `mark 1 m/CS2103T w/53 s/absent`.
+   Expected: Alice is selected, with three independent records; the displayed
+   CS2103T Week 1 badge remains Present.
+3. Enter `update 1 n/Review Alicia p/@review_alicia e/review.alicia@example.com`,
+   then `mark 1 m/CS2103T w/1 s/absent`. Expected: the corrected contacts and both
+   memberships remain; exactly three attendance decisions exist, with Week 1 now
+   Absent. No duplicate profile appears and the class/week heading remains unchanged.
+4. Repeat `mark 1 m/CS2103T w/1 s/absent`. Expected:
+   `Attendance unchanged: Review Alicia | CS2103T | Week 1 is already Absent.`
+   Clear it with `mark 1 m/CS2103T w/1 s/unrecorded`. Expected: the Week 1 badge
+   becomes Unrecorded and that decision disappears; the other two records remain.
+5. Try `mark 1 m/CS2103T w/54 s/present`, `mark 2 m/CS2103T w/1 s/present`
+   and `mark 1 m/CS1101S w/1 s/present`. Expected: respectively a week error,
+   invalid displayed index and unenrolled-course error; each leaves data, selection,
+   details, badges and heading unchanged, with the rejected command available to edit.
+6. Enter `exit` and restart from the same disposable directory. Query
+   `find c/CS2103T:T98 w/1`, `find c/CS2103T:T98 w/53` and `find c/MA2001:T98 w/1`.
+   Expected badges: Unrecorded, Absent and Absent respectively. Select Alicia to
+   confirm the corrected contacts, memberships and remaining records. Query
+   `find c/CS2103T:T99 w/1`; Bob's contacts are unchanged and attendance is Unrecorded.
+7. Save failure is verified safely through the automated harness rather than by
+   changing real permissions. Run the focused tests listed in the attendance design
+   section. The recovery tests inject failures for initial recording, correction and
+   clearing, restore storage, retry the exact command and reload JSON. The UI test
+   selects Alice, fails a mark for Bobby, checks the unchanged view/input, then retries
+   successfully and verifies Bobby is selected with updated details and badge.
 
 ### Student contact correction
 
