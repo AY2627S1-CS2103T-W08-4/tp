@@ -44,6 +44,18 @@ before starting the next increment.
 - Timing: published 20 October, after the course deadline of 15 October 23:59 SGT.
   Publication does not retroactively satisfy the on-time requirement.
 
+## v1.4 class-view verification (2026-10-22)
+
+- Owner: Jian Yang (`jianyang999`); [issue #60](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/60);
+  branch `verify-class-view`; milestone v1.4. AI assistance: Claude Code.
+- Scope: verification only, no functional code change. New real-window `ClassViewUiTest` covers exact
+  `COURSE:GROUP` matching, badges/details after marking another week or course, unchanged view/selection/input
+  after invalid queries, and repeated queries. No defects found; existing `MvpRosterUiTest` and
+  `MvpRosterIntegrationTest` already cover add/delete/mark context changes and save failures.
+- Docs: DG section "Viewing a class" with `FindSequenceDiagram` (PlantUML source and PNG, rendered with
+  PlantUML 1.2023.10 because newer versions print a warning for `style.puml`'s `ParticipantPadding`).
+- Not covered here: the `update` command (#64) in class view; legacy `clear` keeps the class heading.
+
 ## Release history
 
 - 2026-10-20: verified merged prerequisites #44/#51/#53; completed and merged #56;
