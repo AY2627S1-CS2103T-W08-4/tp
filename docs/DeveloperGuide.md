@@ -15,7 +15,7 @@ title: Developer Guide
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to assist with parts of the class membership, `list` and class-view work.
 * Min Thi Ha used OpenAI Codex for attendance recovery and contact-update integration tests,
-  JavaFX failure checks, the attendance sequence diagram and related documentation (#61).
+  JavaFX failure checks and attendance documentation prose (#61).
   This work reuses the team's existing model, storage and JavaFX test infrastructure.
 
 --------------------------------------------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ platform limitations are recorded in `CONTEXT.md`.
 For commands and expected outcomes, see
 [Attendance isolation and recovery](#attendance-isolation-and-recovery) in the manual
 verification appendix. Codex assisted Min Thi Ha (`toomintyy`) with attendance
-implementation, regression tests, the diagram and documentation.
+implementation, regression tests and documentation prose.
 
 ### Add-student foundation: Telegram handles
 

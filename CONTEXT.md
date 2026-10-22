@@ -27,7 +27,8 @@
   Automated GUI verification ran through the real-window JavaFX harness with
   isolated data. Separate packaged-app/manual platform checks and a Jekyll guide
   build were not performed for this increment; remote CI remains pending publication.
-- Assistance: OpenAI Codex; reuses existing team models, fixtures and GUI test harness.
+- Assistance: OpenAI Codex for tests and documentation prose; reuses existing team
+  models, fixtures and GUI test harness.
 - After local completion: user will publish and obtain teammate review/CI before
   merging and closing #61. Do not close the issue merely because local tests pass.
 
