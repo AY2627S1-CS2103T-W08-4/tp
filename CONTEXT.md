@@ -61,9 +61,11 @@
 - Repository checks: `.github/run-checks.sh` and `git diff --check` passed. Separate
   packaged-app/manual platform checks and a Jekyll guide build were not performed;
   automated GUI checks used the real-window harness on the local macOS host.
-- Status: implementation, documentation and local verification complete. No push,
-  PR, merge or release for #67. Remaining: teammate review of scope/shared transaction
-  and roster behaviour, remote CI, release verification and delivery/milestone decision.
+- Status: published from `toomintyy:67-atomic-batch-attendance` in
+  [PR #76](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/76) against team master,
+  under v1.4 with `type.Enhancement` and `priority.Medium`. Open for review, not merged
+  or released. Remaining: teammate review of scope/shared transaction and roster
+  behaviour, remote CI, release verification and delivery/milestone decision.
 - Assistance: OpenAI Codex for code, tests and documentation prose; reuses team
   attendance types, storage and the existing JavaFX test harness.
 
