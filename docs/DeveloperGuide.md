@@ -11,6 +11,7 @@ title: Developer Guide
 
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type and v1.3 add-student integration, and draft the related UG/DG and implementation context. The integration reuses the team’s `ClassMembership` type and existing SE-EDU AB3 architecture.
+* Vincent also used OpenAI Codex for v1.4 scope planning, student contact updates, regression tests, the sequence diagram and related documentation. The implementation reuses team value types and the existing attendance transaction pattern; Vincent must understand and review the generated work.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to assist with parts of the class membership, `list` and class-view work.
 
@@ -156,6 +157,56 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 ## **Implementation**
 
+### Student contact updates (v1.4)
+
+`UpdateCommandParser` accepts one displayed index and optional singleton `n/`,
+`p/`, `e/` fields. It preserves raw whitespace for the existing student validators,
+rejects missing changes and unexpected/repeated prefixes, and creates an immutable
+`UpdateCommand`. `update` is separate from legacy `edit` because `p/` means Telegram
+for students and phone for legacy contacts; keeping explicit commands avoids
+silently interpreting a contact in the wrong format.
+
+`Person.withContactDetails` validates the replacement profile through the student
+constructor and retains immutable memberships and attendance. No JSON schema change
+is needed. The command excludes the target when checking the entire roster for
+email/Telegram collisions, checking email first; matching names are allowed.
+
+![Student update transaction](images/UpdateSequenceDiagram.png)
+
+The diagram shows a successful update, with guarded optional fragments for a changed
+profile. A note states where storage failure interrupts the sequence. Parsing,
+validation details and accessors are omitted to keep the transaction order visible.
+Notation follows the course [UML reference sheet](https://nus-cs2103-ay2627-s1.github.io/website/admin/uml-reference-sheet.html)
+and [modeling syllabus](https://nus-cs2103-ay2627-s1.github.io/website/se-book-adapted/chapters/modeling.html):
+instance lifelines, activation bars, solid call arrows, dashed returns, object creation
+and guarded `opt` frames. `LogicManager.executeStudentReplacement` is shared with attendance
+marking. It copies the current display into a detached candidate so indices refer
+to the pre-command view. The command mutates only that candidate. Storage succeeds
+before `model.setPerson` publishes the replacement. The live membership filter is
+preserved; the result requests selection without replacing class/week context.
+Validation errors occur before storage; save errors never return a success result.
+An unchanged profile returns the selected target without saving or replacing it.
+
+**Alternatives:** deleting and re-adding loses attendance and changes roster order;
+mutating then rolling back exposes transient changes to observable UI listeners.
+The detached-candidate approach avoids both problems. Membership edits remain out
+of scope because removing a course needs a separate attendance-retention policy.
+
+**Validation:** `UpdateCommandParserTest` covers grammar, normalized values, omitted
+fields, unknown/repeated prefixes, whitespace and index boundaries.
+`StudentUpdateIntegrationTest` covers filtered indices, collisions outside the view,
+legacy contacts, no-op writes, atomic save failure/retry and JSON reload.
+`MvpRosterUiTest` verifies refreshed details, retained attendance badges, selection,
+class/week heading and failure input preservation in an actual JavaFX window.
+
+**Manual acceptance:** add two students, record attendance in two courses and weeks,
+filter to one class, then update row 1's name, Telegram and email. Confirm the row,
+heading and attendance remain correct. Restart and check the updated contacts.
+Attempt the other student's email, a repeated prefix, `update 0 n/Alice`, and an
+empty `p/`; each must leave the existing profile intact. With an unwritable data
+location, a changed update must fail while a normalized no-op still succeeds.
+
+
 This section describes some noteworthy details on how certain features are implemented.
 
 ### Attendance week foundation
@@ -194,8 +245,8 @@ Each immutable `Person` owns an immutable, sorted list of `AttendanceRecord` val
 removes it for Unrecorded, and returns a complete student copy. Contact identity
 (`isSamePerson`) remains independent of attendance; full equality includes records.
 `getAttendanceStatus(course, week)` returns Unrecorded when no decision is stored.
-Deleting the owning Person removes its records without orphan data. Student editing
-remains rejected by the existing edit guard, so it cannot discard attendance.
+Deleting the owning Person removes its records without orphan data. Student contact
+correction uses `update` and preserves attendance; legacy `edit` rejects students.
 
 `LogicManager` captures the target and displayed rows before execution, then runs
 `MarkCommand` on a detached model filtered to those rows. If the selected result
@@ -295,13 +346,12 @@ phone/address/tag records retain their original values and schema fields. Incomp
 hybrid student/legacy records and repeated courses are rejected. `JsonAddressBookStorage` writes a sibling
 temporary file and atomically replaces the target; no non-atomic fallback is used. A failed replacement
 retains the old data file. Unsupported atomic moves are reported as save failures. This protects disk
-contents for all callers; only add has the new save-before-live-model behavior.
+contents for all callers; add, mark, delete and update save before changing the live model.
 
 The inherited edit command explicitly rejects student profiles, preserving their new fields. It still
-edits legacy contacts and rejects email changes that would collide with a student. Editing student
-contacts/memberships is outside the Feature 1 must-have scope. Class filtering, attendance and deletion
-behavior remain with their respective owners. The initial detail text is `No attendance recorded.`;
-the attendance owner must replace it with actual records when that feature is integrated.
+edits legacy contacts and rejects email changes that would collide with a student. Student contacts
+are corrected with `update`; membership editing remains outside the final scope. The detail panel
+shows `No attendance recorded.` until decisions are recorded, then lists those decisions.
 
 #### Add-student validation and manual checks
 
@@ -561,13 +611,15 @@ time on administration using fast typed commands.
 keep track of his students, is highly comfortable with technology, and wants to
 view their details at a glance while spending less time on administrative work.
 
-The following requirements describe the intended product, not features already
-implemented. Priorities express the team's ordering of work; they are not course
-iteration numbers. The course's v1.1 iteration is documentation-only.
+The requirements include implemented features and deferred ideas. The five MVP
+workflows are implemented; v1.4 adds contact correction (S04) using `update`. Other
+stories remain planning records rather than promises for this release. Priorities
+express product ordering, not course iteration numbers.
 
 **MVP scope**: Add a student with contact details and one or more course/group
 memberships; delete students; list all students or view one class for a chosen
-week; record, correct or clear attendance; and save, reload and exit. Editing,
+week; record, correct or clear attendance; and save, reload and exit. v1.4 adds
+name/email/Telegram correction while retaining attendance. Membership editing,
 GitHub usernames, project teams, participation points, tags, Telegram search,
 bulk attendance and absence analytics are beyond this MVP.
 
@@ -595,7 +647,7 @@ The complete set below includes requirements beyond the MVP.
 | S01 | P1 | CS TA | add a student with their name, university email and Telegram handle | keep their core contact details together |
 | S02 | P1 | CS TA | add a student's GitHub username to their profile | quickly find their repositories for lab grading |
 | S03 | P1 | TA | delete a student | remove students who have dropped the course |
-| S04 | P1 | TA | edit a student's details | keep their email and Telegram handle up to date |
+| S04 | P1 | TA | correct a student's name, email and Telegram handle without deleting their profile | keep contacts current while retaining attendance history |
 | S05 | P1 | professor | list all my students | get an overview of everyone I teach |
 | S06 | P2 | TA teaching multiple courses | assign a student to a course code | distinguish students from different courses |
 | S07 | P2 | TA | assign a student to a tutorial group within a course | organize students by the classes I teach |
@@ -781,6 +833,27 @@ testers are expected to do more *exploratory* testing.
 
 </div>
 
+### Student contact correction
+
+Use an isolated test dataset. If an example contact already exists, use distinct
+contacts and the actual displayed index instead of assuming row 1.
+
+1. Add `add n/Alice p/@alice_1 e/alice@example.com c/CS2103T:T04`.
+2. Run `find c/CS2103T:T04 w/3`, identify Alice's row (use that index below),
+   and enter `mark 1 m/CS2103T w/3 s/present`.
+3. Enter `update 1 n/Alice Tan e/alice.new@example.com`.
+   Expected: `Student updated: Alice Tan.`, updated selected details, the same
+   class/week heading and Present badge. Telegram and memberships are unchanged.
+4. Enter `update 1 e/ALICE.NEW@EXAMPLE.COM`.
+   Expected: `Student unchanged: Alice Tan.` and no write to the data file.
+5. Try `update 1 p/`, `update 1 n/Alice n/Bob` and `update 0 n/Alice`.
+   Expected: informative errors, unchanged contacts, attendance, selection and view.
+6. Exit and relaunch, then query the same class/week. Expected: corrected contacts
+   and Present attendance survive restart.
+7. Save failure and retry are covered by `StudentUpdateIntegrationTest` and
+   `MvpRosterUiTest` using injected IO failures. These tests verify unchanged disk
+   content/live state, retained input and selection, then a successful retry.
+
 ### Launch and shutdown
 
 1. Initial launch
@@ -820,7 +893,7 @@ testers are expected to do more *exploratory* testing.
 3. For save failures, `MainWindowExitTest` injects an IO failure without changing
    real file permissions. Typed/menu/window-close requests must leave both windows
    open with the recovery message; retry after restoring storage must close them.
-4. After the student and attendance dependencies are integrated, add two students
+4. Add two students
    with memberships, record and correct attendance, and clear a different week's
    record. Exit and relaunch. Verify all profiles/memberships, the correction,
    cleared status, and other student/course/week decisions. Use test data only.
