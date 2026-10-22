@@ -12,9 +12,7 @@ title: Developer Guide
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type and v1.3 add-student integration, and draft the related UG/DG and implementation context. The integration reuses the team’s `ClassMembership` type and existing SE-EDU AB3 architecture.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
-* Jian Yang used Claude Code to help implement and test the class membership value type
-  and the `list` command update, write the class-view regression tests and `find` sequence diagram,
-  and draft their documentation.
+* Jian Yang used Claude Code to assist with parts of the class membership, `list` and class-view work.
 
 --------------------------------------------------------------------------------------------------------------------
 
