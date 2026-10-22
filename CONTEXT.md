@@ -12,6 +12,41 @@
 - Integration: no JSON schema change. Clear-command safety remains with its owner.
 
 ## Active v1.4 increment — verified 21 October 2026 (SGT)
+## Active v1.4 attendance verification — 22 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#61](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/61);
+  branch `61-attendance-isolation-recovery`. User confirmed this scope on 22 October.
+- Base: `3c5c440c`, verified equal to team master before editing. PR #64 (contact
+  updates), #69 (Gradle run assertions) and #70 (class-view verification) are merged.
+  This supersedes the pending-merge claims in the historical snapshots below.
+- Status: published from `toomintyy:61-attendance-isolation-recovery` in
+  [PR #72](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/72) against team master,
+  under v1.4. Open for teammate review; not merged or released.
+- Tests cover failed initial attendance recording, correction and clearing followed
+  by retry and JSON reload; student/course/week isolation; mark -> contact update ->
+  mark -> reload; and real JavaFX selection, details, badges, heading, row order and
+  input preservation when another student's mark fails or is invalid.
+- Validation: focused attendance/update/class-view tests and `./gradlew check coverage`
+  passed; full suite **356 tests**, zero failures/errors/skips, Checkstyle passed.
+  The new GUI checks use the existing real-window JavaFX harness and temporary data.
+  No production defect was found and no functional code or model interface changed.
+- Documentation: corrected stale attendance instructions and pending-integration
+  wording in the DG, documented the shared replacement transaction, and added
+  concrete manual checks with expected outcomes. The UG already matches this flow.
+  `docs/diagrams/MarkSequenceDiagram.puml` and its PNG show unchanged, successful-save
+  and failed-save paths. Rendered with PlantUML 1.2023.10 and visually inspected;
+  notation checked against the current course modeling guidance and UML reference.
+  Existing update and find diagrams are unchanged.
+- Repository validation: `.github/run-checks.sh` and `git diff --check` passed.
+  Automated GUI verification ran through the real-window JavaFX harness with
+  isolated data. Separate packaged-app/manual platform checks and a Jekyll guide
+  build were not performed for this increment; remote CI results are not yet verified.
+- Assistance: OpenAI Codex for tests and documentation prose; reuses existing team
+  models, fixtures and GUI test harness.
+- Remaining: obtain teammate review and passing remote CI before merging and closing
+  #61. Do not close the issue merely because local tests pass.
+
+## Previous contact-update handoff — historical snapshot, 21 October 2026 (SGT)
 
 - Owner: Vincent Peh (`Eskalade`); branch `codex/student-update-v14`, based on
   team master `e83a798ec0e0b2de611a7bb49bedc9055a6705e8`.
@@ -62,6 +97,22 @@
 
 Last verified: 2026-10-20 (Singapore time). This is a dated snapshot; verify GitHub
 before starting the next increment.
+
+## Local increment: TutorTrack sample students (2026-10-22)
+
+- Owner: `toomintyy`; issue [#65](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/65).
+- Branch: `65-tutortrack-sample-students`, based on team master `e83a798e`.
+- Status: implemented locally; no PR, merge or release claimed.
+- Replaces six first-run legacy examples with fictional student profiles, unique
+  contacts and memberships across two courses/four classes, including one student
+  in both courses. Attendance starts Unrecorded. Existing saved data is unchanged;
+  this does not migrate or remove the user's existing legacy contacts.
+- Validation: `./gradlew check coverage` passed (337 tests, zero failures,
+  errors or skips), including Checkstyle. New tests cover sample contact uniqueness,
+  all weeks initially Unrecorded, class filtering, marking and JSON reload using
+  temporary storage. No manual GUI launch was performed for this increment.
+- UG/DG updated. Reuses AB3 bootstrap and team models; OpenAI Codex assistance.
+- Remaining: publish/review PR and merge; existing user data cleanup is separate.
 
 ## Released v1.3 MVP
 

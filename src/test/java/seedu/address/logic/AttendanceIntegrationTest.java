@@ -10,12 +10,14 @@ import static seedu.address.testutil.AttendanceTestData.BOB;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import javafx.collections.ListChangeListener;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.MarkCommand;
@@ -24,6 +26,7 @@ import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.ModelManager;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.person.AttendanceRecord;
 import seedu.address.model.person.AttendanceStatus;
 import seedu.address.model.person.AttendanceWeek;
 import seedu.address.model.person.Person;
@@ -123,6 +126,88 @@ public class AttendanceIntegrationTest {
             assertEquals(roster, model.getAddressBook().getPersonList());
             assertEquals(before, Files.readString(storage.getAddressBookFilePath()));
         }
+    }
+
+    @Test
+    public void mark_failedInitialSaveThenRetry_persistsOnlyTargetDecision() throws Exception {
+        assertFailedSaveThenRetry(AttendanceStatus.UNRECORDED, AttendanceStatus.PRESENT);
+    }
+
+    @Test
+    public void mark_failedCorrectionThenRetry_persistsOnlyTargetDecision() throws Exception {
+        assertFailedSaveThenRetry(AttendanceStatus.PRESENT, AttendanceStatus.ABSENT);
+    }
+
+    @Test
+    public void mark_failedClearThenRetry_persistsOnlyTargetDecision() throws Exception {
+        assertFailedSaveThenRetry(AttendanceStatus.PRESENT, AttendanceStatus.UNRECORDED);
+    }
+
+    private void assertFailedSaveThenRetry(AttendanceStatus initial, AttendanceStatus requested) throws Exception {
+        logic.execute("mark 1 m/CS2103T w/53 s/absent");
+        logic.execute("mark 1 m/CS1101S w/1 s/present");
+        logic.execute("mark 2 m/CS2103T w/1 s/absent");
+        logic.execute("mark 1 m/CS2103T w/1 s/" + initial);
+        logic.execute("find c/CS1101S:T02 w/1");
+        Person target = model.getFilteredPersonList().getFirst();
+        List<Person> before = List.copyOf(model.getAddressBook().getPersonList());
+        String saved = Files.readString(storage.getAddressBookFilePath());
+        List<String> changes = new ArrayList<>();
+        model.getFilteredPersonList().addListener((ListChangeListener<Person>) change -> changes.add("changed"));
+        String command = "mark 1 m/CS2103T w/1 s/" + requested;
+        int attempts = storage.saves;
+
+        storage.fail = true;
+        assertThrows(CommandException.class, LogicManager.ADD_SAVE_ERROR, () -> logic.execute(command));
+        assertEquals(attempts + 1, storage.saves);
+        assertEquals(before, model.getAddressBook().getPersonList());
+        assertEquals(List.of(target), model.getFilteredPersonList());
+        assertSame(target, model.getFilteredPersonList().getFirst());
+        assertTrue(changes.isEmpty());
+        assertEquals(saved, Files.readString(storage.getAddressBookFilePath()));
+
+        storage.fail = false;
+        CommandResult result = logic.execute(command);
+        Person expected = target.withAttendance(new AttendanceRecord("CS2103T", new AttendanceWeek("1"), requested));
+        assertEquals(attempts + 2, storage.saves);
+        assertEquals("Attendance set: Alice | CS2103T | Week 1 | " + requested + ".", result.getFeedbackToUser());
+        assertEquals(expected, result.getSelectedPerson().orElseThrow());
+        assertEquals(List.of(expected), model.getFilteredPersonList());
+        List<Person> expectedRoster = List.of(expected, before.get(1));
+        assertEquals(expectedRoster, model.getAddressBook().getPersonList());
+        assertEquals(expectedRoster, storage.readAddressBook().orElseThrow().getPersonList());
+        assertEquals(requested, expected.getAttendanceStatus("CS2103T", new AttendanceWeek("1")));
+        assertEquals(initial, target.getAttendanceStatus("CS2103T", new AttendanceWeek("1")));
+    }
+
+    @Test
+    public void mark_afterContactUpdate_correctsExistingDecisionAndReloads() throws Exception {
+        logic.execute("mark 1 m/CS2103T w/1 s/present");
+        logic.execute("mark 1 m/CS2103T w/53 s/absent");
+        logic.execute("mark 1 m/CS1101S w/1 s/present");
+        logic.execute("mark 2 m/CS2103T w/1 s/present");
+        Person other = model.getAddressBook().getPersonList().get(1);
+        logic.execute("find c/CS1101S:T02 w/1");
+        logic.execute("update 1 n/Alicia p/@alicia_new e/alicia.new@example.com");
+        Person updated = model.getFilteredPersonList().getFirst();
+
+        CommandResult result = logic.execute("mark 1 m/CS2103T w/1 s/absent");
+        Person corrected = result.getSelectedPerson().orElseThrow();
+        assertEquals("Attendance set: Alicia | CS2103T | Week 1 | Absent.", result.getFeedbackToUser());
+        assertEquals("Alicia", corrected.getName().fullName);
+        assertEquals("@alicia_new", corrected.getTelegramHandle().orElseThrow().value);
+        assertEquals("alicia.new@example.com", corrected.getEmail().value);
+        assertEquals(updated.withAttendance(new AttendanceRecord("CS2103T", new AttendanceWeek("1"),
+                AttendanceStatus.ABSENT)), corrected);
+        assertEquals(3, corrected.getAttendance().size());
+        assertEquals(List.of(corrected), model.getFilteredPersonList());
+        List<Person> expected = List.of(corrected, other);
+        assertEquals(expected, model.getAddressBook().getPersonList());
+        ModelManager restarted = new ModelManager(storage.readAddressBook().orElseThrow(), new UserPrefs());
+        assertEquals(expected, restarted.getAddressBook().getPersonList());
+        assertEquals(AttendanceStatus.ABSENT,
+                restarted.getAddressBook().getPersonList().getFirst()
+                        .getAttendanceStatus("CS2103T", new AttendanceWeek("1")));
     }
 
     @Test

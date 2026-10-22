@@ -1,0 +1,91 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+skinparam sequenceParticipantFontColor white
+skinparam sequenceMessageAlign center
+
+participant ":MainWindow" as UI UI_COLOR
+participant ":LogicManager" as Logic LOGIC_COLOR
+participant "mark:MarkCommand" as Mark LOGIC_COLOR
+participant "candidate:ModelManager" as Candidate MODEL_COLOR
+participant ":StorageManager" as Storage STORAGE_COLOR
+participant "live:ModelManager" as Live MODEL_COLOR
+
+UI -> Logic : execute("mark 1 m/CS2103T w/1 s/present")
+activate UI
+activate Logic
+note over Logic, Mark
+Parsing, command creation and getTarget(live) omitted.
+Assume valid input, displayed index and enrolment.
+end note
+note over Logic
+Replacement flow below runs inside
+executeStudentReplacement(mark, target).
+end note
+create Candidate
+Logic -> Candidate : new ModelManager(...)
+activate Candidate
+Candidate --> Logic
+deactivate Candidate
+Logic -> Candidate : updateFilteredPersonList(displayed::contains)
+activate Candidate
+Candidate --> Logic
+deactivate Candidate
+Logic -> Mark : execute(candidate)
+activate Mark
+note over Mark, Candidate
+Resolve the target; validate enrolment.
+Read the current course/week status.
+withAttendance(decision) creates an immutable copy
+for a changed decision, or removes it for Unrecorded.
+Detailed Person calls are omitted.
+end note
+opt status differs
+Mark -> Candidate : setPerson(target, updated)
+activate Candidate
+Candidate --> Mark
+deactivate Candidate
+end
+Mark --> Logic : result (selected student)
+deactivate Mark
+
+alt selected student equals original target
+Logic --> UI : result (Attendance unchanged)
+note over UI, Logic
+Select target; retain class/week context.
+No disk write or live replacement.
+end note
+else selected student differs
+alt save succeeds
+Logic -> Storage : saveAddressBook(candidate.getAddressBook())
+activate Storage
+Storage --> Logic : return
+deactivate Storage
+Logic -> Live : setPerson(target, updated)
+activate Live
+Live --> Logic
+deactivate Live
+Logic --> UI : result (Attendance set)
+note over UI
+Select updated student; refresh details.
+Retain class/week context and row order.
+end note
+else save fails
+Logic -> Storage : saveAddressBook(candidate.getAddressBook())
+activate Storage
+Storage --> Logic : IOException
+deactivate Storage
+note over Logic
+Log failure; wrap in CommandException.
+end note
+Logic --> UI : CommandException
+note over UI, Live
+Show error; retain input, selection, badges and data.
+No live.setPerson call and no success result on this path.
+end note
+end
+end
+
+deactivate Logic
+deactivate UI
+@enduml
