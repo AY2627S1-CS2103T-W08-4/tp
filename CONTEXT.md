@@ -4,8 +4,8 @@
 
 - Owner: Ethan Quek (`eatenquek`), issue [#62](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/62).
 - Local branch: `codex/safe-clear`, based on team master `e83a798e`.
-  Verified locally and prepared for publication as a v1.4 PR. No teammate
-  approval, merge or release is claimed.
+  Published for teammate review in [PR #71](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/71)
+  from commit `06f9a3f2`. No teammate approval, merge or release is claimed.
 - Scope: reject arguments/control whitespace for `clear`; save an empty roster
   before changing live data; clear selection only on success and retain class/week
   context. Clear includes hidden contacts and all attendance. No new features.
