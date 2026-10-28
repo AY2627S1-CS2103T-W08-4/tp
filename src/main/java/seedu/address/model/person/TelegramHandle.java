@@ -2,6 +2,7 @@ package seedu.address.model.person;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
+import static seedu.address.commons.util.StringUtil.trimOrdinarySpaces;
 
 import java.util.Locale;
 
@@ -45,7 +46,7 @@ public final class TelegramHandle {
      * Removes surrounding U+0020 spaces without accepting tabs or other whitespace.
      */
     private static String trimSpaces(String value) {
-        return value.replaceAll("^ +| +$", "");
+        return trimOrdinarySpaces(value);
     }
 
     @Override

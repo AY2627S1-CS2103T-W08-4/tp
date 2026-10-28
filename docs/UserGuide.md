@@ -114,6 +114,10 @@ and `t/` add parameters, are rejected.
 | Email | At most 254 characters with one `@`, a 1–64-character ASCII local part and a dotted domain. The local part starts/ends alphanumeric, allows `._+-` internally and forbids consecutive periods. Domain labels contain 1–63 letters/digits/hyphens, start/end alphanumeric, and the final label has 2–63 letters. Stored lowercase. |
 | Class membership | `COURSE:GROUP`, with no internal spaces. Course: 2–4 ASCII letters, 4 digits, optional final letter. Group: one ASCII letter and 2 digits. Stored uppercase. Repeat `c/` for different courses; each course may appear only once. |
 
+Name limits apply **after** normalization: for example, `n/ José   Tan ` is stored as
+`José Tan`. Values are never shortened to fit a limit; an over-limit contact rejects
+the whole command. Telegram and email lengths do not include surrounding ordinary spaces.
+
 Namesakes are allowed. A matching email or Telegram handle rejects the entire addition, regardless of
 name or memberships. Email collisions are reported first, including collisions with existing legacy
 contact emails. No records are merged or updated.
@@ -169,7 +173,9 @@ Omitted contacts, class memberships and all attendance records are preserved.
 Namesakes are allowed. An email or Telegram matching another saved contact rejects
 the entire update, even when that contact is hidden by the current filter. Email
 collisions are reported before Telegram collisions. Your own unchanged contacts
-are allowed. Use `edit` for legacy phone/address contacts.
+are allowed. After a successful contact change, the old email or Telegram can be used
+by another student, provided nobody else currently uses it. Use `edit` for legacy
+phone/address contacts.
 
 Success reports `Student updated: NAME.`, retains roster order and the current
 class/week view, and selects the updated student with refreshed details. If all
