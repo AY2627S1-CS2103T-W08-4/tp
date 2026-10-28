@@ -9,8 +9,9 @@
   boundaries, normalization, persistence, recovery and UI behavior. UG/DG updated.
 - Issues: [#77](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/77) (implementation)
   and [#78](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/78) (`alpha-bug`),
-  self-assigned under v1.5. Status: local implementation, not merged or released;
-  PR and remote CI pending publication.
+  self-assigned under v1.5. Published for teammate review in
+  [PR #79](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/79), not merged or released.
+  Remote CI is running; consult PR checks before merge.
 - Live state: GitHub confirms #64 merged at `3c5c440c`; current team master includes
   subsequent integration. Teammate PRs #71 (clear) and #76 (batch attendance) remain
   open on 28 October. Historical pending-status statements below are dated snapshots.
