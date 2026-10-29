@@ -744,7 +744,8 @@ Use case ends.
 **MSS**
 
 1. The user requests students for a course, tutorial group and teaching week.
-2. TutorTrack displays the matching students and their attendance for that course and week.
+2. TutorTrack displays the matching students, their attendance for that course and week, and the week's
+   attendance totals.
 3. The user requests the full roster.
 4. TutorTrack removes the filter and displays all students once each.
 
@@ -1033,3 +1034,23 @@ loading and legacy compatibility are unchanged. Sample-data regression tests cov
 contact uniqueness, class filtering, marking and JSON reload using temporary files.
 This increment was implemented with OpenAI Codex assistance, reusing AB3's sample
 bootstrap and the team's existing student and attendance models.
+
+### Viewing a class and its attendance totals
+
+1. Prerequisites: start with no data file so the sample students load. `CS2103T:T04` contains
+   Alex Yeoh and Bernice Yu; `CS2103T:T05` contains Charlotte Oliveiro and Roy Balakrishnan.
+2. Run `find c/cs2103t:t04 w/3`.
+   Expected: `2 students listed!`; heading `CS2103T:T04 | Week 3 | 2 students`; totals
+   `0 present, 0 absent, 2 unrecorded`; both rows show `CS2103T | Week 3 | Unrecorded`.
+3. Run `mark 1 m/CS2103T w/3 s/present`.
+   Expected: Alex's badge and the totals change to `1 present, 0 absent, 1 unrecorded` immediately.
+4. Run `mark 1 m/CS2103T w/4 s/absent`.
+   Expected: the week 3 badge and totals do not change; Alex's details list both decisions.
+5. Run `find c/CS2103T:T04 w/4`.
+   Expected: same two students; totals `0 present, 1 absent, 1 unrecorded`.
+6. Run `find c/CS2103T:T05 w/3`, then `find c/CS1101S:T04 w/3`.
+   Expected: the first shows Charlotte and Roy only; the second succeeds with `0 students listed!`,
+   `No students found in CS1101S:T04. Use list to view all students.` and no totals line.
+7. Try invalid queries: `find c/T04 w/3`, `find c/CS2103T:T04 w/0`, `find c/CS2103T:T04`, `find John`.
+   Expected: each shows its error (see the User Guide) and the previous view, totals and selection stay unchanged.
+8. Run `list`. Expected: `All students | N students`, no totals line, and no selection.
