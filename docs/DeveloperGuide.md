@@ -105,7 +105,8 @@ Keyboard navigation uses the standard JavaFX focus traversal: Tab moves from the
 command text field through the result text area to the roster `ListView`; Shift+Tab
 traverses in reverse. The list's Up/Down behavior changes selection, and
 `PersonListPanel`'s selection listener refreshes and shows `studentDetailsPane` for
-student profiles. This uses the existing controls rather than a selection command.
+student profiles. Keyboard traversal uses these controls; `select INDEX` provides
+a direct command-box alternative using the same selection listener.
 See the [User Guide keyboard instructions](UserGuide.md#viewing-student-details-with-the-keyboard).
 
 The `UI` component,
@@ -648,6 +649,33 @@ Add-student stores this type on `Person` and persists it through JSON. Its error
 the original Feature 1 specification. The implemented `find c/COURSE:GROUP w/WEEK`
 command uses these memberships to select the class roster, as described below.
 
+#### Selecting a displayed student: `select INDEX`
+
+`AddressBookParser` passes raw arguments to `SelectCommandParser`, which accepts
+exactly one positive ASCII index, without leading zeros and within the Java integer
+range. It trims only ordinary spaces. Invalid syntax fails before command execution.
+`SelectCommand` checks bounds against `Model.getFilteredPersonList()` and returns
+the existing row in `CommandResult`; it never changes the model or filter.
+
+`LogicManager` treats selection as a read-only query alongside `list` and `find`,
+bypassing storage even when the data directory is not writable. After success,
+`MainWindow` uses the existing `PersonListPanel.selectPerson` hook to select and
+scroll to the row. The selection listener shows the student's contacts, memberships
+and attendance; legacy contacts retain their existing card without a student-details
+pane. The result does not replace the roster context or clear the selection.
+Failures reach the existing command error handler, preserving selection, details,
+filter and attempted input. Success clears the input without requesting focus on
+the roster. No storage-schema or Person change is required.
+
+This is an owner-authorized enhancement under #113, pending teammate review; it
+extends the original MVP rather than fixing a previously documented select command.
+Parser, command, persistence-integration and real-window tests cover strict input,
+filtered indices, empty/out-of-range rosters, legacy rows, repeated selection,
+read-only behavior, detail refresh and error-state preservation. For manual checks,
+select a row beyond the current scroll area, repeat in a class/week view, and verify
+that invalid indices keep the previous details and selection. OpenAI Codex assisted
+Min Thi Ha with this command, tests and documentation.
+
 #### Viewing a class: `find c/COURSE:GROUP w/WEEK`
 
 The sequence diagram below shows how `find c/cs2103t:t04 w/3` is executed. `FindCommandParser` validates
@@ -689,7 +717,8 @@ another week or course, unchanged views after invalid queries, and repeated quer
 The release completion increment is tracked in [issue #55](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/55).
 `FindCommandParser` validates exact class/week queries using `ClassMembership` and
 `AttendanceWeek`. `FindCommand` applies a membership predicate; `list` removes it.
-Both queries return without saving. `CommandResult` explicitly carries whether the
+`list` and `find` return without saving; `select` is also read-only and preserves
+the active view while requesting selection. `CommandResult` explicitly carries whether the
 UI should replace its roster context or clear selection, so failed commands never
 change those UI properties. `PersonListPanel` updates headings/counts as rows change,
 refreshes badges when only the week changes, and supplies separate empty states.
@@ -796,6 +825,9 @@ The complete set below includes requirements beyond the MVP.
 | S14 | P4 | TA | list students who have missed more than two tutorials | identify students to contact with a warning email |
 | S15 | P4 | professor | mark an entire tutorial group present for a session, then correct individual absentees | take attendance with fewer commands |
 | S16 | P4 | TA | clear all student records with one purge command | prepare the application for a new semester |
+| S17 | P2 | TA | select a displayed student by row number using a command | inspect details without changing their records |
+
+S17 records the owner-authorized #113 enhancement; teammate review remains pending.
 
 ### Use cases
 
@@ -936,6 +968,22 @@ Use case ends.
   * 4a2. Closing the dialog exits the application. The user repairs or restores the file before relaunching.
   * Use case ends.
 
+#### UC07: Select a displayed student (S17)
+
+**MSS**
+
+1. The user supplies the row number of a student in the current roster.
+2. TutorTrack resolves that displayed row, selects and reveals it, and shows its details.
+3. The current filter, class/week context and saved records remain unchanged; no save occurs.
+
+Use case ends.
+
+**Extensions**
+
+* 1a. The input is malformed or does not identify a displayed row.
+  * 1a1. TutorTrack reports an error while retaining the previous selection, details and view.
+  * Use case ends.
+
 ### Non-Functional Requirements
 
 1. TutorTrack shall run on Windows, Linux and macOS with Java 25, without requiring a separate installer.
@@ -1053,6 +1101,25 @@ extension (#67) included in v1.5.
    They check all changed targets are supplied in one save, the live roster is still
    untouched at that point, failures publish nothing and successful retries reload
    the complete expected dataset. They never alter real dataset permissions.
+
+### Direct student selection
+
+Use disposable student data and a build containing `select`.
+
+1. Run `list`, then `select 2` with at least two displayed rows. Expected: row 2
+   is selected and scrolled into view, details appear, input clears and command
+   focus remains. Selecting a row does not save student data.
+2. Run `find c/COURSE:GROUP w/WEEK` for a populated class, then `select 1`.
+   Expected: the first displayed row is selected; heading, totals, badges, filter,
+   memberships and attendance remain unchanged.
+3. Try `select 0`, `select 01`, `select 1 2` and an index beyond the displayed
+   roster. Expected: error feedback, with previous selection/details/view and
+   attempted input retained. Repeat with an empty class view: `select 1` fails.
+4. Select a row beyond the initial visible scroll area, then select it again.
+   Expected: that row is revealed on both submissions; no data changes.
+5. Automated tests inject storage that fails on any save attempt. Selection must
+   still succeed, preserving JSON bytes and producing no live roster mutations.
+   See `StudentSelectionIntegrationTest` and the select methods in `MvpRosterUiTest`.
 
 ### Student contact correction
 

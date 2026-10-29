@@ -3,7 +3,7 @@ layout: page
 title: User Guide
 ---
 
-TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This guide covers TutorTrack v1.5, including contact correction with `update` and attendance commands that accept multiple student indices. TutorTrack supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
+TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This guide covers TutorTrack v1.5 and the direct-selection enhancement in the current source, including contact correction with `update` and attendance commands that accept multiple student indices. TutorTrack supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
 
 * Table of Contents
 {:toc}
@@ -44,6 +44,8 @@ examples. Updating the application does not replace your saved contacts.
    Some example commands you can try:
 
    * `list` : Lists all students.
+
+   * `select 1` : Shows the first displayed student's details in a build containing direct selection.
 
    * `add n/John Doe p/@johndoe e/johnd@example.com c/CS2103T:T04` : Adds a student named `John Doe`.
 
@@ -188,6 +190,36 @@ Format: `list`
 
 Click a student row to view their contact details, memberships and recorded attendance
 below the roster. Selecting a row does not change saved data.
+
+### Selecting a student: `select`
+
+Selects a displayed row and reveals the student's details below the roster without
+changing their saved data or moving focus away from the command box.
+Use a build containing this enhancement; published releases made before its
+integration do not support `select`.
+
+Format: `select INDEX`
+
+Examples:
+
+* `list`, then `select 3`, selects the third row in the full roster.
+* After `find c/CS2103T:T04 w/3`, `select 1` selects the first row in that class view.
+
+`INDEX` is one displayed row number: an ASCII integer from 1 to 2147483647, without
+signs or leading zeros. Only ordinary spaces may surround the command and index.
+Extra indices or parameters are rejected. The current filter, class/week context,
+roster order, memberships and attendance remain unchanged. A row outside the visible
+scroll area is scrolled into view. Success reports `Selected: NAME.`
+
+Missing or malformed input (for example `select`, `select 0`, `select 01` or
+`select 1 2`) reports `Invalid command format!` followed by `Format: select INDEX`.
+An index beyond the current roster, including any index in an empty roster, reports
+`The student index provided is invalid.` Errors preserve the previous selection,
+details and attempted command. Selection never saves the data file and works even
+when that file is not writable. Selecting the same student again is allowed.
+
+Legacy AB3 contacts can also be selected; their existing contact card is revealed,
+while the additional student-details pane is only shown for student profiles.
 
 ### Correcting student contacts: `update`
 
@@ -417,7 +449,7 @@ Resolve the storage problem and try Exit again. The feedback wraps to keep the r
 
 ### Saving the data
 
-TutorTrack saves accepted additions, contact updates, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list`, `find` and `help` are read-only. You do not need to save manually.
+TutorTrack saves accepted additions, contact updates, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list`, `find`, `help` and `select` are read-only. You do not need to save manually.
 
 ### Editing the data file
 
@@ -474,6 +506,7 @@ Action | Format, Examples
 **Update** | `update INDEX [n/NAME] [p/TELEGRAM] [e/EMAIL]`<br>e.g., `update 1 e/new@example.com`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Find** | `find c/COURSE:GROUP w/WEEK`<br> e.g., `find c/CS2103T:T04 w/3`
+**Select** | `select INDEX`<br>e.g., `select 3`
 **List** | `list`
 **Help** | `help`
 **Mark** | `mark INDEX [INDEX ...] m/COURSE w/WEEK s/STATUS`<br>e.g., `mark 1 3 5 m/CS2103T w/3 s/present`

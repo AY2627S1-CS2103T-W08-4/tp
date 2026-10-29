@@ -34,3 +34,13 @@ This project has three types of tests:
    For example: `seedu.address.storage.StorageManagerTest`
 1. *Hybrid tests* combine unit and integration testing. These tests check both the individual units and how they work together.<br>
    For example: `seedu.address.logic.LogicManagerTest`
+
+
+## Selection regression checks
+
+Run `./gradlew check coverage` (Windows: `gradlew.bat check coverage`) for the full
+suite. For direct selection, `SelectCommandParserTest`, `SelectCommandTest` and
+`StudentSelectionIntegrationTest` verify displayed indices and read-only behavior.
+The select methods in `MvpRosterUiTest` cover detail refresh, command focus and
+retention of selection/details/input after errors. Use synthetic data and temporary
+storage; packaged-app and cross-platform checks remain separate.

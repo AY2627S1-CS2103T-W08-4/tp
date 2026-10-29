@@ -1,6 +1,138 @@
 # TutorTrack team implementation context
 
+## Keep the model-paragraph correction on the audit branch — 29 October 2026
+
+- Preserved the concurrent PR #115 keyboard/direct-selection clarification.
+  Centralized its general model-diagram paragraph correction on
+  `docs-workflow-audit` alongside the broad testing guide, rather than retaining
+  duplicate fixes in the selection PR. Feature-specific guide changes stay here.
+- Documentation-only scope correction; production/test sources match the 451-test
+  validated snapshot. Repository and whitespace checks passed. Assistance: OpenAI Codex.
+
+## Separate the documentation audit from selection — 29 October 2026 (SGT)
+
+- The owner requested a separate branch for the cross-cutting documentation audit.
+  PR #114 had already merged as team master `f36d03b6` when checked, so its merged
+  documentation is preserved. Integrated that master into the still-open PR #115.
+- Kept select-specific UG/DG, user story/use case, manual checks, site overview and
+  selection test guidance with #113. Moved the unmerged general testing-workflow
+  material out of PR #115; it will be reviewed on `docs-workflow-audit`.
+- This uses ordinary forward commits and preserves published history. Combined
+  validation on macOS / Zulu Java 25.0.3 FX passed `./gradlew check coverage
+  --no-daemon`: **451 tests**, zero failures/errors/skips, style and coverage
+  passed. Repository scripts and whitespace checks passed. Windows, packaged-app
+  checks and Jekyll rendering remain unverified. Assistance: OpenAI Codex.
+## PR #115 conflict resolution — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue #113 / PR #115. Merged team master
+  `f36d03b6`, including merged PR #114, into `113-select-student`.
+- Resolved the additive context conflict by preserving both PR histories. Kept
+  the selection command together with the relationship-marker name changes,
+  updated model diagram, keyboard guidance and corrected testing reference.
+- Earlier statements about PR #114 being separate/unmerged are dated history;
+  PR #114 is now included through team master. PR #115 remains open for review.
+- Validation: macOS / Zulu Java 25.0.3 FX `./gradlew check coverage --no-daemon`
+  passed 451 tests, 0 failures, 0 errors and 0 skips; Checkstyle,
+  coverage, repository scripts and whitespace checks passed. No tests removed.
+  Reconciled the model/keyboard guide wording after automatic documentation merging.
+  Windows and packaged-app manual verification are unavailable in this session.
+- Assistance: OpenAI Codex.
+
 ## Preserve concurrent team documentation refresh — 29 October 2026 (SGT)
+
+- Integrated newly arrived team master `331ce46f` / PR #116 into PR #115 after
+  the audit. Preserved the new Ui/help screenshots, common selection guidance,
+  refreshed DG scope and current user guidance, alongside select source-build
+  availability, requirements, manual checks and read-only behavior.
+- Resolved documentation-only conflicts by keeping the team's click-to-select
+  guidance plus direct-command instructions and retaining explicit unsupported
+  mark-all/range/mixed-status limits. Kept both owners' context histories.
+- Verified no production/test source changed from the validated 438-test
+  snapshot; repository and whitespace checks passed. Jekyll/Bundler and platform
+  verification limits remain as recorded above. Assistance: OpenAI Codex.
+
+## Selection documentation audit and team sync — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); PR #115 / issue #113. Fetched and integrated
+  team master `5024299d` (release-preparation PR #104), preserving the existing
+  select implementation and latest Help read-only / transactional legacy-edit
+  behavior. Resolved additive context, moved UG sections and read-only dispatch.
+- Retained upstream corrected delete/architecture diagrams and v1.5 command
+  examples. Reapplied select feature/summary entries to the current UG; updated
+  quick start, saving guidance, source-build availability and site overview.
+- DG now distinguishes the original MVP from implemented atomic batch marking
+  and direct selection, scopes the inherited parser-helper diagram, corrects
+  MarkSequenceDiagram fragment descriptions, and adds selection requirements,
+  use case and manual checks. Existing atomic-batch documentation was compared
+  with MarkCommand, DeleteCommand and save-before-publish LogicManager paths.
+- PR #114 remains a separate, unmerged source of relationship-marker names,
+  student/legacy model diagrams, keyboard instructions and the test-class fix;
+  those changes are not silently imported into the selection PR.
+- Validation after integration: `./gradlew check coverage --no-daemon` passed
+  on macOS / Zulu Java 25.0.3 FX: 438 tests, zero failures/errors/skips;
+  Checkstyle, coverage, repository scripts and whitespace checks passed. Later
+  audit edits affect documentation only. Windows, packaged-app manual checks
+  and Jekyll rendering remain unverified. No new feature/release claim.
+- Follow-up: synchronized shared scope/parser wording with PR #114 so the two
+  PRs describe atomic batch behavior consistently. Added Testing-guide regression
+  coverage for selection, batch marking/deletion, contacts and legacy recovery;
+  verified every referenced test class exists and the test-class example resolves.
+  Added S17/UC07 and selection manual checks, command-summary/quick-start entries
+  and source-build availability. Reviewed the updated delete/architecture PNGs.
+- Final validation after branch synchronization: **438 tests**, zero failures,
+  errors or skips; full check/coverage, repository scripts and whitespace checks
+  passed. All 426 current team tests are preserved; 12 selection tests are added.
+  Guide command sections/summaries, image references and read-only commands were
+  checked. Jekyll rendering is blocked by missing locked Bundler 2.5.11.
+- Assistance: OpenAI Codex. Status: audit follow-up prepared for existing PR #115.
+
+## Direct student selection — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#113](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/113);
+  separate branch `113-select-student`, based on freshly fetched team master
+  `e59ed71b` (includes startup-recovery PR #105). Does not depend on PR #114.
+- Owner-authorized enhancement proposal: `select INDEX` resolves a single current
+  displayed row and returns it through the existing CommandResult selection hook.
+  Preserve filter, class/week context, roster order, contacts, memberships and
+  attendance; never save data. Invalid syntax/bounds must retain UI selection.
+- Chosen syntax: lowercase command, one positive ASCII index (1–2147483647),
+  no leading zero/sign, ordinary surrounding spaces only. Syntax failures use
+  the select format message; unavailable displayed rows use the invalid-student
+  index message. Success says `Selected: NAME.` Existing legacy rows can also
+  be selected; their contact card is shown without a student details pane.
+- Status: implementation `ad4927b0` is pushed to the member fork in
+  [PR #115](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/115), open against
+  team master under v1.5 and assigned to toomintyy. Latest upstream `e59ed71b`
+  was fetched again before PR creation and is already included. No team approval,
+  merge or release claimed. This extends the MVP rather than fixing an existing command.
+- Baseline validation: `./gradlew check coverage --no-daemon` passed on macOS
+  with Zulu Java 25.0.3 FX: 422 tests, zero failures/errors/skips.
+- Course Week 11 direction checked: final feature refinements precede the v1.5
+  deadline (29 October 23:59 SGT); implementation alone is not a completed
+  release or proof of on-time integration. Source:
+  https://nus-cs2103-ay2627-s1.github.io/website/schedule/week11/project.html
+- Implementation: new SelectCommand/SelectCommandParser plus dispatch and the
+  read-only LogicManager path; reuses CommandResult and PersonListPanel selection
+  and scrolling. No UI production-code, Person or storage-schema changes. UG/DG
+  and command summary updated; this branch is independent of pending PR #114.
+- Validation: the new real-window success test failed against the baseline's
+  unsupported command, then passed after implementation. Added 12 tests across
+  parser, command, persistence integration and real-window UI. Checks cover
+  filtered indices, legacy rows, strict syntax, maximum/overflow indices, empty
+  rosters, repeated selection, contacts/attendance preservation, zero storage
+  writes, unchanged filter and UI details/input/focus behavior.
+- Focused validation passed. `./gradlew check coverage --no-daemon` passed on
+  macOS / Zulu Java 25.0.3 FX: **434 tests**, zero failures/errors/skips, both
+  Checkstyle tasks and coverage generation. Repository scripts and whitespace
+  checks passed. Initial new-test assumptions about a TextField retaining line
+  breaks and Unicode command separators were corrected: JavaFX strips line
+  breaks, and unsupported separators may yield Unknown command at dispatch.
+  Parser-level tests still reject control whitespace; no old tests were weakened.
+- Windows, packaged-app manual checks and Jekyll rendering are unverified. Further
+  review and cross-platform checks remain before merge/release. This handoff
+  changes only CONTEXT.md; the validated production/test snapshot is unchanged.
+  Assistance: OpenAI Codex.
+## PR #114 documentation refresh — 29 October 2026 (SGT)
 
 - Integrated newly arrived team master `331ce46f` / PR #116 into PR #114.
   Retained current Ui/help screenshots, product guidance and the refreshed scope

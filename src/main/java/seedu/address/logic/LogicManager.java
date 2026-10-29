@@ -19,6 +19,7 @@ import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.MarkCommand;
+import seedu.address.logic.commands.SelectCommand;
 import seedu.address.logic.commands.UpdateCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
@@ -62,7 +63,8 @@ public class LogicManager implements Logic {
 
         CommandResult commandResult;
         Command command = addressBookParser.parseCommand(commandText);
-        if (command instanceof FindCommand || command instanceof ListCommand || command instanceof HelpCommand) {
+        if (command instanceof FindCommand || command instanceof ListCommand
+                || command instanceof HelpCommand || command instanceof SelectCommand) {
             // Queries are read-only and must also work when the data directory is not writable.
             return command.execute(model);
         }
