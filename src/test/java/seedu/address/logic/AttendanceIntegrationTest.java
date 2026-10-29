@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -239,9 +240,128 @@ public class AttendanceIntegrationTest {
         assertTrue(model.getFilteredPersonList().getLast().getAttendance().isEmpty());
     }
 
+    @Test
+    public void batch_failedInitialSaveThenRetry_persistsAllTargetsOnce() throws Exception {
+        assertBatchRecovery(AttendanceStatus.UNRECORDED, AttendanceStatus.PRESENT);
+    }
+
+    @Test
+    public void batch_failedCorrectionThenRetry_preservesOtherDecisions() throws Exception {
+        assertBatchRecovery(AttendanceStatus.PRESENT, AttendanceStatus.ABSENT);
+    }
+
+    @Test
+    public void batch_failedClearThenRetry_removesOnlyTargetDecisions() throws Exception {
+        assertBatchRecovery(AttendanceStatus.ABSENT, AttendanceStatus.UNRECORDED);
+    }
+
+    private void assertBatchRecovery(AttendanceStatus initial, AttendanceStatus requested) throws Exception {
+        logic.execute("add n/Carol p/@carol_1 e/carol@example.com c/CS2103T:T04 c/CS1101S:T02");
+        logic.execute("mark 1 m/CS2103T w/1 s/present");
+        logic.execute("mark 2 m/CS2103T w/53 s/absent");
+        logic.execute("mark 3 m/CS2103T w/53 s/present");
+        logic.execute("mark 3 m/CS1101S w/1 s/absent");
+        logic.execute("mark 2 3 m/CS2103T w/1 s/" + initial);
+        model.updateFilteredPersonList(person -> !person.getEmail().equals(ALICE.getEmail()));
+        List<Person> before = List.copyOf(model.getAddressBook().getPersonList());
+        List<Person> displayed = List.copyOf(model.getFilteredPersonList());
+        AttendanceRecord decision = new AttendanceRecord("CS2103T", new AttendanceWeek("1"), requested);
+        List<Person> expected = List.of(before.get(0), before.get(1).withAttendance(decision),
+                before.get(2).withAttendance(decision));
+        String saved = Files.readString(storage.getAddressBookFilePath());
+        List<String> events = new ArrayList<>();
+        model.getFilteredPersonList().addListener((ListChangeListener<Person>) change -> events.add("changed"));
+        storage.beforeSave = candidate -> {
+            // Storage sees the complete proposal while the live model has not published any part of it.
+            assertEquals(expected, candidate.getPersonList());
+            assertEquals(before, model.getAddressBook().getPersonList());
+            assertTrue(events.isEmpty());
+        };
+        String command = "mark 2 1 2 m/CS2103T w/1 s/" + requested;
+        int saves = storage.saves;
+        storage.fail = true;
+        assertThrows(CommandException.class, LogicManager.ADD_SAVE_ERROR, () -> logic.execute(command));
+        assertEquals(saves + 1, storage.saves);
+        assertEquals(before, model.getAddressBook().getPersonList());
+        assertEquals(displayed, model.getFilteredPersonList());
+        assertSame(displayed.getFirst(), model.getFilteredPersonList().getFirst());
+        assertSame(displayed.getLast(), model.getFilteredPersonList().getLast());
+        assertTrue(events.isEmpty());
+        assertEquals(saved, Files.readString(storage.getAddressBookFilePath()));
+
+        storage.fail = false;
+        CommandResult result = logic.execute(command);
+        assertEquals(saves + 2, storage.saves);
+        assertEquals("Attendance set: CS2103T | Week 1 | " + requested + " | 2 changed, 0 unchanged.",
+                result.getFeedbackToUser());
+        assertEquals(expected.get(2), result.getSelectedPerson().orElseThrow());
+        assertEquals(expected.subList(1, 3), model.getFilteredPersonList());
+        assertEquals(expected, model.getAddressBook().getPersonList());
+        assertEquals(expected, storage.readAddressBook().orElseThrow().getPersonList());
+    }
+
+    @Test
+    public void batch_firstTargetUnchanged_savesLaterChangesAndSkipsAllUnchangedRetry() throws Exception {
+        logic.execute("mark 2 m/CS2103T w/53 s/present");
+        Person bob = model.getFilteredPersonList().get(1);
+        int saves = storage.saves;
+        CommandResult result = logic.execute("mark 2 1 2 m/CS2103T w/53 s/present");
+        assertEquals("Attendance set: CS2103T | Week 53 | Present | 1 changed, 1 unchanged.",
+                result.getFeedbackToUser());
+        assertSame(bob, result.getSelectedPerson().orElseThrow());
+        assertEquals(saves + 1, storage.saves);
+        assertEquals(List.of(ALICE.withAttendance(new AttendanceRecord("CS2103T", new AttendanceWeek("53"),
+                AttendanceStatus.PRESENT)), bob), storage.readAddressBook().orElseThrow().getPersonList());
+        List<String> events = new ArrayList<>();
+        model.getFilteredPersonList().addListener((ListChangeListener<Person>) change -> events.add("changed"));
+        storage.fail = true;
+        result = logic.execute("mark 2 1 m/CS2103T w/53 s/present");
+        assertEquals("Attendance unchanged: CS2103T | Week 53 | Present | 0 changed, 2 unchanged.",
+                result.getFeedbackToUser());
+        assertSame(bob, result.getSelectedPerson().orElseThrow());
+        assertEquals(saves + 1, storage.saves);
+        assertTrue(events.isEmpty());
+    }
+
+    @Test
+    public void batch_invalidTargetOrParameter_preservesFileAndAllLiveRecords() throws Exception {
+        logic.execute("mark 1 m/CS2103T w/1 s/present");
+        List<Person> before = List.copyOf(model.getAddressBook().getPersonList());
+        String saved = Files.readString(storage.getAddressBookFilePath());
+        int saves = storage.saves;
+        assertThrows(CommandException.class, "Student Bob is not enrolled in CS1101S.", () ->
+                logic.execute("mark 1 2 m/CS1101S w/1 s/present"));
+        assertThrows(CommandException.class, MarkCommand.INVALID_INDEX, () ->
+                logic.execute("mark 2 3 m/CS1101S w/1 s/present"));
+        assertThrows(ParseException.class, () -> logic.execute("mark 1 2 m/CS2103T w/54 s/present"));
+        assertEquals(saves, storage.saves);
+        assertEquals(before, model.getAddressBook().getPersonList());
+        assertEquals(before, model.getFilteredPersonList());
+        assertEquals(saved, Files.readString(storage.getAddressBookFilePath()));
+    }
+
+    @Test
+    public void batch_afterContactUpdate_correctsAndClearsBoundaryWeeksWithoutDuplicates() throws Exception {
+        logic.execute("mark 1 m/CS1101S w/1 s/present");
+        logic.execute("mark 2 1 m/CS2103T w/1 s/present");
+        logic.execute("update 1 n/Alicia p/@alicia_new e/alicia.new@example.com");
+        Person updated = model.getFilteredPersonList().getFirst();
+        logic.execute("mark 1 2 m/CS2103T w/1 s/absent");
+        logic.execute("mark 1 2 m/CS2103T w/53 s/present");
+        logic.execute("mark 2 1 m/CS2103T w/53 s/absent");
+        logic.execute("mark 1 2 m/CS2103T w/53 s/unrecorded");
+        AttendanceRecord absent = new AttendanceRecord("CS2103T", new AttendanceWeek("1"), AttendanceStatus.ABSENT);
+        List<Person> expected = List.of(updated.withAttendance(absent), BOB.withAttendance(absent));
+        assertEquals(expected, model.getAddressBook().getPersonList());
+        assertEquals(expected, storage.readAddressBook().orElseThrow().getPersonList());
+        assertEquals(2, expected.getFirst().getAttendance().size());
+        assertEquals(1, expected.getLast().getAttendance().size());
+    }
+
     private static class CountingStorage extends JsonAddressBookStorage {
         private int saves;
         private boolean fail;
+        private Consumer<ReadOnlyAddressBook> beforeSave = candidate -> { };
 
         CountingStorage(Path path) {
             super(path);
@@ -250,6 +370,7 @@ public class AttendanceIntegrationTest {
         @Override
         public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
             saves++;
+            beforeSave.accept(addressBook);
             if (fail) {
                 throw new IOException("Simulated full disk or permission failure");
             }

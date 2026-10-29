@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.testutil.Assert.assertThrows;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
@@ -36,10 +38,38 @@ public class MarkCommandParserTest {
 
     @Test
     public void parse_invalidIndex_rejectsWithoutOverflow() {
-        for (String index : new String[]{"0", "01", "-1", "+1", "1.0", "1e2", "1 2", "2147483648",
+        for (String index : new String[]{"0", "01", "-1", "+1", "1.0", "1e2", "2147483648",
             "9".repeat(100), "\u0661", "\t1"}) {
             assertError("mark " + index + " m/CS2103T w/1 s/present", MarkCommandParser.INDEX_CONSTRAINTS);
         }
+    }
+
+    @Test
+    public void parse_batch_deduplicatesInInputOrder() throws Exception {
+        AttendanceRecord decision = new AttendanceRecord("CS2103T", new AttendanceWeek("1"), AttendanceStatus.PRESENT);
+        MarkCommand expected = new MarkCommand(List.of(Index.fromOneBased(3), Index.fromOneBased(1)), decision);
+        assertEquals(expected, parser.parseCommand("mark 3  1 3 s/present m/cs2103t w/1"));
+        assertEquals(new MarkCommand(Index.fromOneBased(2), decision),
+                parser.parseCommand("mark 2 2 2 m/CS2103T w/1 s/present"));
+    }
+
+    @Test
+    public void parse_invalidBatch_rejectsEveryInvalidTokenAndUnsupportedSeparators() {
+        for (String indices : List.of("1 0", "1 01", "1 -2", "1 +2", "1 2.0", "1 2e1", "1 2147483648",
+                "1 " + "9".repeat(100), "1 \u0662", "1\t2", "1\n2", "1\u00a02", "1,2", "1-2", "all")) {
+            assertError("mark " + indices + " m/CS2103T w/1 s/present", MarkCommandParser.INDEX_CONSTRAINTS);
+        }
+    }
+
+    @Test
+    public void parse_batchErrors_preservesExistingPrecedence() {
+        assertError("mark 0 1 m/invalid w/54 s/late x/no", "Unknown parameter: x/.");
+        assertError("mark 0 1 m/invalid w/54 s/late s/present", "Parameter s/ must be specified only once.");
+        assertError("mark 0 1 w/54 s/late", MarkCommandParser.INDEX_CONSTRAINTS);
+        assertError("mark 1 2 w/54 s/late", "Missing required parameter: m/.");
+        assertError("mark 1 2 m/invalid w/54 s/late", AttendanceRecord.COURSE_CONSTRAINTS);
+        assertError("mark 1 2 m/CS2103T w/54 s/late", AttendanceWeek.MESSAGE_CONSTRAINTS);
+        assertError("mark 1 2 m/CS2103T w/1 s/late", AttendanceStatus.MESSAGE_CONSTRAINTS);
     }
 
     @Test
