@@ -26,7 +26,9 @@ Transferred archive SHA-256:
 `1afefb658255efe6b2ca6df613b9a66b95d32078f03cdc68d6227ce5f1f769e7`.
 Later changes only record this evidence. The five startup source/test files
 match team master; no closing keywords for the two removed issues remain in
-the candidate commit messages. PR #105 retains ownership of that work.
+the candidate commit messages. PR #105 retains ownership of that work. The fork Java CI workflow currently
+reports `disabled_manually`, so no new GitHub CI result is claimed for the
+revised candidate; the actual Mac and Windows checks above passed.
 
 ### Historical verification before removing the overlapping startup fixes
 
