@@ -145,7 +145,8 @@ They are not automatically converted to student profiles. The `add` command only
 
 ### Listing all students: `list`
 
-Removes any active filter and shows every saved student once, in roster order.
+Removes any active class filter and shows every saved entry once, in roster order. Older AB3 contacts
+from an existing data file (without Telegram handles or classes) are listed and counted too.
 
 Format: `list`
 
@@ -216,7 +217,7 @@ Examples:
 Both prefixes are required exactly once, in either order. Class codes use the same
 rules as `add` and normalize to uppercase. Weeks are integers 1–53 without leading
 zeros. A query matches the complete course **and** group; the same group code in
-another course does not match. Name search is outside this MVP: `find John` is rejected.
+another course does not match. TutorTrack does not search by name, so `find John` is rejected.
 
 The heading includes the class, week and student count. Rows remain in roster order
 and display attendance for that course/week, including **Unrecorded** when no decision
@@ -231,7 +232,16 @@ A valid class with no students succeeds with `0 students listed!` and
 `No students found in COURSE:GROUP. Use list to view all students.` It creates no records.
 Use `list` to remove the filter. Queries are read-only and do not save the data file.
 
-![Class attendance](images/release-v1.3/attendance.png)
+![Class view of CS2103T:T04 in week 3, with attendance totals and a badge for each student](images/ClassViewSummary.png)
+
+Examples of errors (the previous view stays unchanged):
+* Missing class: `find w/3` gives `Missing required parameter: c/.`
+* Missing week: `find c/CS2103T:T04` gives `Missing required parameter: w/.`
+* Group only: `find c/T04 w/3` gives the class format error, `Class must use COURSE:GROUP, for example CS2103T:T04. ...`
+* Invalid week: `find c/CS2103T:T04 w/0` or `w/01` gives `Week must be an integer from 1 to 53 without leading zeros.`
+* Repeated parameter: `find c/CS2103T:T04 w/3 w/4` gives `Parameter w/ must be specified only once.`
+* Unknown parameter: `find c/CS2103T:T04 w/3 x/1` gives `Unknown parameter: x/.`
+* Name search: `find John` gives `Invalid command format!` followed by `Format: find c/COURSE:GROUP w/WEEK`.
 
 ### Deleting students: `delete`
 
@@ -256,9 +266,19 @@ same recovery message as `add`.
 
 ### Clearing all entries: `clear`
 
-Clears all entries from the address book.
+Removes all students and legacy contacts, including their attendance records, even
+when a class filter hides some entries. This action has no undo.
 
 Format: `clear`
+
+Only surrounding ordinary spaces are accepted. Extra arguments such as `clear 1`
+or `clear n/Alice`, tabs and line breaks are rejected without saving or changing
+records. Use `delete INDEX [INDEX...]` to remove selected displayed students.
+
+TutorTrack saves the empty roster before clearing the screen. On success, the
+current class/week context remains and the selected student's details disappear.
+If saving fails, records, attendance, selection and the current view remain intact.
+Resolve the storage problem and enter `clear` again.
 
 ### Exiting the program: `exit`
 
@@ -282,7 +302,7 @@ Resolve the storage problem and try Exit again. The feedback wraps to keep the r
 
 ### Saving the data
 
-TutorTrack saves accepted additions, contact updates, deletions and attendance changes before reporting success, and saves before Exit. `list` and `find` are read-only. You do not need to save manually.
+TutorTrack saves accepted additions, contact updates, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list` and `find` are read-only. You do not need to save manually.
 
 ### Editing the data file
 

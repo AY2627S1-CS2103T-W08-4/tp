@@ -11,6 +11,9 @@ title: Developer Guide
 
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type and v1.3 add-student integration, and draft the related UG/DG and implementation context. The integration reuses the team’s `ClassMembership` type and existing SE-EDU AB3 architecture.
+* Ethan Quek used OpenAI Codex to investigate issue #62, implement strict and
+  save-before-publish clear behavior, add parser/storage/JavaFX regressions, and
+  update the guides. The fix reuses the team's existing model and storage contracts.
 * Vincent also used OpenAI Codex for v1.4 scope planning, student contact updates, regression tests, the sequence diagram and related documentation. The implementation reuses team value types and the existing attendance transaction pattern; Vincent must understand and review the generated work.
 * Vincent used OpenAI Codex for v1.5 contact-validation performance analysis, the linear-time trimming fix, boundary/recovery/UI tests and documentation. This increment reuses the existing team storage and JavaFX test harness; it does not take over teammate features.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
@@ -246,6 +249,32 @@ acceptance remain release gates.
 
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### Safe clearing (v1.4)
+
+`ClearCommandParser` accepts only ordinary spaces after `clear`. The top-level
+parser forwards raw arguments so trimming cannot hide tabs or line breaks.
+`LogicManager` saves a new empty address book before executing `ClearCommand` on
+live data. An `IOException` uses the existing no-changes-applied recovery message;
+no live list notifications or successful result occur before saving succeeds.
+
+After saving, `ClearCommand` removes the complete roster, including students hidden
+by a class filter and attendance owned by those students. Its result clears UI
+selection while retaining class/week context. Keeping the live model untouched on
+failure avoids a rollback that could expose transient deletions to UI listeners.
+This path leaves the contact-update and attendance transaction implementations alone.
+
+`ClearIntegrationTest` verifies save ordering, hidden contacts, attendance, failure,
+absence of list notifications on failure, retry, empty rosters and JSON reload.
+`AddressBookParserTest` covers extra arguments and control whitespace.
+`MvpRosterUiTest` checks that invalid input and save failure preserve the selected
+student, details, typed command and heading, then checks a successful retry.
+
+Manual check: create students in two classes, record attendance, and filter to one
+class. Try `clear 1`; nothing should change. With an unwritable data location, try
+`clear`; the selected student should remain. Restore write access and retry. The
+roster should empty, selection should clear, the class/week heading should remain,
+and restarting should load no students. Use disposable data because clear has no undo.
 
 ### Attendance week foundation
 
@@ -633,7 +662,8 @@ validates every target, and deduplicates integer indices in first-appearance ord
 `LogicManager` executes deletion on a detached candidate, saves it, then removes
 those exact targets from the live model without replacing its filter. A failed save
 leaves data, selection and context untouched. This extends the existing add/mark
-transaction pattern; legacy `clear` and `edit` are not generalized transactions.
+transaction pattern. The v1.4 safe-clearing section covers `clear`; legacy `edit`
+remains outside this transaction handling.
 
 Regression coverage includes filtered batch indices, duplicate indices, a late invalid
 target, disk failure/retry, query operation without write access, independent course/week
@@ -779,7 +809,8 @@ Use case ends.
 **MSS**
 
 1. The user requests students for a course, tutorial group and teaching week.
-2. TutorTrack displays the matching students and their attendance for that course and week.
+2. TutorTrack displays the matching students, their attendance for that course and week, and the week's
+   attendance totals.
 3. The user requests the full roster.
 4. TutorTrack removes the filter and displays all students once each.
 
@@ -1068,3 +1099,23 @@ loading and legacy compatibility are unchanged. Sample-data regression tests cov
 contact uniqueness, class filtering, marking and JSON reload using temporary files.
 This increment was implemented with OpenAI Codex assistance, reusing AB3's sample
 bootstrap and the team's existing student and attendance models.
+
+### Viewing a class and its attendance totals
+
+1. Prerequisites: start with no data file so the sample students load. `CS2103T:T04` contains
+   Alex Yeoh and Bernice Yu; `CS2103T:T05` contains Charlotte Oliveiro and Roy Balakrishnan.
+2. Run `find c/cs2103t:t04 w/3`.
+   Expected: `2 students listed!`; heading `CS2103T:T04 | Week 3 | 2 students`; totals
+   `0 present, 0 absent, 2 unrecorded`; both rows show `CS2103T | Week 3 | Unrecorded`.
+3. Run `mark 1 m/CS2103T w/3 s/present`.
+   Expected: Alex's badge and the totals change to `1 present, 0 absent, 1 unrecorded` immediately.
+4. Run `mark 1 m/CS2103T w/4 s/absent`.
+   Expected: the week 3 badge and totals do not change; Alex's details list both decisions.
+5. Run `find c/CS2103T:T04 w/4`.
+   Expected: same two students; totals `0 present, 1 absent, 1 unrecorded`.
+6. Run `find c/CS2103T:T05 w/3`, then `find c/CS1101S:T04 w/3`.
+   Expected: the first shows Charlotte and Roy only; the second succeeds with `0 students listed!`,
+   `No students found in CS1101S:T04. Use list to view all students.` and no totals line.
+7. Try invalid queries: `find c/T04 w/3`, `find c/CS2103T:T04 w/0`, `find c/CS2103T:T04`, `find John`.
+   Expected: each shows its error (see the User Guide) and the previous view, totals and selection stay unchanged.
+8. Run `list`. Expected: `All students | N students`, no totals line, and no selection.
