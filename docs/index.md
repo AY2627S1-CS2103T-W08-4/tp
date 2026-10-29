@@ -9,9 +9,9 @@ title: TutorTrack
 **TutorTrack helps teaching assistants and professors manage student contacts, course memberships
 and weekly attendance through typed commands.**
 
-![TutorTrack class roster with weekly attendance totals](images/ClassViewSummary.png)
+![TutorTrack class roster with attendance totals and selected-student history](images/Ui.png)
 
-*TutorTrack showing a class roster and attendance totals with fictional sample data.*
+*TutorTrack showing a class roster and attendance history with fictional student data.*
 
 Add students with their Telegram handles, email addresses and course memberships.
 View a class for a chosen week, record or correct attendance for one or more

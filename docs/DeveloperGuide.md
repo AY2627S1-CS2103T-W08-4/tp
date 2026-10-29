@@ -87,6 +87,12 @@ The **API** of this component is specified in [`Ui.java`](https://github.com/AY2
 
 ![Structure of the UI Component](images/UiClassDiagram.png)
 
+The landing page and User Guide share the product screenshot at `docs/images/Ui.png`.
+It shows the running application with fictional student contacts, class memberships,
+weekly attendance totals and a selected student's attendance history. Refresh it when
+the visible UI changes; capture the application content without annotations or desktop
+clutter, and keep the guides' descriptions consistent with the displayed state.
+
 The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, and `StatusBarFooter`. All of these, including `MainWindow`, inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
 
 The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
@@ -136,6 +142,10 @@ How the parsing works:
 
 <img src="images/ModelClassDiagram.png" width="450" />
 
+This inherited diagram shows shared and legacy contact fields. Student profiles
+use the same `Person` class, with a `TelegramHandle`, course/group memberships and
+attendance records instead of legacy phone/address fields. Those student fields
+are omitted from this diagram; see the add-student and attendance sections below.
 
 The `Model` component,
 
@@ -144,7 +154,7 @@ The `Model` component,
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 
-<div markdown="span" class="alert alert-info">:information_source: **Note:** The alternative, arguably more object-oriented, design below keeps a unique list of tags in `AddressBook`, and each `Person` references tags from that list. This lets `AddressBook` maintain one `Tag` object per unique tag instead of each `Person` holding its own `Tag` objects.<br>
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The diagram below is an unimplemented alternative for legacy tags, not TutorTrack's current model. It keeps a unique list of tags in `AddressBook`, and each `Person` references tags from that list. Student fields are omitted.<br>
 
 <img src="images/BetterModelClassDiagram.png" width="450" />
 
@@ -503,8 +513,8 @@ For a GUI smoke test, use a separate temporary working directory:
 ### Exit argument validation
 
 `AddressBookParser` delegates the arguments of the lowercase `exit` command to
-`ExitCommandParser`. The parser accepts empty arguments after trimming surrounding
-whitespace and rejects any remaining content with `MESSAGE_INVALID_COMMAND_FORMAT`
+`ExitCommandParser`. The parser accepts only surrounding ordinary spaces and
+rejects any other argument content with `MESSAGE_INVALID_COMMAND_FORMAT`
 and `ExitCommand.MESSAGE_USAGE`. This implements UC05 extension 1a.
 
 Invalid Exit input throws `ParseException` before command execution or saving.
@@ -565,7 +575,7 @@ The existing file-loading layer wraps parsing failures in `DataLoadingException`
 
 Seven new regression tests cover trailing garbage, additional JSON values, accepted surrounding whitespace, null GUI settings, original-file preservation and successful startup after preference recovery. The preferences-storage and startup tests also use a valid, non-default preferences object followed by a second JSON value or garbage. They verify `DataLoadingException` and unchanged original preference bytes before recovery, then default settings, unchanged student data and reloadable recovered preferences at startup.
 
-On Windows with Temurin Java 25.0.4, `gradlew.bat check coverage shadowJar shadowJarMacArm` passed: **390 tests, zero failures/errors/skips**, both Checkstyle tasks, coverage generation and both JAR builds. Repository formatting checks and `git diff --check` also passed.
+The original startup-recovery increment (#105, follow-up `9829b34a`) passed on Windows with Temurin Java 25.0.4: `gradlew.bat check coverage shadowJar shadowJarMacArm`, **390 tests, zero failures/errors/skips**, both Checkstyle tasks, coverage generation and both JAR builds. Repository formatting checks and `git diff --check` also passed. This is historical increment evidence; current integrated validation is recorded in `CONTEXT.md`.
 
 Instrumented Windows packaged-app checks confirmed that trailing invalid JSON displays recovery guidance and preserves the original file. Null GUI settings recovered to defaults, retained the existing student and allowed normal shutdown. The Mac ARM package was built but not run; Mac execution remains unverified.
 
@@ -586,9 +596,9 @@ at most one tutorial group per course. Invalid construction throws
 `IllegalArgumentException` with `MESSAGE_CONSTRAINTS`; null input throws
 `NullPointerException`.
 
-Add-student now stores this type on `Person` and persists it through JSON. Its error wording matches
-the original Feature 1 specification. Extending `find` as `find c/COURSE:GROUP w/WEEK` remains with the
-view-class owner; that command is integrated by the v1.3 release completion increment.
+Add-student stores this type on `Person` and persists it through JSON. Its error wording matches
+the original Feature 1 specification. The implemented `find c/COURSE:GROUP w/WEEK`
+command uses these memberships to select the class roster, as described below.
 
 #### Viewing a class: `find c/COURSE:GROUP w/WEEK`
 
@@ -686,16 +696,18 @@ keep track of his students, is highly comfortable with technology, and wants to
 view their details at a glance while spending less time on administrative work.
 
 The requirements include implemented features and deferred ideas. The five MVP
-workflows are implemented; v1.4 adds contact correction (S04) using `update`. Other
-stories remain planning records rather than promises for this release. Priorities
-express product ordering, not course iteration numbers.
+workflows and contact correction (S04) using `update` are implemented. The current
+v1.5 version also supports batch attendance through explicit displayed indices.
+Other stories remain planning records rather than available features or promises
+for this release. Priorities express product ordering, not course iteration numbers.
 
 **MVP scope**: Add a student with contact details and one or more course/group
 memberships; delete students; list all students or view one class for a chosen
-week; record, correct or clear attendance; and save, reload and exit. v1.4 adds
-name/email/Telegram correction while retaining attendance. Membership editing,
-GitHub usernames, project teams, participation points, tags, Telegram search,
-bulk attendance and absence analytics are beyond this MVP.
+week; record, correct or clear attendance; and save, reload and exit. The current
+version also supports name/email/Telegram correction while retaining attendance,
+batch attendance and clearing all records. Membership editing,
+GitHub usernames, project teams, participation points, student tags, Telegram search,
+and absence analytics are not implemented in the current version.
 
 **Domain rules from the MVP specification**:
 
@@ -1073,8 +1085,6 @@ contacts and the actual displayed index instead of assuming row 1.
    1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
       Expected: Similar to previous.
 
-1. _{ more test cases …​ }_
-
 ### Manual startup recovery checks
 
 Use an isolated test folder and synthetic data.
@@ -1094,6 +1104,12 @@ Use an isolated test folder and synthetic data.
    Expected: the same rejection and unchanged file.
 8. Restore valid student data and set `preferences.json` to `{"guiSettings":null}`.
    Expected: the main window opens with default window settings, the original students remain available, and normal Exit works.
+9. Close the app, restore a valid preferences file, and append a second JSON value such as `{}`.
+   Relaunch. Expected: default window settings are restored and saved, student data is
+   unchanged, and normal commands and Exit work. Repeat from the valid preferences
+   copy with `THIS IS NOT VALID JSON` appended; expect the same recovery.
+10. Restore valid preferences and add only trailing spaces or line breaks, then relaunch.
+    Expected: the original window settings are retained; whitespace alone does not cause recovery.
 
 ### First-run sample students
 
