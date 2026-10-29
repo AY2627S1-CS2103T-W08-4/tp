@@ -14,9 +14,11 @@
   the select format message; unavailable displayed rows use the invalid-student
   index message. Success says `Selected: NAME.` Existing legacy rows can also
   be selected; their contact card is shown without a student details pane.
-- Status: local implementation complete and prepared for the owner-requested
-  commit checkpoint; no push, PR, team approval or release claimed. This extends
-  the MVP rather than fixing an existing command.
+- Status: implementation `ad4927b0` is pushed to the member fork in
+  [PR #115](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/115), open against
+  team master under v1.5 and assigned to toomintyy. Latest upstream `e59ed71b`
+  was fetched again before PR creation and is already included. No team approval,
+  merge or release claimed. This extends the MVP rather than fixing an existing command.
 - Baseline validation: `./gradlew check coverage --no-daemon` passed on macOS
   with Zulu Java 25.0.3 FX: 422 tests, zero failures/errors/skips.
 - Course Week 11 direction checked: final feature refinements precede the v1.5
@@ -41,7 +43,9 @@
   breaks, and unsupported separators may yield Unknown command at dispatch.
   Parser-level tests still reject control whitespace; no old tests were weakened.
 - Windows, packaged-app manual checks and Jekyll rendering are unverified. Further
-  review and cross-platform checks remain before a PR/release. Assistance: OpenAI Codex.
+  review and cross-platform checks remain before merge/release. This handoff
+  changes only CONTEXT.md; the validated production/test snapshot is unchanged.
+  Assistance: OpenAI Codex.
 
 ## v1.5 startup recovery fixes — 29 October 2026
 
