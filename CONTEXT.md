@@ -1,5 +1,23 @@
 # TutorTrack team implementation context
 
+## Consolidate issue #108 branch — 29 October 2026 (SGT)
+
+- Owner authorized deleting the #108 branch if superseded by `fix-reported-issues`.
+  Inspection found its commit `06de158a` was not yet included: the combined branch
+  still had the eight upstream AB3 implementation links.
+- Merged that commit into `fix-reported-issues`, retaining all #109–#112 changes,
+  both sets of context entries and AI acknowledgements. Resolved only additive
+  context/acknowledgement conflicts; the eight link corrections merged cleanly.
+- Verified local and remote #108 heads match; no open team PR uses that branch.
+  Rechecked all eight link paths in fetched team master and preserved all other
+  external links. No production or test source changed by this consolidation.
+- Plan authorized by owner: push the combined branch successfully before removing
+  the superseded local and fork branches. No team-master merge or PR claimed.
+- Validation: repository scripts, whitespace checks and `./gradlew check coverage
+  --no-daemon` passed on macOS / Zulu Java 25.0.3 FX, reusing the unchanged
+  428-test result with zero failures/errors/skips. Windows and Jekyll rendering
+  were not rerun for this documentation merge. Assistance: OpenAI Codex.
+
 ## Keyboard navigation documentation — 29 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); issue [#112](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/112);
@@ -139,6 +157,25 @@
   name-contract extension and PR integration.
 - Assistance: OpenAI Codex for implementation, regression tests and documentation;
   reuses the existing name model, parser and persistence-test infrastructure.
+
+## Developer Guide implementation links — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#108](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/108);
+  branch `108-fix-developer-guide-links`, based on team master `b93206fb`.
+- Scope: corrected eight Design-section source links (Main, MainApp, Ui,
+  MainWindow.fxml, MainWindow, Logic, Model and Storage) to the team repository's
+  `blob/master` files. Other external links, including SE-EDU learning resources,
+  remain unchanged. No application behavior or storage changes.
+- Validation: all eight targets exist locally and in fetched `upstream/master`;
+  checked that other external links are unchanged. On macOS with Zulu Java
+  25.0.3, `./gradlew check coverage --no-daemon` passed **415 tests**, zero
+  failures/errors/skips; Checkstyle, coverage, `.github/run-checks.sh` and
+  `git diff --check` passed. The first sandboxed Gradle attempt could not access
+  the cache; rerunning with cache access passed. Windows checks, packaged-app
+  smoke tests and Jekyll rendering were not performed for this documentation fix.
+- Status: prepared for commit and push to the member fork at the owner's request.
+  No PR, merge or publication claimed. Remaining: teammate PR review and integration.
+- Assistance: OpenAI Codex for link correction and verification.
 
 ## PR #76 integration — 29 October 2026 (SGT)
 
