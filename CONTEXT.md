@@ -1,5 +1,40 @@
 # TutorTrack team implementation context
 
+## Student and legacy model diagram — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#110](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/110);
+  branch `fix-reported-issues`. Fetched upstream before starting: team master
+  remains `b93206fb`, already contained in this branch. Retains the #109 commits.
+- Scope: updated ModelClassDiagram source and PNG with shared Name/Email,
+  optional legacy Phone/Address and Tag associations, and student TelegramHandle,
+  ClassMembership and AttendanceRecord associations. Attendance records reference
+  AttendanceWeek and AttendanceStatus. Plain associations avoid implying exclusive
+  composition ownership of immutable values reused by Person copies.
+- The diagram shows multiplicities across both representations. A nearby DG table
+  states conditional constraints: students require Telegram and one or more
+  memberships, while legacy contacts require phone/address. Neither representation
+  is a subclass. Documented absent fields, stored attendance decisions, and the
+  course/group/week constraints against Person and related value types.
+- Simplified the overview by describing the filtered Person view in prose instead
+  of drawing a second overlapping association. Removed obsolete layout placeholders,
+  added accessible image text, and labeled the alternative tag diagram as an
+  unimplemented legacy AB3 design. No production code, schema or tests changed.
+- Validation: compared relationships with Person constructors/getters,
+  ClassMembership, AttendanceRecord and withAttendance. Consulted the course
+  [UML reference sheet](https://nus-cs2103-ay2627-s1.github.io/website/admin/uml-reference-sheet.html).
+  Rendered PNG using PlantUML 1.2023.10 with its built-in Smetana layout and Java
+  headless mode; syntax check passed and rendered image was visually inspected.
+  Reproduction from repository root: `java -Djava.awt.headless=true -jar
+  /path/to/plantuml-1.2023.10.jar -Playout=smetana -tpng -o ../images
+  docs/diagrams/ModelClassDiagram.puml`.
+- `./gradlew check coverage --no-daemon` passed on macOS / Zulu Java 25.0.3 FX,
+  reusing the unchanged **428-test** result (zero failures/errors/skips) and
+  up-to-date style/coverage outputs. Repository scripts and `git diff --check`
+  passed. No Jekyll site build, Windows check or packaged-app check was performed
+  for this documentation-only change.
+- Status: owner authorized commit and push of this documentation fix.
+  No PR or merge claimed. Assistance: OpenAI Codex.
+
 ## Issue #109 regression audit — 29 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); branch `fix-reported-issues`. Reviewed pushed

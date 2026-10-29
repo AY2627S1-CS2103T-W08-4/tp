@@ -23,6 +23,7 @@ title: Developer Guide
   This work reuses the team's existing model, storage and JavaFX test infrastructure.
 * Min Thi Ha also used OpenAI Codex for the batch-attendance code, tests and
   documentation prose (#67), reusing the same attendance types and transaction infrastructure.
+* Min Thi Ha used OpenAI Codex to update and verify the student/legacy model diagram and explanation (#110).
 * Min Thi Ha used OpenAI Codex for relationship-marker name parsing, regression tests and documentation (#109).
 
 --------------------------------------------------------------------------------------------------------------------
@@ -131,7 +132,29 @@ How the parsing works:
 ### Model component
 **API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
 
-<img src="images/ModelClassDiagram.png" width="450" />
+<img src="images/ModelClassDiagram.png" width="850" alt="Model classes showing shared, student and legacy Person relationships" />
+
+`Person` represents either a student profile or a legacy AB3 contact; these are
+constructor-enforced representations of the same class, not subclasses. The
+association multiplicities above cover both representations. The filtered view is
+described below rather than drawn as a second association to `Person`. The profile
+constraints are:
+
+| Relationship from `Person` | Student profile | Legacy contact |
+| --- | --- | --- |
+| `Name`, `Email` | Exactly one of each | Exactly one of each |
+| `TelegramHandle` | Exactly one | Absent (`Optional.empty()` from the getter) |
+| `ClassMembership` | One or more; at most one group per course | Empty set |
+| `AttendanceRecord` | Zero or more; at most one per enrolled course/week | Empty list |
+| `Phone`, `Address` | Absent (`null` from the getters) | Exactly one of each |
+| `Tag` | Empty set | Zero or more |
+
+Each `ClassMembership` contains a course code and tutorial group. Each
+`AttendanceRecord` contains a course code, an `AttendanceWeek` and an
+`AttendanceStatus`; stored decisions are Present or Absent. No record for a
+course/week means Unrecorded. Check `isStudent()` before using legacy-only getters.
+See [Add-student integration](#add-student-integration-v13) and
+[Record and correct attendance](#record-and-correct-attendance) for implementation details.
 
 
 The `Model` component,
@@ -141,7 +164,7 @@ The `Model` component,
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 
-<div markdown="span" class="alert alert-info">:information_source: **Note:** The alternative, arguably more object-oriented, design below keeps a unique list of tags in `AddressBook`, and each `Person` references tags from that list. This lets `AddressBook` maintain one `Tag` object per unique tag instead of each `Person` holding its own `Tag` objects.<br>
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The diagram below is an alternative legacy AB3 tag design, not the implemented TutorTrack model. It omits student fields. A unique list in `AddressBook` stores the tags, and each `Person` references tags from that list. This lets `AddressBook` maintain one `Tag` object per unique tag instead of each `Person` holding its own `Tag` objects.<br>
 
 <img src="images/BetterModelClassDiagram.png" width="450" />
 
