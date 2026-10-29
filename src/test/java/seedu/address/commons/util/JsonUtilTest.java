@@ -1,9 +1,11 @@
 package seedu.address.commons.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static seedu.address.testutil.Assert.assertThrows;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +41,15 @@ public class JsonUtilTest {
         assertEquals(serializableTestClass.getMapOfIntegerToString(), SerializableTestClass.getHashMapTestValues());
     }
 
-    //TODO: @Test jsonUtil_readJsonStringToObjectInstance_correctObject()
+    @Test
+    public void fromJsonString_trailingContent_rejectsAdditionalValuesAndGarbage() {
+        for (String suffix : new String[]{"{}", "[]", "null", "true", "123", "\"extra\"", "invalid JSON"}) {
+            assertThrows(IOException.class, () -> JsonUtil.fromJsonString("{\"answer\":1}\n" + suffix, Map.class));
+        }
+    }
 
-    //TODO: @Test jsonUtil_writeThenReadObjectToJson_correctObject()
+    @Test
+    public void fromJsonString_surroundingWhitespace_acceptsSingleDocument() throws IOException {
+        assertEquals(Map.of("answer", 1), JsonUtil.fromJsonString(" \n\t{\"answer\":1}\r\n\t ", Map.class));
+    }
 }

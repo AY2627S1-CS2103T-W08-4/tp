@@ -1,5 +1,18 @@
 # TutorTrack team implementation context
 
+## v1.5 startup recovery fixes — 29 October 2026
+
+- Owner: Aston (`aston-ish`); issues [#95](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/95) and [#100](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/100); both assigned milestone v1.5.
+- Branch: `startup-recovery-fixes`, based on team master `5d84bc06`.
+- Implementation commit: `14d3d3d1`. Published in [PR #105](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/105); teammate review and merge remain pending. GitHub currently reports merge conflicts; recheck after pushing the follow-up. The fork's Java CI workflow is manually disabled, so the new follow-up has no remote validation yet.
+- Scope: reject trailing JSON content and additional JSON values; recover null GUI settings through the existing default-preferences path.
+- Integration: no dependency or data-schema changes. Existing student-data recovery and preference fallback are reused.
+- Regression evidence: four targeted tests reproduced the failures before the fixes. Seven new tests cover rejection, whitespace compatibility, file preservation and preference recovery.
+- Review follow-up: two additional tests cover a valid, non-default preferences object followed by a second JSON value or garbage. Storage rejects it with `DataLoadingException` without changing the original bytes; startup restores and saves default settings while preserving student data. No production change was needed for this follow-up.
+- Validation: Windows, Temurin Java 25.0.4; 390 tests passed with zero failures/errors/skips. Checkstyle, coverage generation, both JAR builds, repository formatting checks and `git diff --check` passed.
+- Packaged verification: instrumented Windows checks confirmed recovery guidance and unchanged invalid student data, plus successful startup and shutdown after restoring default preferences.
+- Platform limits: Mac ARM package built only; Mac execution is unverified.
+
 ## PR #76 integration — 29 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); issue #67 / PR #76. The owner approved
