@@ -1,5 +1,24 @@
 # TutorTrack team implementation context
 
+## Developer Guide implementation links — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#108](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/108);
+  branch `108-fix-developer-guide-links`, based on team master `b93206fb`.
+- Scope: corrected eight Design-section source links (Main, MainApp, Ui,
+  MainWindow.fxml, MainWindow, Logic, Model and Storage) to the team repository's
+  `blob/master` files. Other external links, including SE-EDU learning resources,
+  remain unchanged. No application behavior or storage changes.
+- Validation: all eight targets exist locally and in fetched `upstream/master`;
+  checked that other external links are unchanged. On macOS with Zulu Java
+  25.0.3, `./gradlew check coverage --no-daemon` passed **415 tests**, zero
+  failures/errors/skips; Checkstyle, coverage, `.github/run-checks.sh` and
+  `git diff --check` passed. The first sandboxed Gradle attempt could not access
+  the cache; rerunning with cache access passed. Windows checks, packaged-app
+  smoke tests and Jekyll rendering were not performed for this documentation fix.
+- Status: prepared for commit and push to the member fork at the owner's request.
+  No PR, merge or publication claimed. Remaining: teammate PR review and integration.
+- Assistance: OpenAI Codex for link correction and verification.
+
 ## PR #76 integration — 29 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); issue #67 / PR #76. The owner approved
