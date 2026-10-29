@@ -33,7 +33,7 @@ examples. Updating the application does not replace your saved contacts.
 
 1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar addressbook.jar`.<br>
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
-   ![TutorTrack v1.3 roster](images/release-v1.3/roster.png)
+   ![TutorTrack class roster and attendance summary](images/ClassViewSummary.png)
 
 1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to open the help window.<br>
    Some example commands you can try:

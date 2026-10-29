@@ -23,7 +23,14 @@ startup/storage fixes passed 424 tests before the added startup fallback test.
 Final Mac Java25 checks pass 425 tests, zero failures/errors/skips, with
 Checkstyle and both release JAR builds. Packaged-JAR command/storage probes pass
 add/find/batch mark/update/invalid clear/delete/exit/reload/clear/help/corrupt JSON.
-Independent AI review found no introduced blockers; Windows checks follow.
+Independent AI review found no introduced blockers. Windows Java25.0.3 also
+passes425 tests with zero failures/errors/skips and zero Checkstyle errors.
+The exact source snapshot is1e5b16775c625753ff5e3205f3e7b093f6820fd2,
+archive SHA256d9cfd78d2946a21dc382c876af6d2b0eb5e221e212401179336bdae43b161164.
+Line coverage is1779/1894 (93.9%). Both packaged command probes pass; actual
+java-jar launches reach UI startup on Mac ARM and Windows using disposable data.
+Initial Mac display restrictions and a Windows PowerShell logging-wrapper error
+were corrected before successful reruns. No manual click-through is claimed.
 No final release or approval of these new fixes is claimed here.
 
 Git attribution retains teammates' original commits. Ethan's new changes use the
