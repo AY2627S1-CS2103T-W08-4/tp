@@ -25,6 +25,10 @@ title: Developer Guide
   This work reuses the team's existing model, storage and JavaFX test infrastructure.
 * Min Thi Ha also used OpenAI Codex for the batch-attendance code, tests and
   documentation prose (#67), reusing the same attendance types and transaction infrastructure.
+* Min Thi Ha used OpenAI Codex to update and verify the student/legacy model diagram and explanation (#110).
+* Min Thi Ha used OpenAI Codex for relationship-marker name parsing, regression tests and documentation (#109).
+
+* Min Thi Ha used OpenAI Codex to correct and verify the TutorTrack implementation links in this guide (#108).
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -51,7 +55,7 @@ The following provides a quick overview of the main components and their interac
 
 **Main components of the architecture**
 
-**`Main`** (consisting of classes [`Main`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
+**`Main`** (consisting of classes [`Main`](https://github.com/AY2627S1-CS2103T-W08-4/tp/blob/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/AY2627S1-CS2103T-W08-4/tp/blob/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
 * At app launch, it initializes the other components in the correct sequence, and connects them up with each other.
 * At shut down, it shuts down the other components and invokes cleanup methods where necessary.
 
@@ -83,7 +87,7 @@ The sections below give more details of each component.
 
 ### UI component
 
-The **API** of this component is specified in [`Ui.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/ui/Ui.java)
+The **API** of this component is specified in [`Ui.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/blob/master/src/main/java/seedu/address/ui/Ui.java)
 
 ![Structure of the UI Component](images/UiClassDiagram.png)
 
@@ -95,7 +99,15 @@ clutter, and keep the guides' descriptions consistent with the displayed state.
 
 The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, and `StatusBarFooter`. All of these, including `MainWindow`, inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
 
-The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
+The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/AY2627S1-CS2103T-W08-4/tp/blob/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/AY2627S1-CS2103T-W08-4/tp/blob/master/src/main/java/seedu/address/ui/MainWindow.java).
+
+Keyboard navigation uses the standard JavaFX focus traversal: Tab moves from the
+command text field through the result text area to the roster `ListView`; Shift+Tab
+traverses in reverse. The list's Up/Down behavior changes selection, and
+`PersonListPanel`'s selection listener refreshes and shows `studentDetailsPane` for
+student profiles. Keyboard traversal uses these controls; `select INDEX` provides
+a direct command-box alternative using the same selection listener.
+See the [User Guide keyboard instructions](UserGuide.md#viewing-student-details-with-the-keyboard).
 
 The `UI` component,
 
@@ -106,7 +118,7 @@ The `UI` component,
 
 ### Logic component
 
-**API** : [`Logic.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/logic/Logic.java)
+**API** : [`Logic.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/blob/master/src/main/java/seedu/address/logic/Logic.java)
 
 Here's a (partial) class diagram of the `Logic` component:
 
@@ -143,14 +155,36 @@ How the parsing works:
 * All `XYZCommandParser` classes, such as `AddCommandParser` and `DeleteCommandParser`, implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
 
 ### Model component
-**API** : [`Model.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/model/Model.java)
+**API** : [`Model.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/blob/master/src/main/java/seedu/address/model/Model.java)
 
-<img src="images/ModelClassDiagram.png" width="450" />
+<img src="images/ModelClassDiagram.png" width="850" alt="Model classes showing shared, student and legacy Person relationships" />
 
-This inherited diagram shows shared and legacy contact fields. Student profiles
+`Person` represents either a student profile or a legacy AB3 contact; these are
+constructor-enforced representations of the same class, not subclasses. The
+association multiplicities above cover both representations. The filtered view is
+described below rather than drawn as a second association to `Person`. The profile
+constraints are:
+
+| Relationship from `Person` | Student profile | Legacy contact |
+| --- | --- | --- |
+| `Name`, `Email` | Exactly one of each | Exactly one of each |
+| `TelegramHandle` | Exactly one | Absent (`Optional.empty()` from the getter) |
+| `ClassMembership` | One or more; at most one group per course | Empty set |
+| `AttendanceRecord` | Zero or more; at most one per enrolled course/week | Empty list |
+| `Phone`, `Address` | Absent (`null` from the getters) | Exactly one of each |
+| `Tag` | Empty set | Zero or more |
+
+Each `ClassMembership` contains a course code and tutorial group. Each
+`AttendanceRecord` contains a course code, an `AttendanceWeek` and an
+`AttendanceStatus`; stored decisions are Present or Absent. No record for a
+course/week means Unrecorded. Check `isStudent()` before using legacy-only getters.
+See [Add-student integration](#add-student-integration-v13) and
+[Record and correct attendance](#record-and-correct-attendance) for implementation details.
+
+The diagram includes shared, legacy and student contact fields. Student profiles
 use the same `Person` class, with a `TelegramHandle`, course/group memberships and
-attendance records instead of legacy phone/address fields. Those student fields
-are omitted from this diagram; see the add-student and attendance sections below.
+attendance records instead of legacy phone/address fields. See the add-student
+and attendance sections below for their behavior.
 
 The `Model` component,
 
@@ -168,7 +202,7 @@ The `Model` component,
 
 ### Storage component
 
-**API** : [`Storage.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/storage/Storage.java)
+**API** : [`Storage.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/blob/master/src/main/java/seedu/address/storage/Storage.java)
 
 <img src="images/StorageClassDiagram.png" width="550" />
 
@@ -464,6 +498,16 @@ the original constructors retain the old validation rules for lossless legacy co
 `Optional<TelegramHandle>` and `getMemberships()` returns an immutable, defensively copied set in input
 order. Existing `getPhone()` and `getAddress()` return null for students; callers must check the
 representation before accessing legacy fields. No placeholder contact data is created.
+
+Issue #109 extends student names to support standalone `s/o` and `d/o` relationship
+markers in any ASCII letter case. Add and update parsers keep these tokens literal
+only while reading an `n/` value; other unknown or repeated prefixes still fail.
+`ParserUtil.isNameRelationshipMarker` requires an ordinary-space or end-of-input
+boundary after the marker. `Name.forStudent` permits slashes only in these complete
+tokens, preserving case and the existing normalization and 50-code-point limit.
+JSON loading uses the same name validation, so names survive save/reload without a
+schema change. Legacy name validation is unchanged. This is an owner-authorized
+extension to the original Feature 1 contract, pending teammate review.
 
 The student constructor requires at least one membership and at most one group per course. Add parsing
 validates every membership before checking repeated courses in appearance order. A student conflicts
@@ -1097,6 +1141,24 @@ contacts and the actual displayed index instead of assuming row 1.
 7. Save failure and retry are covered by `StudentUpdateIntegrationTest` and
    `MvpRosterUiTest` using injected IO failures. These tests verify unchanged disk
    content/live state, retained input and selection, then a successful retry.
+
+### Atomic batch deletion
+
+Use an isolated dataset with three students in the same class and at least one
+attendance decision. Use their actual displayed indices in the steps below.
+
+1. Query that class, then run `delete 1 99` where 99 is beyond its displayed roster.
+   Expected: an invalid-index error; neither row 1 nor any attendance is removed.
+   Selection, details and the class/week view remain unchanged.
+2. With storage-save failure injected, run `delete 3 1 3`. Expected: no live removal
+   or disk change for any target; the attempted input and existing view remain.
+   `MvpRosterIntegrationTest` and `MvpRosterUiTest` automate this safely.
+3. Restore storage and retry `delete 3 1 3`. Expected: original rows 3 and 1 are
+   removed once each, including their memberships/attendance. Original row 2
+   remains and becomes row 1; the current class/week filter stays active and the
+   selection/details clear. The deletion feedback lists targets in input order.
+4. Restart and query the same class. Expected: only the remaining student loads;
+   no partial batch or orphan attendance appears.
 
 ### Launch and shutdown
 

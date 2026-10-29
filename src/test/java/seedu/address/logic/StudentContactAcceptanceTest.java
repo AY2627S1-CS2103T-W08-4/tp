@@ -153,6 +153,61 @@ public class StudentContactAcceptanceTest {
         assertEquals(model.getAddressBook(), storage.readAddressBook().orElseThrow());
     }
 
+    @Test
+    public void relationshipMarkers_namesakesAllowedButContactCollisionsDoNotWrite() throws Exception {
+        logic.execute("add n/Ravi s/o Kumar p/@ravi_one e/ravi@example.com c/CS2103T:T04");
+        logic.execute("add n/Ravi s/o Kumar p/@ravi_two e/ravi.two@example.com c/MA2001:T01");
+        assertEquals(4, model.getFilteredPersonList().size());
+        AddressBook before = new AddressBook(model.getAddressBook());
+        String saved = Files.readString(storage.getAddressBookFilePath());
+        storage.writes = 0;
+        for (String contacts : List.of("p/@unique_one e/RAVI@EXAMPLE.COM", "p/@RAVI_ONE e/unique@example.com")) {
+            assertThrows(CommandException.class, () -> logic.execute(
+                    "add n/Priya d/o Raman " + contacts + " c/CS2103T:T04"));
+            assertThrows(CommandException.class, () -> logic.execute("update 1 n/Priya d/o Raman " + contacts));
+        }
+        assertEquals(before, model.getAddressBook());
+        assertEquals(saved, Files.readString(storage.getAddressBookFilePath()));
+        assertEquals(0, storage.writes);
+    }
+
+    @Test
+    public void relationshipMarkers_normalizedNoOpDoesNotWrite() throws Exception {
+        logic.execute("update 1 n/José S/O 王");
+        storage.writes = 0;
+        storage.failure = new IOException("Normalized no-op must not save");
+        CommandResult result = logic.execute("update 1 n/ Jose\u0301   S/O   王 ");
+        assertEquals("Student unchanged: José S/O 王.", result.getFeedbackToUser());
+        assertEquals(0, storage.writes);
+        assertEquals(model.getAddressBook(), storage.readAddressBook().orElseThrow());
+    }
+
+    @Test
+    public void relationshipMarkers_failedSavesPreserveRosterAndFilterThenRetry() throws Exception {
+        logic.execute("find c/MA2001:T01 w/53");
+        AddressBook before = new AddressBook(model.getAddressBook());
+        List<Person> displayed = List.copyOf(model.getFilteredPersonList());
+        String saved = Files.readString(storage.getAddressBookFilePath());
+        String add = "add n/Ravi s/o Kumar p/@ravi_one e/ravi@example.com c/CS2103T:T04";
+        String update = "update 1 n/Priya d/o Raman";
+        storage.failure = new AccessDeniedException(storage.getAddressBookFilePath().toString());
+        for (String command : List.of(add, update)) {
+            assertThrows(CommandException.class, LogicManager.ADD_SAVE_ERROR, () -> logic.execute(command));
+            assertEquals(before, model.getAddressBook());
+            assertEquals(displayed, model.getFilteredPersonList());
+            assertEquals(saved, Files.readString(storage.getAddressBookFilePath()));
+        }
+        storage.failure = null;
+        storage.writes = 0;
+        logic.execute(update);
+        assertEquals("Priya d/o Raman", model.getFilteredPersonList().getFirst().getName().fullName);
+        logic.execute(add);
+        assertEquals(3, model.getFilteredPersonList().size());
+        assertEquals("Ravi s/o Kumar", model.getFilteredPersonList().getLast().getName().fullName);
+        assertEquals(2, storage.writes);
+        assertEquals(model.getAddressBook(), storage.readAddressBook().orElseThrow());
+    }
+
     private static class RecordingStorage extends JsonAddressBookStorage {
         private int writes;
         private IOException failure;

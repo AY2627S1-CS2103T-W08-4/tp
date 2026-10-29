@@ -59,6 +59,24 @@ examples. Updating the application does not replace your saved contacts.
 
 --------------------------------------------------------------------------------------------------------------------
 
+## Viewing student details with the keyboard
+
+You can browse student details without using the mouse:
+
+1. Enter `list` to show all students, or use `find c/COURSE:GROUP w/WEEK` to show a class.
+1. From the command box, press **Tab** until the roster (the list of students) has focus.
+   The command results area receives focus before the roster.
+1. Press **Up** or **Down** to select a student. Their name, Telegram handle, email,
+   class memberships and attendance details appear below the roster and update as
+   you change the selection. Selecting a student does not change their saved data.
+1. Press **Shift+Tab** until focus returns to the command box, passing through the
+   results area. You can then type your next command.
+
+If the roster is empty, there is no student to select. Use `list` to leave an empty
+class view, or `add` to create a student if no students have been saved.
+
+--------------------------------------------------------------------------------------------------------------------
+
 ## Features
 
 <div markdown="block" class="alert alert-info">
@@ -118,7 +136,7 @@ and `t/` add parameters, are rejected.
 
 | Field | Accepted input |
 | --- | --- |
-| Name | 1–50 Unicode code points after NFC normalization and collapsing ordinary spaces. Must contain a letter. Letters, combining marks, spaces, apostrophes (`'` or `’`), hyphens and periods are allowed. Capitalization is preserved. |
+| Name | 1–50 Unicode code points after NFC normalization and collapsing ordinary spaces. Must contain a letter. Letters, combining marks, spaces, apostrophes (`'` or `’`), hyphens and periods are allowed. Standalone `s/o` and `d/o` relationship markers are also allowed, in any letter case. Capitalization is preserved. |
 | Telegram | `@` followed by 5–32 ASCII letters/digits/underscores, starting with a letter. Stored lowercase. |
 | Email | At most 254 characters with one `@`, a 1–64-character ASCII local part and a dotted domain. The local part starts/ends alphanumeric, allows `._+-` internally and forbids consecutive periods. Domain labels contain 1–63 letters/digits/hyphens, start/end alphanumeric, and the final label has 2–63 letters. Stored lowercase. |
 | Class membership | `COURSE:GROUP`, with no internal spaces. Course: 2–4 ASCII letters, 4 digits, optional final letter. Group: one ASCII letter and 2 digits. Stored uppercase. Repeat `c/` for different courses; each course may appear only once. |
@@ -126,6 +144,13 @@ and `t/` add parameters, are rejected.
 Name limits apply **after** normalization: for example, `n/ José   Tan ` is stored as
 `José Tan`. Values are never shortened to fit a limit; an over-limit contact rejects
 the whole command. Telegram and email lengths do not include surrounding ordinary spaces.
+
+Relationship markers are literal name text inside `n/`; no quoting or escaping is needed.
+For example, `add n/Ravi s/o Kumar p/@name_audit e/name.audit@example.com c/CS2103T:T04`
+records `Ravi s/o Kumar`. The same rule supports `Priya d/o Raman` and uppercase
+markers such as `S/O`. Each marker must be a complete word separated by ordinary spaces
+(or at the beginning/end of the name). Other slash-containing text and unknown
+parameters such as `x/` remain invalid.
 
 Namesakes are allowed. A matching email or Telegram handle rejects the entire addition, regardless of
 name or memberships. Email collisions are reported first, including collisions with existing legacy
@@ -204,6 +229,7 @@ Examples:
 
 * `update 1 e/alice.new@example.com` changes only the displayed student's email.
 * `update 2 n/Anne-Marie Tan p/@anne_new` corrects a name and Telegram handle together.
+* `update 2 n/Priya d/o Raman` preserves a relationship marker as part of the name.
 * After `find c/CS2103T:T04 w/3`, `update 1 n/Alice Tan` targets row 1 of that class view.
 
 Supply at least one field, each at most once, in any order. The name, Telegram and
