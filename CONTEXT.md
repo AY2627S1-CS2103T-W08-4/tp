@@ -8,7 +8,9 @@
 - Ethan approved original head `69a6abe9`; that approval predates this integration.
 - Actual local validation: `./gradlew check coverage` passed, 397 tests,
   zero failures/errors/skips, both Checkstyle tasks and coverage generation passed.
-- Status: integration prepared locally; push, remote CI and merge pending.
+- Status: integration pushed as `27aad58b`; GitHub retains Ethan's approval and
+  reports no conflicts. Merge pending at this handoff. Fork Java CI is manually
+  disabled, so no new remote run is available; prior-head CI passed.
   Release verification remains separate. OpenAI Codex assisted conflict resolution.
 
 ## Active v1.5 contact hardening — verified 28 October 2026 (SGT)
