@@ -492,9 +492,9 @@ The existing file-loading layer wraps parsing failures in `DataLoadingException`
 
 `MainWindowExitTest` additionally verifies that typed, menu and window-close Exit failures preserve updated student data, selection, details and class context, followed by successful retry and reload.
 
-Five new regression tests cover trailing garbage, additional JSON values, accepted surrounding whitespace, null GUI settings, original-file preservation and successful startup after preference recovery.
+Seven new regression tests cover trailing garbage, additional JSON values, accepted surrounding whitespace, null GUI settings, original-file preservation and successful startup after preference recovery. The preferences-storage and startup tests also use a valid, non-default preferences object followed by a second JSON value or garbage. They verify `DataLoadingException` and unchanged original preference bytes before recovery, then default settings, unchanged student data and reloadable recovered preferences at startup.
 
-On Windows with Temurin Java 25.0.4, `gradlew.bat check coverage shadowJar shadowJarMacArm` passed: **388 tests, zero failures/errors/skips**, both Checkstyle tasks, coverage generation and both JAR builds. Repository formatting checks and `git diff --check` also passed.
+On Windows with Temurin Java 25.0.4, `gradlew.bat check coverage shadowJar shadowJarMacArm` passed: **390 tests, zero failures/errors/skips**, both Checkstyle tasks, coverage generation and both JAR builds. Repository formatting checks and `git diff --check` also passed.
 
 Instrumented Windows packaged-app checks confirmed that trailing invalid JSON displays recovery guidance and preserves the original file. Null GUI settings recovered to defaults, retained the existing student and allowed normal shutdown. The Mac ARM package was built but not run; Mac execution remains unverified.
 

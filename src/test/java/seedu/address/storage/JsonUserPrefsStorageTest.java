@@ -1,10 +1,12 @@
 package seedu.address.storage;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static seedu.address.testutil.Assert.assertThrows;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,6 +55,22 @@ public class JsonUserPrefsStorageTest {
         assertThrows(DataLoadingException.class, () -> new JsonUserPrefsStorage(prefs).readUserPrefs());
 
         assertEquals(invalid, Files.readString(prefs));
+    }
+
+    @Test
+    public void readUserPrefs_trailingContent_rejectsAndPreservesOriginalBytes() throws Exception {
+        Path prefs = testFolder.resolve("trailing-preferences.json");
+        JsonUserPrefsStorage storage = new JsonUserPrefsStorage(prefs);
+        storage.saveUserPrefs(getTypicalUserPrefs());
+        String valid = Files.readString(prefs);
+
+        for (String suffix : new String[]{"{}", "THIS IS NOT VALID JSON"}) {
+            byte[] invalid = (valid + "\n" + suffix).getBytes(StandardCharsets.UTF_8);
+            Files.write(prefs, invalid);
+
+            assertThrows(DataLoadingException.class, storage::readUserPrefs);
+            assertArrayEquals(invalid, Files.readAllBytes(prefs));
+        }
     }
 
     private Path addToTestDataPathIfNotNull(String userPrefsFileInTestDataFolder) {
