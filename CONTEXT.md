@@ -1,5 +1,33 @@
 # TutorTrack team implementation context
 
+## Issue #109 regression audit — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); branch `fix-reported-issues`. Reviewed pushed
+  implementation `0e5fc001` against pre-change team master `b93206fb`.
+- Confirmed all original test source lines were retained, with no test/build or
+  Checkstyle configuration changes. Matched all **415 original test methods**
+  against the latest execution results: none missing, failing or skipped.
+- Added seven tests covering relationship-marker names across all six contact
+  orders (add memberships before/after contacts), Unicode normalization and
+  supplementary-character length limits, all ASCII marker case variants,
+  incomplete/malformed markers and unsupported whitespace, markers outside name
+  fields, malformed stored names, namesakes/contact collisions, normalized no-op
+  updates, and failed add/update saves followed by successful retries.
+- No production-code regression found; no implementation changes were needed.
+  These tests add coverage rather than replace existing assertions. Validated
+  roster/filter/disk preservation and exact unknown-parameter errors so other
+  invalid fields cannot mask the behavior under test.
+- On macOS with Zulu Java 25.0.3 FX, forced a fresh full check/coverage run, then
+  reran after strengthening boundary/error assertions. Final `./gradlew check
+  coverage --no-daemon` passed **428 tests**, zero failures/errors/skips.
+  Checkstyle, coverage, repository scripts and `git diff --check` passed.
+  Name, AddCommandParser, UpdateCommandParser and the relationship-marker helper
+  have 100% line and branch coverage in this run; coverage is not proof of all
+  possible behaviors. Windows and packaged-app manual checks were not performed.
+- Status: implementation is pushed; audit tests and this context update are
+  prepared for commit and push at the owner's request. No PR or merge claimed.
+  AI assistance: OpenAI Codex.
+
 ## Student relationship-marker names — 29 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); issue [#109](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/109);

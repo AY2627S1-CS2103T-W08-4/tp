@@ -39,6 +39,19 @@ public class StudentValidationTest {
     }
 
     @Test
+    public void name_relationshipMarkers_unicodeLimitsAndNormalizationRemainEnforced() {
+        String letter = new String(Character.toChars(0x10400));
+        String maximum = letter.repeat(44) + " d/o 王";
+        assertEquals(50, maximum.codePointCount(0, maximum.length()));
+        assertEquals(maximum, Name.forStudent("  " + maximum.replace(" ", "   ") + "  ").fullName);
+        assertFalse(Name.isValidStudentName(maximum + letter));
+        assertEquals("José s/o 王", Name.forStudent(" Jose\u0301   s/o   王 ").fullName);
+        for (String marker : new String[]{"s/o", "s/O", "S/o", "S/O", "d/o", "d/O", "D/o", "D/O"}) {
+            assertEquals("A " + marker + " B", Name.forStudent("A " + marker + " B").fullName);
+        }
+    }
+
+    @Test
     public void name_largeInternalSpacing_normalizesWithoutStalling() {
         // A pasted name is valid after collapsing spaces. The old end-anchored trim regex
         // rescanned this run quadratically and blocked the JavaFX command thread for seconds.
