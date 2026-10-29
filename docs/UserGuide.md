@@ -154,6 +154,34 @@ Format: `list`
 * `list` takes no parameters. Any extra input, such as `list 3` or `list c/CS2103T:T04`, is rejected with the list format error, so you never mistake an unfiltered list for a filtered one.
 * The result shows how many students are listed, for example `3 students listed!`, `1 student listed!` or `0 students listed!`.
 
+### Selecting a student: `select`
+
+Selects a displayed row and reveals the student's details below the roster without
+changing their saved data or moving focus away from the command box.
+
+Format: `select INDEX`
+
+Examples:
+
+* `list`, then `select 3`, selects the third row in the full roster.
+* After `find c/CS2103T:T04 w/3`, `select 1` selects the first row in that class view.
+
+`INDEX` is one displayed row number: an ASCII integer from 1 to 2147483647, without
+signs or leading zeros. Only ordinary spaces may surround the command and index.
+Extra indices or parameters are rejected. The current filter, class/week context,
+roster order, memberships and attendance remain unchanged. A row outside the visible
+scroll area is scrolled into view. Success reports `Selected: NAME.`
+
+Missing or malformed input (for example `select`, `select 0`, `select 01` or
+`select 1 2`) reports `Invalid command format!` followed by `Format: select INDEX`.
+An index beyond the current roster, including any index in an empty roster, reports
+`The student index provided is invalid.` Errors preserve the previous selection,
+details and attempted command. Selection never saves the data file and works even
+when that file is not writable. Selecting the same student again is allowed.
+
+Legacy AB3 contacts can also be selected; their existing contact card is revealed,
+while the additional student-details pane is only shown for student profiles.
+
 ### Correcting student contacts: `update`
 
 Format: `update INDEX [n/NAME] [p/TELEGRAM] [e/EMAIL]`
@@ -302,7 +330,7 @@ Resolve the storage problem and try Exit again. The feedback wraps to keep the r
 
 ### Saving the data
 
-TutorTrack saves accepted additions, contact updates, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list` and `find` are read-only. You do not need to save manually.
+TutorTrack saves accepted additions, contact updates, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list`, `find` and `select` are read-only. You do not need to save manually.
 
 ### Editing the data file
 
@@ -427,6 +455,7 @@ Action | Format, Examples
 **Update** | `update INDEX [n/NAME] [p/TELEGRAM] [e/EMAIL]`<br>e.g., `update 1 e/new@example.com`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Find** | `find c/COURSE:GROUP w/WEEK`<br> e.g., `find c/CS2103T:T04 w/3`
+**Select** | `select INDEX`<br>e.g., `select 3`
 **List** | `list`
 **Help** | `help`
 **Mark** | `mark INDEX [INDEX ...] m/COURSE w/WEEK s/STATUS`<br>e.g., `mark 1 3 5 m/CS2103T w/3 s/present`

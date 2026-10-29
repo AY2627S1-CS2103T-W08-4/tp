@@ -1,5 +1,48 @@
 # TutorTrack team implementation context
 
+## Direct student selection — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#113](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/113);
+  separate branch `113-select-student`, based on freshly fetched team master
+  `e59ed71b` (includes startup-recovery PR #105). Does not depend on PR #114.
+- Owner-authorized enhancement proposal: `select INDEX` resolves a single current
+  displayed row and returns it through the existing CommandResult selection hook.
+  Preserve filter, class/week context, roster order, contacts, memberships and
+  attendance; never save data. Invalid syntax/bounds must retain UI selection.
+- Chosen syntax: lowercase command, one positive ASCII index (1–2147483647),
+  no leading zero/sign, ordinary surrounding spaces only. Syntax failures use
+  the select format message; unavailable displayed rows use the invalid-student
+  index message. Success says `Selected: NAME.` Existing legacy rows can also
+  be selected; their contact card is shown without a student details pane.
+- Status: local implementation complete and prepared for the owner-requested
+  commit checkpoint; no push, PR, team approval or release claimed. This extends
+  the MVP rather than fixing an existing command.
+- Baseline validation: `./gradlew check coverage --no-daemon` passed on macOS
+  with Zulu Java 25.0.3 FX: 422 tests, zero failures/errors/skips.
+- Course Week 11 direction checked: final feature refinements precede the v1.5
+  deadline (29 October 23:59 SGT); implementation alone is not a completed
+  release or proof of on-time integration. Source:
+  https://nus-cs2103-ay2627-s1.github.io/website/schedule/week11/project.html
+- Implementation: new SelectCommand/SelectCommandParser plus dispatch and the
+  read-only LogicManager path; reuses CommandResult and PersonListPanel selection
+  and scrolling. No UI production-code, Person or storage-schema changes. UG/DG
+  and command summary updated; this branch is independent of pending PR #114.
+- Validation: the new real-window success test failed against the baseline's
+  unsupported command, then passed after implementation. Added 12 tests across
+  parser, command, persistence integration and real-window UI. Checks cover
+  filtered indices, legacy rows, strict syntax, maximum/overflow indices, empty
+  rosters, repeated selection, contacts/attendance preservation, zero storage
+  writes, unchanged filter and UI details/input/focus behavior.
+- Focused validation passed. `./gradlew check coverage --no-daemon` passed on
+  macOS / Zulu Java 25.0.3 FX: **434 tests**, zero failures/errors/skips, both
+  Checkstyle tasks and coverage generation. Repository scripts and whitespace
+  checks passed. Initial new-test assumptions about a TextField retaining line
+  breaks and Unicode command separators were corrected: JavaFX strips line
+  breaks, and unsupported separators may yield Unknown command at dispatch.
+  Parser-level tests still reject control whitespace; no old tests were weakened.
+- Windows, packaged-app manual checks and Jekyll rendering are unverified. Further
+  review and cross-platform checks remain before a PR/release. Assistance: OpenAI Codex.
+
 ## v1.5 startup recovery fixes — 29 October 2026
 
 - Owner: Aston (`aston-ish`); issues [#95](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/95) and [#100](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/100); both assigned milestone v1.5.

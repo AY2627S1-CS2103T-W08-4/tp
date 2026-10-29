@@ -69,6 +69,51 @@ public class MvpRosterUiTest {
     }
 
     @Test
+    public void select_fullAndFilteredRoster_updatesDetailsWithoutSavingOrMovingFocus() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 1 m/CS2103T w/3 s/present");
+            storage.fail = true;
+            input().requestFocus();
+            enter("select 2");
+            assertEquals("Selected: Bobby.", feedback());
+            assertEquals(1, list().getSelectionModel().getSelectedIndex());
+            assertTrue(label("studentDetails").getText().startsWith("Bobby\n"));
+            assertEquals("CS2103T:T04 | Week 3 | 2 students", label("rosterHeading").getText());
+            assertEquals(input(), stage.getScene().getFocusOwner());
+            assertEquals("", input().getText());
+            enter("find c/MA2001:T01 w/53");
+            enter("select 1");
+            assertEquals("Selected: Alice.", feedback());
+            assertTrue(label("studentDetails").getText().contains("CS2103T | Week 3 | Present"));
+            assertEquals("MA2001:T01 | Week 53 | 1 student", label("rosterHeading").getText());
+            enter("list");
+            enter("select 2");
+            assertEquals("Selected: Bobby.", feedback());
+            assertEquals("All students | 2 students", label("rosterHeading").getText());
+        });
+    }
+
+    @Test
+    public void select_invalidInput_preservesSelectionDetailsContextAndAttemptedCommand() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 1 m/CS2103T w/3 s/present");
+            Object selected = list().getSelectionModel().getSelectedItem();
+            String details = label("studentDetails").getText();
+            storage.fail = true;
+            for (String command : List.of("select", "select 0", "select 01", "select -1", "select 1 2",
+                    "select 3", "select 2147483647", "select 2147483648", "select 1 x/a")) {
+                enter(command);
+                assertEquals(selected, list().getSelectionModel().getSelectedItem());
+                assertEquals(details, label("studentDetails").getText());
+                assertEquals("CS2103T:T04 | Week 3 | 2 students", label("rosterHeading").getText());
+                assertEquals(command, input().getText());
+            }
+        });
+    }
+
+    @Test
     public void roster_weekChangesRefreshBadgesAndQueriesClearSelection() throws Exception {
         runOnFxThread(() -> {
             enter("find c/CS2103T:T04 w/3");

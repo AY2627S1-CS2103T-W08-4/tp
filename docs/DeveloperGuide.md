@@ -586,6 +586,33 @@ Add-student now stores this type on `Person` and persists it through JSON. Its e
 the original Feature 1 specification. Extending `find` as `find c/COURSE:GROUP w/WEEK` remains with the
 view-class owner; that command is integrated by the v1.3 release completion increment.
 
+#### Selecting a displayed student: `select INDEX`
+
+`AddressBookParser` passes raw arguments to `SelectCommandParser`, which accepts
+exactly one positive ASCII index, without leading zeros and within the Java integer
+range. It trims only ordinary spaces. Invalid syntax fails before command execution.
+`SelectCommand` checks bounds against `Model.getFilteredPersonList()` and returns
+the existing row in `CommandResult`; it never changes the model or filter.
+
+`LogicManager` treats selection as a read-only query alongside `list` and `find`,
+bypassing storage even when the data directory is not writable. After success,
+`MainWindow` uses the existing `PersonListPanel.selectPerson` hook to select and
+scroll to the row. The selection listener shows the student's contacts, memberships
+and attendance; legacy contacts retain their existing card without a student-details
+pane. The result does not replace the roster context or clear the selection.
+Failures reach the existing command error handler, preserving selection, details,
+filter and attempted input. Success clears the input without requesting focus on
+the roster. No storage-schema or Person change is required.
+
+This is an owner-authorized enhancement under #113, pending teammate review; it
+extends the original MVP rather than fixing a previously documented select command.
+Parser, command, persistence-integration and real-window tests cover strict input,
+filtered indices, empty/out-of-range rosters, legacy rows, repeated selection,
+read-only behavior, detail refresh and error-state preservation. For manual checks,
+select a row beyond the current scroll area, repeat in a class/week view, and verify
+that invalid indices keep the previous details and selection. OpenAI Codex assisted
+Min Thi Ha with this command, tests and documentation.
+
 #### Viewing a class: `find c/COURSE:GROUP w/WEEK`
 
 The sequence diagram below shows how `find c/cs2103t:t04 w/3` is executed. `FindCommandParser` validates
