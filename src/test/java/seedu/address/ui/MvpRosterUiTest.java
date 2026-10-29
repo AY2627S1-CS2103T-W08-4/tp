@@ -232,6 +232,158 @@ public class MvpRosterUiTest {
         });
     }
 
+    @Test
+    public void add_failedSave_keepsSelectedAttendanceAndRetrySelectsNewStudent() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 1 m/CS2103T w/3 s/present");
+            Object selected = list().getSelectionModel().getSelectedItem();
+            String details = label("studentDetails").getText();
+            List<Person> before = displayedStudents();
+            String command = "add n/Carol p/@carol_1 e/carol@example.com c/MA2001:T01";
+
+            // A failed add must not reset the class view or steal the current selection.
+            storage.fail = true;
+            enter(command);
+            assertEquals(LogicManager.ADD_SAVE_ERROR, feedback());
+            assertEquals(selected, list().getSelectionModel().getSelectedItem());
+            assertEquals(details, label("studentDetails").getText());
+            assertEquals(before, displayedStudents());
+            assertEquals("CS2103T:T04 | Week 3 | 2 students", label("rosterHeading").getText());
+            assertEquals(command, input().getText());
+
+            storage.fail = false;
+            enter(command);
+            assertEquals("New student added: Carol.", feedback());
+            assertEquals("All students | 3 students", label("rosterHeading").getText());
+            assertEquals(2, list().getSelectionModel().getSelectedIndex());
+            assertTrue(label("studentDetails").getText().contains("No attendance recorded."));
+            assertEquals("", input().getText());
+        });
+    }
+
+    @Test
+    public void update_invalidOtherStudent_preservesSelectionThenNoOpSelectsTarget() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 1 m/CS2103T w/3 s/present");
+            Object selected = list().getSelectionModel().getSelectedItem();
+            String details = label("studentDetails").getText();
+            List<Person> before = displayedStudents();
+            // Both parse errors and uniqueness failures leave Alice selected while editing Bobby.
+            for (String command : List.of("update 2 e/alice@example.com", "update 2 p/@ALICE_1",
+                    "update 2 n/", "update 2 e/new@example.com e/other@example.com")) {
+                enter(command);
+                assertEquals(selected, list().getSelectionModel().getSelectedItem(), command);
+                assertEquals(details, label("studentDetails").getText(), command);
+                assertEquals(before, displayedStudents(), command);
+                assertEquals(command, input().getText(), command);
+            }
+            storage.fail = true;
+            enter("update 2 n/Bobby");
+            assertEquals("Student unchanged: Bobby.", feedback());
+            assertEquals(1, list().getSelectionModel().getSelectedIndex());
+            assertTrue(label("studentDetails").getText().contains("Bobby"));
+            assertEquals("CS2103T:T04 | Week 3 | 2 students", label("rosterHeading").getText());
+            assertEquals("", input().getText());
+        });
+    }
+
+    @Test
+    public void batch_failedSave_preservesEntireViewThenRetriesAndSelectsFirstTarget() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 1 m/CS2103T w/3 s/present");
+            Object selected = list().getSelectionModel().getSelectedItem();
+            String details = label("studentDetails").getText();
+            String heading = label("rosterHeading").getText();
+            List<Person> before = displayedStudents();
+            List<String> badges = attendanceBadges();
+            String command = "mark 2 1 2 m/CS2103T w/3 s/absent";
+            assertEquals("1 present, 0 absent, 1 unrecorded", label("rosterSummary").getText());
+            storage.fail = true;
+            enter(command);
+            assertEquals(LogicManager.ADD_SAVE_ERROR, feedback());
+            assertEquals(selected, list().getSelectionModel().getSelectedItem());
+            assertEquals(details, label("studentDetails").getText());
+            assertEquals(heading, label("rosterHeading").getText());
+            assertEquals(before, displayedStudents());
+            assertEquals(badges, attendanceBadges());
+            assertEquals(command, input().getText());
+            assertEquals("1 present, 0 absent, 1 unrecorded", label("rosterSummary").getText());
+
+            storage.fail = false;
+            enter(command);
+            assertEquals("Attendance set: CS2103T | Week 3 | Absent | 2 changed, 0 unchanged.", feedback());
+            assertEquals("0 present, 2 absent, 0 unrecorded", label("rosterSummary").getText());
+            assertEquals(1, list().getSelectionModel().getSelectedIndex());
+            assertEquals("", input().getText());
+            assertEquals(heading, label("rosterHeading").getText());
+            assertEquals(List.of("Alice", "Bobby"), displayedStudents().stream()
+                    .map(person -> person.getName().fullName).toList());
+            assertTrue(label("studentDetails").getText().contains("Bobby"));
+            assertTrue(label("studentDetails").getText().contains("Absent"));
+            assertEquals(List.of("CS2103T | Week 3 | Absent", "CS2103T | Week 3 | Absent"), attendanceBadges());
+            enter("mark 1 2 m/CS2103T w/3 s/unrecorded");
+            assertEquals("0 present, 0 absent, 2 unrecorded", label("rosterSummary").getText());
+            assertEquals(0, list().getSelectionModel().getSelectedIndex());
+            assertTrue(label("studentDetails").getText().contains("No attendance recorded."));
+            assertEquals(List.of("CS2103T | Week 3 | Unrecorded", "CS2103T | Week 3 | Unrecorded"), attendanceBadges());
+        });
+    }
+
+    @Test
+    public void batch_mixedAndUnchangedTargets_selectsFirstAndRetainsContextAcrossWeeks() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 2 m/CS2103T w/3 s/present");
+            enter("mark 1 m/CS2103T w/3 s/unrecorded");
+            enter("mark 2 1 2 m/CS2103T w/3 s/present");
+            assertEquals("Attendance set: CS2103T | Week 3 | Present | 1 changed, 1 unchanged.", feedback());
+            assertEquals(1, list().getSelectionModel().getSelectedIndex());
+            assertEquals(List.of("CS2103T | Week 3 | Present", "CS2103T | Week 3 | Present"), attendanceBadges());
+            assertEquals("", input().getText());
+            storage.fail = true;
+            enter("mark 1 2 m/CS2103T w/3 s/present");
+            assertEquals("Attendance unchanged: CS2103T | Week 3 | Present | 0 changed, 2 unchanged.", feedback());
+            assertEquals(0, list().getSelectionModel().getSelectedIndex());
+            assertTrue(label("studentDetails").getText().contains("Alice"));
+            assertEquals("", input().getText());
+            storage.fail = false;
+            enter("mark 2 1 m/CS2103T w/53 s/absent");
+            assertEquals("CS2103T:T04 | Week 3 | 2 students", label("rosterHeading").getText());
+            assertEquals(1, list().getSelectionModel().getSelectedIndex());
+            assertTrue(label("studentDetails").getText().contains("Week 53"));
+            assertEquals(List.of("CS2103T | Week 3 | Present", "CS2103T | Week 3 | Present"), attendanceBadges());
+            enter("find c/CS2103T:T04 w/53");
+            assertTrue(hasBadge("CS2103T | Week 53 | Absent"));
+        });
+    }
+
+    @Test
+    public void batch_invalidTargetOrParameter_preservesViewAndAttemptedInput() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 2 m/CS2103T w/3 s/present");
+            Object selected = list().getSelectionModel().getSelectedItem();
+            String details = label("studentDetails").getText();
+            List<Person> before = displayedStudents();
+            List<String> badges = attendanceBadges();
+            for (String command : List.of("mark 1 2 m/MA2001 w/3 s/present",
+                    "mark 1 3 m/CS2103T w/3 s/present", "mark 1 2 m/CS2103T w/54 s/present")) {
+                enter(command);
+                assertFalse(feedback().startsWith("Attendance set:"), command);
+                assertFalse(feedback().isEmpty(), command);
+                assertEquals(selected, list().getSelectionModel().getSelectedItem(), command);
+                assertEquals(details, label("studentDetails").getText(), command);
+                assertEquals(before, displayedStudents(), command);
+                assertEquals(badges, attendanceBadges(), command);
+                assertEquals("CS2103T:T04 | Week 3 | 2 students", label("rosterHeading").getText(), command);
+                assertEquals(command, input().getText(), command);
+            }
+        });
+    }
+
     private List<Person> displayedStudents() {
         return list().getItems().stream().map(Person.class::cast).toList();
     }

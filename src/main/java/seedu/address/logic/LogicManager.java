@@ -88,10 +88,10 @@ public class LogicManager implements Logic {
             return commandResult;
         }
         if (command instanceof MarkCommand mark) {
-            return executeStudentReplacement(mark, mark.getTarget(model));
+            return executeStudentReplacement(mark);
         }
         if (command instanceof UpdateCommand update) {
-            return executeStudentReplacement(update, update.getTarget(model));
+            return executeStudentReplacement(update);
         }
         if (command instanceof AddCommand) {
             // Execute against a detached candidate: failures leave the live list, predicate and selection untouched.
@@ -122,21 +122,29 @@ public class LogicManager implements Logic {
         return commandResult;
     }
 
-    /** Saves a detached student replacement before publishing it to the live roster. */
-    private CommandResult executeStudentReplacement(Command command, Person target) throws CommandException {
+    /**
+     * Saves all detached replacements before publishing them to the live roster.
+     * Mark and update replace students in place: roster size and ordering remain stable.
+     */
+    private CommandResult executeStudentReplacement(Command command) throws CommandException {
+        List<Person> original = List.copyOf(model.getAddressBook().getPersonList());
         Model candidate = new ModelManager(model.getAddressBook(), model.getUserPrefs());
         List<Person> displayed = List.copyOf(model.getFilteredPersonList());
         candidate.updateFilteredPersonList(displayed::contains);
         CommandResult result = command.execute(candidate);
-        Person updated = result.getSelectedPerson().orElseThrow();
-        if (!updated.equals(target)) {
+        List<Person> proposed = List.copyOf(candidate.getAddressBook().getPersonList());
+        if (!proposed.equals(original)) {
             try {
                 storage.saveAddressBook(candidate.getAddressBook());
             } catch (IOException e) {
                 logger.warning("Student change could not be saved; live data was retained.");
                 throw new CommandException(ADD_SAVE_ERROR, e);
             }
-            model.setPerson(target, updated);
+            for (int i = 0; i < original.size(); i++) {
+                if (!original.get(i).equals(proposed.get(i))) {
+                    model.setPerson(original.get(i), proposed.get(i));
+                }
+            }
         }
         return result;
     }

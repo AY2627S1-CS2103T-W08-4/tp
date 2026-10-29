@@ -13,6 +13,159 @@
 - Packaged verification: instrumented Windows checks confirmed recovery guidance and unchanged invalid student data, plus successful startup and shutdown after restoring default preferences.
 - Platform limits: Mac ARM package built only; Mac execution is unverified.
 
+## PR #76 integration — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue #67 / PR #76. The owner approved
+  integration and merge on 29 October, superseding the earlier v1.4-only target;
+  this is v1.5 integration work, not a claim of an on-time v1.4 delivery or release.
+- Integrated team master `151ff791` (including #71, #73 and #79). Preserved both
+  owners' context records and all three batch and two contact UI tests as separate
+  methods. Retained the clear-safety test and automatically merged production paths.
+- Validation: on macOS with Zulu Java 25.0.3 FX, focused attendance/UI tests passed;
+  `./gradlew check coverage --no-daemon` passed **415 tests**, zero failures,
+  errors or skips, both Checkstyle tasks and coverage generation. Repository scripts
+  and staged/unstaged whitespace checks passed. Synthetic temporary data only.
+- Status: integration pushed as `0eaed2bf`; GitHub reports PR #76 conflict-free.
+  The owner authorized merge after this verification. The prior teammate approval
+  covers `2ae6e80`, not the integration. No Actions run/checks appeared after pushing
+  despite the fork workflow being active; no exact-head remote CI or Windows/Linux
+  result is claimed. Separate packaged-app smoke checks and Jekyll rendering were
+  not performed; release verification is separate. This handoff precedes the merge.
+- Historical entries below retain their dated status; #79 is now merged on master.
+- Assistance: OpenAI Codex for conflict resolution, verification and context updates.
+
+## Batch attendance extension — historical handoff, 22 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#67](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/67);
+  branch `67-atomic-batch-attendance`, based on team master `2e2a3579` (equal at start).
+  PR #72 (attendance verification) and #66 (sample students) are merged. Historical
+  pending-status entries below describe their earlier state.
+- Before publication, merged team master `b072a989` containing PR #75 (class-view
+  attendance totals), preserving existing commits. Extended the batch UI recovery
+  test to verify totals remain unchanged on failure and refresh after retry/clearing.
+  Re-ran `./gradlew check coverage`: **383 tests**, zero failures/errors/skips,
+  Checkstyle and coverage passed; repository scripts and whitespace checks passed.
+  This supersedes the pre-integration 376-test result below.
+- Scope authorized by the owner on 22 October; this is not confirmed team consensus.
+  Extend `mark INDEX [INDEX ...] m/COURSE w/WEEK s/STATUS` with atomic batch marking.
+  This revises the earlier local proposal to defer bulk attendance, without editing
+  the unmodified exported MVP specification or claiming team approval.
+- Contract recorded before implementation: deduplicate in first-appearance order;
+  resolve one pre-command displayed roster; validate all bounds, then every enrolment
+  in input order, before changing anything. Preserve existing parser error precedence
+  (prefix structure, index syntax, required prefixes, course/week/status values).
+- One unique target keeps existing single-student messages. Multiple unique targets
+  report `Attendance set: COURSE | Week WEEK | STATUS | X changed, Y unchanged.`;
+  all-unchanged batches use `Attendance unchanged:` with the same count format.
+  Success selects the first supplied unique target, even when unchanged, and clears
+  input. Filters, order and class/week context remain. Failures retain the entire
+  view and attempted input; changed batches save once before any live replacement.
+- No mark-all, ranges, per-student statuses, new statuses or storage-schema changes.
+  Reuse attendance records and the shared save-before-live-update transaction;
+  regression-check contact updates and coordinate these changes through team review.
+- Course pages checked on 22 October: [v1.4 deadline](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week10/project.html)
+  is 22 October 23:59 SGT; [v1.5 deadline](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week11/project.html)
+  and start of feature freeze is 29 October 23:59 SGT. Freeze limits functional-code
+  changes per member to 15% or 150 lines, whichever is higher. Local completion alone
+  cannot satisfy v1.4 delivery: review, merge and release verification remain required.
+  If those miss tonight's deadline, the team must revise delivery scope/milestone;
+  no GitHub milestone is changed by this local work.
+- Implementation: parser accepts space-separated indices; `MarkCommand` validates
+  the entire snapshot and builds all replacements before applying them. Shared
+  `LogicManager.executeStudentReplacement` compares complete original/proposed rosters,
+  saves once if changed, then publishes only changed rows. It no longer relies on
+  the selected student to detect changes. Single-target and contact-update behaviour
+  remain covered; no storage-schema or UI production-code change was needed.
+- Validation: 48 focused tests passed; `./gradlew check coverage` passed with
+  **376 tests**, zero failures/errors/skips, both Checkstyle tasks and coverage
+  generation. Includes 18 added tests across parser, command, integration and the
+  existing real-window JavaFX harness. All test data uses temporary storage.
+  Full-roster comparisons cover isolated courses/weeks/students and updated contacts;
+  storage hooks verify the complete proposal is saved before any live event.
+- During development, duplicate-index tests exposed reliance on hashing `Index`,
+  which defines equality without `hashCode`. Normalizing numeric indices (as batch
+  deletion does) and hashing their numeric values fixed this without modifying the
+  shared Index type. Initial failing tests and formatting checks were corrected
+  before the passing run above.
+- Documentation: UG batch syntax/examples and DG transaction, precedence and manual
+  checks updated. MarkSequenceDiagram source/PNG updated for batch loops and whole-roster
+  comparison; rendered with PlantUML 1.2023.10 and visually inspected. Existing update
+  and find diagrams remain accurate and unchanged. The v1.4 plan retains its original
+  text with a dated amendment recording this owner-authorized scope change.
+- Repository checks: `.github/run-checks.sh` and `git diff --check` passed. Separate
+  packaged-app/manual platform checks and a Jekyll guide build were not performed;
+  automated GUI checks used the real-window harness on the local macOS host.
+- Status: published from `toomintyy:67-atomic-batch-attendance` in
+  [PR #76](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/76) against team master,
+  under v1.4 with `type.Enhancement` and `priority.Medium`. Open for review, not merged
+  or released. Remaining: teammate review of scope/shared transaction and roster
+  behaviour, remote CI, release verification and delivery/milestone decision.
+- Assistance: OpenAI Codex for code, tests and documentation prose; reuses team
+  attendance types, storage and the existing JavaFX test harness.
+
+## PR #79 integration — 29 October 2026 (SGT)
+
+- Owner: Vincent Peh (`Eskalade`); issues [#77](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/77) and [#78](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/78), v1.5; [PR #79](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/79).
+- Integrated team master `5d84bc06` (including merged #71). The only conflict was
+  this handoff; retained both owners' records. Java, tests and guide merges were automatic.
+- Ethan approved original head `69a6abe9`; that approval predates this integration.
+- Actual local validation: `./gradlew check coverage` passed, 397 tests,
+  zero failures/errors/skips, both Checkstyle tasks and coverage generation passed.
+- Status: integration pushed as `27aad58b`; GitHub retains Ethan's approval and
+  reports no conflicts. Merge pending at this handoff. Fork Java CI is manually
+  disabled, so no new remote run is available; prior-head CI passed.
+  Release verification remains separate. OpenAI Codex assisted conflict resolution.
+
+## Active v1.5 contact hardening — verified 28 October 2026 (SGT)
+
+- Owner: Vincent Peh (`Eskalade`); branch `codex/student-hardening-v15` in his fork.
+  Base: current team master `5d155e5ef0b235c44d250706865ea50130101d7a`.
+- Scope: Vincent's add student and contact update only. Linear-time ordinary-space
+  trimming fixes a reproduced pasted-input stall; commented tests strengthen contact
+  boundaries, normalization, persistence, recovery and UI behavior. UG/DG updated.
+- Issues: [#77](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/77) (implementation)
+  and [#78](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/78) (`alpha-bug`),
+  self-assigned under v1.5. Published for teammate review in
+  [PR #79](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/79), not merged or released.
+  Remote CI is running; consult PR checks before merge.
+- Live state: GitHub confirms #64 merged at `3c5c440c`; current team master includes
+  subsequent integration. Teammate PRs #71 (clear) and #76 (batch attendance) remain
+  open on 28 October. Historical pending-status statements below are dated snapshots.
+- Reproduction: on unmodified master, the new 100,000-space name regression failed
+  its two-second budget. A separate 50,000-space probe took 1,928 ms before the fix
+  and 1 ms after it on this machine; timings are observations, not performance promises.
+- Validation: `./gradlew check coverage` passed on Zulu Java 25.0.3 FX: **391 tests**,
+  zero failures/errors/skips (baseline: 377). Checkstyle and coverage generation
+  passed; both JAR tasks, `.github/run-checks.sh` and `git diff --check` passed.
+  Add/Update parsers, Name, Email and TelegramHandle: 100% line/branch coverage.
+  AddCommand: 100% line/branch; UpdateCommand: 32/33 lines, 24/30 branches.
+  The new trimming method has 100% line/branch coverage. No claim of global 100% coverage.
+- Packaged verification: standard JAR on Zulu Java 25.0.3 FX and ARM JAR on plain
+  Temurin Java 25.0.4 each passed instrumented real-window add/update/collision/
+  long-input tests and separate-JVM JSON reload. Memberships, attendance, filtered
+  indices, selected row and heading were checked. ARM reload screenshot inspected.
+  Isolated evidence: `/private/tmp/tutortrack-v15-probe/` (local, not committed).
+- Integration: additive StringUtil helper; no shared Person/schema/transaction
+  changes. Contact validation rules and error text are preserved. Teammate-owned
+  ClassMembership and other validators still contain similar trimming regexes;
+  their owners should assess long malformed inputs. Those features were not changed.
+- Remaining: teammate review, exact-head remote CI and team integration; test final
+  release JARs and guides on supported OSes. Windows/Linux packaged execution and
+  Jekyll site rendering were not verified locally. This increment is not the team
+  v1.5 release, and does not establish that all features are bug-free.
+- Course: v1.5 due 29 October 23:59 SGT; the course asks each student to submit at
+  least five `alpha-bug` reports. This increment records one reproduced defect,
+  not five independent reports. Continue authentic alpha testing; do not invent bugs.
+- Assistance: OpenAI Codex, credited in DG; reused team models, JSON storage,
+  SE-EDU AB3 architecture and existing JavaFX test infrastructure.
+
+### Recent history
+
+- 2026-10-28: Vincent reproduced and fixed contact trimming stall; added 14 tests,
+  passed local validation and both packaged contact workflows. Review/merge pending.
+- 2026-10-28: verified prior contact-update PR #64 is merged, superseding its old handoff.
+
+## Historical handoffs (status applies only to the date of each entry)
 ## Ethan clear safety integration — 29 October 2026
 
 - Owner eatenquek; PR71 has approvals from jianyang999 and Eskalade at71ab4b87.

@@ -1,5 +1,6 @@
 package seedu.address.logic.parser;
 
+import static seedu.address.commons.util.StringUtil.trimOrdinarySpaces;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 
 import java.util.LinkedHashMap;
@@ -61,7 +62,7 @@ public class UpdateCommandParser implements Parser<UpdateCommand> {
     }
 
     private Index parseIndex(String text) throws ParseException {
-        String trimmed = text.replaceAll("^ +| +$", "");
+        String trimmed = trimOrdinarySpaces(text);
         if (trimmed.isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, UpdateCommand.MESSAGE_USAGE));
         }

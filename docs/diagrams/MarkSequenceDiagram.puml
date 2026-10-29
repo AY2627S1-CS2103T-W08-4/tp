@@ -11,16 +11,17 @@ participant "candidate:ModelManager" as Candidate MODEL_COLOR
 participant ":StorageManager" as Storage STORAGE_COLOR
 participant "live:ModelManager" as Live MODEL_COLOR
 
-UI -> Logic : execute("mark 1 m/CS2103T w/1 s/present")
+UI -> Logic : execute("mark 2 1 2 m/CS2103T w/1 s/present")
 activate UI
 activate Logic
 note over Logic, Mark
-Parsing, command creation and getTarget(live) omitted.
-Assume valid input, displayed index and enrolment.
+Parsing and command creation omitted.
+MarkCommand deduplicates indices to [2, 1].
+Scenario assumes valid input and enrolment.
 end note
 note over Logic
-Replacement flow below runs inside
-executeStudentReplacement(mark, target).
+executeStudentReplacement(mark) snapshots
+the full original roster and displayed rows.
 end note
 create Candidate
 Logic -> Candidate : new ModelManager(...)
@@ -34,40 +35,46 @@ deactivate Candidate
 Logic -> Mark : execute(candidate)
 activate Mark
 note over Mark, Candidate
-Resolve the target; validate enrolment.
-Read the current course/week status.
-withAttendance(decision) creates an immutable copy
-for a changed decision, or removes it for Unrecorded.
-Detailed Person calls are omitted.
+getTargets(candidate) resolves one displayed snapshot.
+Check ALL bounds, then ALL enrolments in input order.
+Build replacements with Person.withAttendance(decision).
+Keep original objects for unchanged decisions.
+Detailed accessors and Person calls are omitted.
 end note
-opt status differs
+loop each changed target
 Mark -> Candidate : setPerson(target, updated)
 activate Candidate
 Candidate --> Mark
 deactivate Candidate
 end
-Mark --> Logic : result (selected student)
+Mark --> Logic : result (counts; first unique target selected)
 deactivate Mark
+note over Logic, Candidate
+Compare complete proposed and original rosters.
+The selected student alone may be unchanged.
+end note
 
-alt selected student equals original target
+alt proposed.equals(original)
 Logic --> UI : result (Attendance unchanged)
 note over UI, Logic
-Select target; retain class/week context.
-No disk write or live replacement.
+Select first target; clear input; retain context.
+No disk write or live replacement for an unchanged batch.
 end note
-else selected student differs
+else at least one row differs
 alt save succeeds
 Logic -> Storage : saveAddressBook(candidate.getAddressBook())
 activate Storage
 Storage --> Logic : return
 deactivate Storage
-Logic -> Live : setPerson(target, updated)
+loop each changed row, in original roster order
+Logic -> Live : setPerson(original.get(i), proposed.get(i))
 activate Live
 Live --> Logic
 deactivate Live
+end
 Logic --> UI : result (Attendance set)
 note over UI
-Select updated student; refresh details.
+Select first target; refresh details; clear input.
 Retain class/week context and row order.
 end note
 else save fails
@@ -80,8 +87,8 @@ Log failure; wrap in CommandException.
 end note
 Logic --> UI : CommandException
 note over UI, Live
-Show error; retain input, selection, badges and data.
-No live.setPerson call and no success result on this path.
+Show error; retain input, selection, details, badges, heading and data.
+No live.setPerson call for ANY target and no success result on this path.
 end note
 end
 end

@@ -15,11 +15,14 @@ title: Developer Guide
   save-before-publish clear behavior, add parser/storage/JavaFX regressions, and
   update the guides. The fix reuses the team's existing model and storage contracts.
 * Vincent also used OpenAI Codex for v1.4 scope planning, student contact updates, regression tests, the sequence diagram and related documentation. The implementation reuses team value types and the existing attendance transaction pattern; Vincent must understand and review the generated work.
+* Vincent used OpenAI Codex for v1.5 contact-validation performance analysis, the linear-time trimming fix, boundary/recovery/UI tests and documentation. This increment reuses the existing team storage and JavaFX test harness; it does not take over teammate features.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to assist with parts of the class membership, `list` and class-view work.
 * Min Thi Ha used OpenAI Codex for attendance recovery and contact-update integration tests,
   JavaFX failure checks and attendance documentation prose (#61).
   This work reuses the team's existing model, storage and JavaFX test infrastructure.
+* Min Thi Ha also used OpenAI Codex for the batch-attendance code, tests and
+  documentation prose (#67), reusing the same attendance types and transaction infrastructure.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -213,6 +216,40 @@ empty `p/`; each must leave the existing profile intact. With an unwritable data
 location, a changed update must fail while a normalized no-op still succeeds.
 
 
+#### v1.5 contact hardening
+
+Tracked in [#77](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/77), with the
+reproduced alpha defect in [#78](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/78).
+`StringUtil.trimOrdinarySpaces` scans the two boundaries once. Name, student email,
+Telegram and update-index validation use it instead of `^ +| +$` replacement.
+The previous regex repeatedly scanned long internal space runs; because command
+execution occurs on the JavaFX thread, pasted input could stall the window.
+The helper removes only U+0020 and leaves internal/control/Unicode whitespace to
+existing validators. Name normalization still uses NFC and collapses ordinary spaces.
+The command grammar, error messages, transaction order and storage schema are unchanged.
+
+| Test | Risk covered |
+| --- | --- |
+| `StringUtilTest` | Empty/all-space boundaries, internal spaces and preservation of unsupported whitespace |
+| `StudentValidationTest` | Unicode name lengths, email boundaries, locale and a reproduced large-spacing regression |
+| `StudentContactParserTest` | Contact parameter order, per-field unsupported whitespace and large pasted inputs through the main parser |
+| `StudentContactAcceptanceTest` | Maximum contacts through JSON, one-over-limit rejection without writes, normalized no-op, restart/contact reuse and permission failure/retry |
+| `MvpRosterUiTest` | Failed add keeps selection/details/context/input; retry selects the new row; invalid update of another row preserves selection; no-op selects without saving |
+
+The performance checks use 100,000 internal spaces and a generous two-second budget
+for a regression that previously took several seconds per field. They are not a
+microbenchmark. Other tests vary one invalid contact at a time so one failure cannot
+mask another missing validation. Permission errors are injected at the storage
+boundary; successful paths use real temporary JSON files. All data is synthetic.
+
+Run `./gradlew check coverage shadowJar shadowJarMacArm` and `.github/run-checks.sh`.
+Read the current validation/status in `CONTEXT.md`; coverage alone does not establish
+beta readiness. Packaged acceptance should repeat add, filtered update, collision,
+no-op and restart on the release JAR, checking contacts, memberships, attendance,
+row selection and the class/week heading. Separate OS packaging and teammate feature
+acceptance remain release gates.
+
+
 This section describes some noteworthy details on how certain features are implemented.
 
 ### Safe clearing (v1.4)
@@ -263,14 +300,30 @@ tests and documentation.
 
 ### Record and correct attendance
 
-`MarkCommandParser` validates the displayed index and required singleton `m/`, `w/`,
+`MarkCommandParser` validates one or more displayed indices and required singleton `m/`, `w/`,
 `s/` prefixes without discarding control whitespace. `AttendanceRecord` normalizes
 course codes with `Locale.ROOT`; `AttendanceWeek` and `AttendanceStatus` supply the
-shared value contracts. The parser uses exact Feature 4 errors. For simultaneous
+shared value contracts. The parser preserves Feature 4 field errors. For simultaneous
 errors, this implementation checks unknown/repeated prefixes in input order, missing
 index, index syntax, missing m/w/s in that order, then course/week/status values.
 The source does not fully specify cross-category precedence; this ordering is an
 implementation choice for team review, not a new agreed requirement.
+
+The owner authorized batch marking for #67 on 22 October 2026; this is an extension
+to the exported MVP specification's single-student requirement, not evidence of team
+consensus. `MarkCommand` deduplicates numeric index values in first-appearance order
+(the existing `Index` type does not implement `hashCode`). `getTargets` takes one
+snapshot of the candidate's displayed roster and validates every index bound first.
+`execute` then validates every target's enrolment in input order before creating or
+applying replacements. No invalid later target can leave earlier targets changed.
+
+One unique target retains the original messages. Multiple targets report
+`Attendance set: COURSE | Week WEEK | STATUS | X changed, Y unchanged.`, or
+`Attendance unchanged:` with the same count format when X is zero. The selected
+result is always the first supplied unique target, including an unchanged target.
+These message, selection and error-precedence choices are owner-selected defaults
+for teammate review. Mark-all, ranges, mixed per-student statuses, extra states and
+schema changes remain out of scope.
 
 Each immutable `Person` owns an immutable, sorted list of `AttendanceRecord` values.
 `withAttendance` validates enrollment, replaces the single course/week decision or
@@ -281,11 +334,15 @@ Deleting the owning Person removes its records without orphan data. Student cont
 correction uses `update` and preserves attendance; legacy `edit` rejects students.
 
 `LogicManager.executeStudentReplacement`, shared by `mark` and `update`, captures
-an immutable snapshot of the displayed rows after the target is resolved. It runs
-`MarkCommand` on a detached model filtered to those rows. If the selected result
-matches the original student, it returns without saving. Otherwise it saves the
-candidate through the atomic JSON writer inherited from #44, then calls `setPerson`
-on the live model. The original predicate and row order remain in place. No live
+immutable snapshots of the full roster and displayed rows. It runs the command on
+a detached model filtered to those displayed rows. After execution it compares the
+complete proposed roster with the original, rather than inspecting just the selected
+student: the first target may be unchanged while later targets need saving. Identical
+rosters return without saving. Otherwise it saves the complete candidate once through
+the atomic JSON writer inherited from #44, then calls `setPerson` on the live model
+for each changed row. The helper is restricted to these in-place replacement commands;
+they retain roster size and order, so original/proposed rows correspond by position.
+The original predicate and row order remain in place. No live
 observable list event or selection request is emitted on validation or saving failure.
 `MainWindow` selects the result only after success, including a no-op. On failure,
 `MainWindow` displays the error and rethrows it to `CommandBox`, which retains the
@@ -293,13 +350,14 @@ attempted input. Restoring storage and resubmitting starts a fresh transaction.
 
 <img src="images/MarkSequenceDiagram.png" alt="Attendance sequence diagram showing unchanged status, successful saving and failed saving" width="1100" />
 
-The diagram focuses on `executeStudentReplacement`. Parsing, command creation,
-initial target lookup and detailed `Person` calls are omitted; the scenario assumes
-valid input and enrolment. An unchanged result bypasses both storage and live
-replacement. The two save outcomes are mutually exclusive: only a successful save
+The diagram focuses on `executeStudentReplacement` for a valid batch. Parsing,
+command creation, detailed accessors and `Person` calls are omitted; target resolution
+and validation are summarized before the replacement loop. An all-unchanged roster
+bypasses both storage and live replacement. The two save outcomes are mutually exclusive: only a successful save
 reaches `live.setPerson`. A failed save returns an error, not a success result, and
-never publishes the candidate. A correction replaces a course/week decision;
-Unrecorded removes it using the same transaction.
+never publishes any part of the candidate. Live row notifications occur after the
+whole proposal is saved; the UI receives its selection request after all replacements.
+A correction replaces a course/week decision; Unrecorded removes it using the same transaction.
 
 Editable source: [MarkSequenceDiagram.puml](diagrams/MarkSequenceDiagram.puml).
 It uses activation bars, object creation and `opt`/`alt` fragments from the
@@ -340,8 +398,17 @@ correct student. It also checks invalid mark input. `ClassViewUiTest` supplies t
 existing other-course/week display-isolation coverage; `StudentUpdateIntegrationTest`
 covers contact replacement and attendance preservation.
 
+Batch coverage extends those same fixtures with filtered multi-target failure/retry/reload,
+duplicate indices, boundary weeks, mixed/no-op batches and contact-update preservation.
+The injected storage asserts that it receives the complete proposed roster while the live
+roster and observable events are still unchanged. `MarkCommandTest` also tests validation
+before mutation and a filter whose rows disappear during replacement, ensuring all targets
+are resolved first. `MarkCommandParserTest` covers token rules and error precedence.
+Real-window UI checks cover batch failures, invalid batches, first-target selection,
+clearing, no-op input clearing and badges when marking another week.
+
 Run the focused checks with
-`./gradlew test --tests '*AttendanceIntegrationTest' --tests '*MvpRosterUiTest' --tests '*StudentUpdateIntegrationTest' --tests '*ClassViewUiTest'`,
+`./gradlew test --tests '*MarkCommand*Test' --tests '*AttendanceIntegrationTest' --tests '*MvpRosterUiTest' --tests '*StudentUpdateIntegrationTest' --tests '*ClassViewUiTest'`,
 then `./gradlew check coverage`. Tests use temporary datasets and injected I/O failures.
 They do not modify the user's storage file or permissions. Current results and
 platform limitations are recorded in `CONTEXT.md`.
@@ -969,6 +1036,44 @@ If these contacts already exist, start a fresh disposable dataset or use unique 
    clearing, restore storage, retry the exact command and reload JSON. The UI test
    selects Alice, fails a mark for Bobby, checks the unchanged view/input, then retries
    successfully and verifies Bobby is selected with updated details and badge.
+
+### Batch attendance
+
+Use a fresh disposable dataset and run each command separately. These fictional
+contacts/groups must not already be present. This checks the #67 extension; use a
+build containing it rather than the published v1.3 JAR.
+
+1. Create the fixtures:
+   - `add n/Batch Alice p/@batch_alice e/batch.alice@example.com c/CS2103T:T97 c/MA2001:T97`
+   - `add n/Batch Bob p/@batch_bobby e/batch.bob@example.com c/CS2103T:T97`
+   - `add n/Batch Carol p/@batch_carol e/batch.carol@example.com c/CS2103T:T96`
+2. Run `find c/CS2103T:T96 w/1`, then `mark 1 m/CS2103T w/1 s/absent`.
+   Carol's unrelated decision must survive the later batches.
+3. Run `find c/CS2103T:T97 w/1`. Confirm Alice is row 1 and Bob row 2.
+   Run `mark 2 m/CS2103T w/1 s/present`, then `mark 2 1 2 m/CS2103T w/1 s/present`.
+   Expected: `Attendance set: CS2103T | Week 1 | Present | 1 changed, 1 unchanged.`
+   Both badges are Present; Bob is selected. Row order and heading remain unchanged,
+   and successful command input clears. The repeated 2 counts once.
+4. Run `mark 1 2 m/CS2103T w/1 s/present`. Expected:
+   `Attendance unchanged: CS2103T | Week 1 | Present | 0 changed, 2 unchanged.`
+   Alice is selected and input clears, without a storage write (verified automatically).
+5. Run `mark 1 2 m/CS2103T w/53 s/absent`. Expected: 2 changed, 0 unchanged;
+   both details contain Week 53 Absent, while the Week 1 badges stay Present.
+   Run `mark 2 1 m/CS2103T w/1 s/unrecorded`. Both Week 1 badges become Unrecorded,
+   Bob is selected and the Week 53 decisions remain.
+6. Try `mark 1 2 m/MA2001 w/1 s/present`. Expected:
+   `Student Batch Bob is not enrolled in MA2001.` Alice must not acquire a record.
+   Try `mark 2 3 m/MA2001 w/1 s/present`. Expected: invalid displayed index,
+   taking precedence over Bob's absent enrolment. Try `mark 1 2 m/CS2103T w/54 s/present`.
+   Expected: week validation error. All failures retain selection, details, badges,
+   heading, row order and the rejected input.
+7. Exit and restart from the same disposable directory. Query `find c/CS2103T:T97 w/1`
+   (both Unrecorded), `find c/CS2103T:T97 w/53` (both Absent) and
+   `find c/CS2103T:T96 w/1` (Carol still Absent). Contacts and memberships are unchanged.
+8. Run the automated attendance and UI tests for controlled save failure/retry.
+   They check all changed targets are supplied in one save, the live roster is still
+   untouched at that point, failures publish nothing and successful retries reload
+   the complete expected dataset. They never alter real dataset permissions.
 
 ### Student contact correction
 

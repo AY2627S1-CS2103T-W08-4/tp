@@ -114,6 +114,10 @@ and `t/` add parameters, are rejected.
 | Email | At most 254 characters with one `@`, a 1–64-character ASCII local part and a dotted domain. The local part starts/ends alphanumeric, allows `._+-` internally and forbids consecutive periods. Domain labels contain 1–63 letters/digits/hyphens, start/end alphanumeric, and the final label has 2–63 letters. Stored lowercase. |
 | Class membership | `COURSE:GROUP`, with no internal spaces. Course: 2–4 ASCII letters, 4 digits, optional final letter. Group: one ASCII letter and 2 digits. Stored uppercase. Repeat `c/` for different courses; each course may appear only once. |
 
+Name limits apply **after** normalization: for example, `n/ José   Tan ` is stored as
+`José Tan`. Values are never shortened to fit a limit; an over-limit contact rejects
+the whole command. Telegram and email lengths do not include surrounding ordinary spaces.
+
 Namesakes are allowed. A matching email or Telegram handle rejects the entire addition, regardless of
 name or memberships. Email collisions are reported first, including collisions with existing legacy
 contact emails. No records are merged or updated.
@@ -170,7 +174,9 @@ Omitted contacts, class memberships and all attendance records are preserved.
 Namesakes are allowed. An email or Telegram matching another saved contact rejects
 the entire update, even when that contact is hidden by the current filter. Email
 collisions are reported before Telegram collisions. Your own unchanged contacts
-are allowed. Use `edit` for legacy phone/address contacts.
+are allowed. After a successful contact change, the old email or Telegram can be used
+by another student, provided nobody else currently uses it. Use `edit` for legacy
+phone/address contacts.
 
 Success reports `Student updated: NAME.`, retains roster order and the current
 class/week view, and selects the updated student with refreshed details. If all
@@ -342,36 +348,58 @@ You may need to resize or reposition the window after recovery. TutorTrack saves
 
 ## Recording, correcting and clearing attendance: `mark`
 
-Format: `mark INDEX m/COURSE w/WEEK s/STATUS`
+Format: `mark INDEX [INDEX ...] m/COURSE w/WEEK s/STATUS`
+
+Multiple-index marking is an extension in this source version. Use a build containing
+the extension; the published v1.3 JAR supports only single-index marking.
 
 Examples:
 
 * `mark 1 m/CS2103T w/3 s/present`
 * `mark 1 m/cs2103t w/3 s/ABSENT` corrects that decision to Absent.
 * `mark 1 m/CS2103T w/3 s/unrecorded` clears that decision.
+* `mark 1 3 5 m/CS2103T w/3 s/present` records the same decision for three displayed students.
+* `mark 3 1 3 m/CS2103T w/3 s/unrecorded` clears rows 3 and 1, counting row 3 once.
 
-`INDEX` is the row number in the **currently displayed list**, including after a class
+Each `INDEX` is a row number in the **currently displayed list**, including after a class
 query. It must be an ASCII integer from 1 to 2147483647 without leading zeros, and
-must identify a displayed student. The student must already be enrolled in `COURSE`;
+must identify a displayed student. Separate indices with ordinary spaces; repeated
+indices count once, in first-appearance order. Every target must already be enrolled in `COURSE`;
 legacy contacts without course memberships cannot have attendance recorded.
+All targets refer to the display before the command runs. Ranges (`1-3`), commas,
+`all`, tabs and per-student statuses are not supported.
 
-Specify `m/`, `w/` and `s/` exactly once, in any order, after the index. Commands and
+Specify `m/`, `w/` and `s/` exactly once, in any order, after all indices. Commands and
 prefixes are lowercase. Values may have surrounding ordinary spaces. Course codes
 are 2–4 ASCII letters, four digits and an optional letter, normalized to uppercase.
 Weeks are 1–53 without signs, leading zeros or decimals; they are teaching weeks,
 not inferred calendar dates. Status is `present`, `absent` or `unrecorded`, ignoring case.
 
-Success reports `Attendance set: Alice | CS2103T | Week 3 | Present.` and selects the
-student. The current filter and roster order remain unchanged. The detail area lists
+For one unique target, success reports `Attendance set: Alice | CS2103T | Week 3 | Present.`
+and selects the student. The current filter and roster order remain unchanged. The detail area lists
 recorded decisions by course/week; it is scrollable for students with many records.
-Other students, courses and weeks are unaffected. Clearing the final decision displays
+Untargeted students, other courses and other weeks are unaffected. Clearing the final decision displays
 `No attendance recorded.` in the selected student's details.
 
 Repeating a state succeeds without saving again:
 `Attendance unchanged: Alice | CS2103T | Week 3 is already Present.`
 This also applies to clearing a week that is already Unrecorded.
 
-Invalid input changes nothing. Examples:
+For multiple unique targets, the result includes counts, for example:
+
+* `Attendance set: CS2103T | Week 3 | Present | 2 changed, 1 unchanged.`
+* `Attendance unchanged: CS2103T | Week 3 | Present | 0 changed, 3 unchanged.`
+
+A changed batch is saved once. An all-unchanged batch does not save. Success always
+selects the **first supplied unique target**, even if that student's decision was
+unchanged, and clears the command input. For `mark 3 1 3 ...`, row 3 is selected.
+Repeated indices that identify just one student use the single-student messages above.
+
+Invalid input rejects the entire batch without changing any student. Parameter
+validation happens first. TutorTrack then checks every displayed-index bound before
+checking course enrolment in first-appearance order. For example, an out-of-display
+index wins over an unenrolled target in the same batch; otherwise the first unenrolled
+student is named. Examples:
 
 * `mark 1 w/3 s/present`: `Missing required parameter: m/.`
 * `mark 1 m/CS2103T w/01 s/present`: `Week must be an integer from 1 to 53 without leading zeros.`
@@ -382,8 +410,9 @@ Invalid input changes nothing. Examples:
 Accepted attendance changes are saved immediately and restored on restart. If saving
 fails, TutorTrack reports `Unable to save changes. No changes were applied. Check
 available disk space and file permissions, then try again.` The previous data and view
-remain intact. Deleting a student also removes their attendance; adding that contact
-again starts with no attendance records.
+remain intact for the entire batch, including selection, badges and attempted input.
+Restore writable storage and retry the same command. Deleting a student also removes
+their attendance; adding that contact again starts with no attendance records.
 
 Class/week queries display a badge for the requested course/week. Marking that context
 refreshes the badge immediately; marking another course/week preserves the displayed context.
@@ -400,5 +429,5 @@ Action | Format, Examples
 **Find** | `find c/COURSE:GROUP w/WEEK`<br> e.g., `find c/CS2103T:T04 w/3`
 **List** | `list`
 **Help** | `help`
-**Mark** | `mark INDEX m/COURSE w/WEEK s/STATUS`
+**Mark** | `mark INDEX [INDEX ...] m/COURSE w/WEEK s/STATUS`<br>e.g., `mark 1 3 5 m/CS2103T w/3 s/present`
 **Exit** | `exit`
