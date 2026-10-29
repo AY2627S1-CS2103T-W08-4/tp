@@ -27,13 +27,18 @@ examples. Updating the application does not replace your saved contacts.
    * `tutortrack-macos-arm64.jar`: Apple Silicon Macs using an ARM64 Java 25 installation (for example Temurin). Run `java -jar tutortrack-macos-arm64.jar`.
    * Do not run the standard JAR with a plain ARM64 JDK without JavaFX; use the Apple Silicon JAR instead.
 
-1. Download the latest `.jar` file from [here](https://github.com/AY2627S1-CS2103T-W08-4/tp/releases).
+1. Download the matching v1.5 `.jar` file from [GitHub Releases](https://github.com/AY2627S1-CS2103T-W08-4/tp/releases).
+   This guide describes v1.5; earlier release JARs may not include all of these features.
 
 1. Copy the file to the folder you want to use as the _home folder_ for TutorTrack.
+   Choose a folder where you can create and replace files. A write-protected folder can prevent saving changes or exiting successfully.
 
-1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar addressbook.jar`.<br>
-   A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
-   ![TutorTrack class roster and attendance summary](images/ClassViewSummary.png)
+1. Open a terminal, `cd` to the folder containing the JAR file, and check `java -version` reports Java 25.
+   Run `java -jar addressbook.jar`, or `java -jar tutortrack-macos-arm64.jar` for the Apple Silicon build.<br>
+   Launch from the terminal rather than double-clicking: double-clicking may fail or use a different Java installation.<br>
+   The example below shows a populated class view with attendance totals and a selected student's history.
+   It uses fictional demonstration data; a fresh installation starts with the sample students described above.<br>
+   ![TutorTrack class roster with attendance totals and selected-student history](images/Ui.png)
 
 1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to open the help window.<br>
    Some example commands you can try:
@@ -85,9 +90,11 @@ examples. Updating the application does not replace your saved contacts.
 
 ### Viewing help: `help`
 
-Shows a message explaining how to access the help page.
+Opens a Help window containing the TutorTrack User Guide link. Choose **Copy URL**
+to copy the link, then paste it into your browser. You can also open this window
+through **Help > Help** or **F1**. Viewing Help does not save or change student data.
 
-![help message](images/helpMessage.png)
+![Help window with the TutorTrack User Guide link and Copy URL button](images/helpMessage.png)
 
 Format: `help`
 
@@ -155,6 +162,9 @@ Format: `list`
 * The heading shows `All students | N students` (singular for one); selection/details are cleared. An empty roster says `No students saved. Use add to create a student.`
 * `list` takes no parameters. Any extra input, such as `list 3` or `list c/CS2103T:T04`, is rejected with the list format error, so you never mistake an unfiltered list for a filtered one.
 * The result shows how many students are listed, for example `3 students listed!`, `1 student listed!` or `0 students listed!`.
+
+Click a student row to view their contact details, memberships and recorded attendance
+below the roster. Selecting a row does not change saved data.
 
 ### Selecting a student: `select`
 
@@ -270,6 +280,9 @@ A valid class with no students succeeds with `0 students listed!` and
 Use `list` to remove the filter. Queries are read-only and do not save the data file.
 
 ![Class view of CS2103T:T04 in week 3, with attendance totals and a badge for each student](images/ClassViewSummary.png)
+
+This example uses fictional demonstration data. Your class roster and totals depend
+on the students and attendance saved in your dataset.
 
 Examples of errors (the previous view stays unchanged):
 * Missing class: `find w/3` gives `Missing required parameter: c/.`
@@ -443,7 +456,10 @@ You may need to resize or reposition the window after recovery. TutorTrack saves
 ## FAQ
 
 **Q**: How do I transfer my data to another computer?<br>
-**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous TutorTrack home folder.
+**A**: Close TutorTrack on both computers and keep a backup of your data. Copy
+`data/addressbook.json` from the original TutorTrack home folder to the same relative
+location in the new home folder, creating the `data` folder if needed. Launch the
+app from that new home folder to load the transferred records.
 
 --------------------------------------------------------------------------------------------------------------------
 
