@@ -32,6 +32,9 @@ public class UpdateCommandParser implements Parser<UpdateCommand> {
         String previous = null;
         int start = 0;
         while (matcher.find()) {
+            if ("n".equals(previous) && ParserUtil.isNameRelationshipMarker(args, matcher.start())) {
+                continue;
+            }
             if (previous == null) {
                 indexText = args.substring(0, matcher.start());
             } else {

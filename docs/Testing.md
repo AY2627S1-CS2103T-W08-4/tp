@@ -36,20 +36,11 @@ This project has three types of tests:
    For example: `seedu.address.logic.LogicManagerTest`
 
 
-## TutorTrack regression checks
+## Selection regression checks
 
 Run `./gradlew check coverage` (Windows: `gradlew.bat check coverage`) for the full
-suite, code style and coverage checks. Focused tests supplement this full run:
-
-| Area | Relevant tests |
-| --- | --- |
-| Read-only `select`, displayed indices and no storage writes | `SelectCommandParserTest`, `SelectCommandTest`, `StudentSelectionIntegrationTest` |
-| Selection/details/focus, invalid-input retention and roster context | `MvpRosterUiTest` |
-| Atomic multi-index attendance, deduplication, enrolment/bounds and unchanged batches | `MarkCommandParserTest`, `MarkCommandTest`, `AttendanceIntegrationTest`, `MvpRosterUiTest` |
-| Batch deletion, save-before-live-update and retry | `MvpRosterIntegrationTest`, `MvpRosterUiTest` |
-| Contact correction and attendance preservation | `StudentUpdateIntegrationTest` |
-| Legacy edit/Help recovery and read-only Help | `LegacyRecoveryIntegrationTest` |
-
-Use synthetic data and temporary storage. A passing suite does not establish
-packaged-JAR behavior or cross-platform keyboard navigation; see the DG's manual
-checks for selection, batch attendance/deletion and launch/reload workflows.
+suite. For direct selection, `SelectCommandParserTest`, `SelectCommandTest` and
+`StudentSelectionIntegrationTest` verify displayed indices and read-only behavior.
+The select methods in `MvpRosterUiTest` cover detail refresh, command focus and
+retention of selection/details/input after errors. Use synthetic data and temporary
+storage; packaged-app and cross-platform checks remain separate.

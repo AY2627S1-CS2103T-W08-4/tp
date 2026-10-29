@@ -1,5 +1,19 @@
 # TutorTrack team implementation context
 
+## Separate the documentation audit from selection — 29 October 2026 (SGT)
+
+- The owner requested a separate branch for the cross-cutting documentation audit.
+  PR #114 had already merged as team master `f36d03b6` when checked, so its merged
+  documentation is preserved. Integrated that master into the still-open PR #115.
+- Kept select-specific UG/DG, user story/use case, manual checks, site overview and
+  selection test guidance with #113. Moved the unmerged general testing-workflow
+  material out of PR #115; it will be reviewed on `docs-workflow-audit`.
+- This uses ordinary forward commits and preserves published history. Combined
+  validation on macOS / Zulu Java 25.0.3 FX passed `./gradlew check coverage
+  --no-daemon`: **451 tests**, zero failures/errors/skips, style and coverage
+  passed. Repository scripts and whitespace checks passed. Windows, packaged-app
+  checks and Jekyll rendering remain unverified. Assistance: OpenAI Codex.
+
 ## Preserve concurrent team documentation refresh — 29 October 2026 (SGT)
 
 - Integrated newly arrived team master `331ce46f` / PR #116 into PR #115 after
@@ -94,6 +108,244 @@
   review and cross-platform checks remain before merge/release. This handoff
   changes only CONTEXT.md; the validated production/test snapshot is unchanged.
   Assistance: OpenAI Codex.
+
+- Integrated newly arrived team master `331ce46f` / PR #116 into PR #114.
+  Retained current Ui/help screenshots, product guidance and the refreshed scope
+  while preserving names, keyboard instructions, optional legacy/student model
+  relationships and atomic-batch manual checks. Adopted the team's equivalent
+  unimplemented-legacy-tag note; retained unsupported mark-all/range/status limits.
+- Documentation-only merge: production/test sources match the validated 439-test
+  snapshot. Repository/whitespace checks passed. Existing Bundler/Jekyll and
+  platform verification gaps remain. Assistance: OpenAI Codex.
+
+## Combined documentation audit and team sync — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); PR #114 / issues #108–#112. Integrated team
+  master `5024299d`, retaining #105 startup recovery and #104 release changes.
+  Preserved relationship-marker validation/tests, source links, model diagram,
+  keyboard instructions and the corrected test-class reference. Resolved link
+  spelling conflicts using the existing team blob URLs and kept all context entries.
+- Audited command formats/summaries, batch marking/deletion, no-op and failure
+  semantics, source links, diagrams, requirements and manual checks against code.
+  Corrected the DG's stale claim that bulk attendance is beyond implemented scope;
+  distinguished atomic multi-index marking from unsupported mark-all/ranges/mixed
+  statuses. Scoped the inherited parser-helper diagram, corrected mark-diagram
+  fragment descriptions, added atomic-deletion validation/retry/reload checks and
+  made the summary's delete example demonstrate multiple indices.
+- Retained the team's corrected save-before-live-delete architecture and delete
+  diagrams, Help/legacy-edit recovery documentation, current v1.5 examples and
+  updated site overview. Selection documentation is maintained in separate PR #115.
+- Validation: macOS / Zulu Java 25.0.3 FX `./gradlew check coverage --no-daemon`
+  passed **439 tests**, zero failures/errors/skips; Checkstyle, coverage and
+  repository/whitespace checks passed. Verified all supported command sections,
+  batch counts/selection/no-op wording, local guide images, source-link paths and
+  corrected test reference. PlantUML syntax checks passed for model, mark, delete,
+  architecture and update diagrams; the model PNG remains the inspected rendering.
+- Jekyll build attempted but unavailable: local Ruby cannot find locked Bundler
+  2.5.11. No lockfile/dependency changes made. Windows and packaged-app manual
+  checks remain unverified. Earlier dated validation entries are historical.
+- Status: updating existing PR #114; no merge/release or team approval claimed.
+  Assistance: OpenAI Codex for integration, audit corrections and verification.
+
+## Combined issue-fix PR — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); branch `fix-reported-issues` in member fork.
+  [PR #114](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/114) is open against
+  team `master`, assigned to toomintyy under v1.5, resolving issues #108–#112.
+  No review, merge or release is claimed.
+- Fetched upstream immediately before PR preparation; latest team master remains
+  `b93206fb`, already an ancestor. Fast-forward-only synchronization confirmed
+  already up to date. The old #108 branch was merged and deleted locally/remotely.
+- Scope: eight implementation links; literal student relationship-marker names;
+  student/legacy model diagram and field constraints; corrected test-class name;
+  documented existing keyboard navigation. Name-contract extension requires team
+  review. No new selection command or JSON schema change.
+- Exact production/test snapshot `57e8198f` passed a fresh macOS / Zulu Java
+  25.0.3 FX run: `./gradlew check coverage --no-daemon --rerun-tasks`, **428 tests**,
+  zero failures/errors/skips. All 415 original tests remain unchanged; 13 added
+  regressions. Repository scripts, whitespace checks, eight source-link paths
+  and PlantUML syntax passed. Diagram and keyboard verification are detailed below.
+- This handoff changes only CONTEXT.md. Windows/Linux CI, Jekyll rendering and
+  packaged-app platform checks remain unverified; local JavaFX tests do not
+  establish packaged-app behavior. Remaining: teammate review and remote checks.
+- Assistance: OpenAI Codex for implementation, tests, documentation and PR preparation.
+
+## Consolidate issue #108 branch — 29 October 2026 (SGT)
+
+- Owner authorized deleting the #108 branch if superseded by `fix-reported-issues`.
+  Inspection found its commit `06de158a` was not yet included: the combined branch
+  still had the eight upstream AB3 implementation links.
+- Merged that commit into `fix-reported-issues`, retaining all #109–#112 changes,
+  both sets of context entries and AI acknowledgements. Resolved only additive
+  context/acknowledgement conflicts; the eight link corrections merged cleanly.
+- Verified local and remote #108 heads match; no open team PR uses that branch.
+  Rechecked all eight link paths in fetched team master and preserved all other
+  external links. No production or test source changed by this consolidation.
+- Plan authorized by owner: push the combined branch successfully before removing
+  the superseded local and fork branches. No team-master merge or PR claimed.
+- Validation: repository scripts, whitespace checks and `./gradlew check coverage
+  --no-daemon` passed on macOS / Zulu Java 25.0.3 FX, reusing the unchanged
+  428-test result with zero failures/errors/skips. Windows and Jekyll rendering
+  were not rerun for this documentation merge. Assistance: OpenAI Codex.
+
+## Keyboard navigation documentation — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#112](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/112);
+  branch `fix-reported-issues`. Freshly fetched upstream remains `b93206fb`,
+  already included in this branch. Retains the separate #109–#111 commits.
+- Scope: added UG instructions for Tab navigation from the command box through
+  results to the roster, Up/Down selection and details below the roster, and
+  Shift+Tab navigation back to the command box. Included list/class-view entry
+  points and empty-roster guidance. DG explains the existing JavaFX controls and
+  selection listener, with a link to the user instructions. No new selection
+  command, production behavior, storage format or committed tests changed.
+- Verification: inspected FXML focus order and PersonListPanel's selection
+  listener. A temporary test in the existing real-window JavaFX harness passed
+  with synthetic students: dispatched Tab events traversed input/results/roster,
+  Home/Down/Up selected rows and refreshed the visible details, and Shift+Tab
+  twice returned to the command field. The probe was removed after verification;
+  the test source is identical to its pre-change version. This was application
+  event dispatch, not physical-keyboard or packaged-JAR platform testing.
+- Final `./gradlew check coverage --no-daemon` on macOS / Zulu Java 25.0.3 FX
+  reran the full suite: **428 tests**, zero failures/errors/skips. Style checks,
+  coverage generation, repository scripts and `git diff --check` passed. Verified
+  the DG link matches the new UG heading. Windows, Jekyll rendering and separate
+  packaged-app checks were not performed.
+- Status: owner authorized implementation, commit and push without another
+  confirmation. No PR or merge claimed. Assistance: OpenAI Codex.
+
+## Testing-guide class reference — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#111](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/111);
+  branch `fix-reported-issues`. Freshly fetched team master is still `b93206fb`,
+  already contained in the branch. The #110 diagram correction was pushed as
+  `9e043c9c` before starting this change.
+- Scope: corrected the unit-test example in `docs/Testing.md` from the nonexistent
+  `seedu.address.commons.StringUtilTest` to
+  `seedu.address.commons.util.StringUtilTest`, and linked the team source file.
+  No production code, test code or test configuration changed.
+- Validation: checked the package declaration, public class name and source path
+  locally and in fetched team master; the original incorrect reference is gone.
+  The existing XML report confirms this class passes. `./gradlew check coverage
+  --no-daemon` passed on macOS / Zulu Java 25.0.3 FX, reusing unchanged outputs
+  from the **428-test** run (zero failures/errors/skips). Repository scripts and
+  `git diff --check` passed. Windows, Jekyll rendering and packaged-app checks
+  were not performed for this documentation typo.
+- Status: owner authorized implementation, commit and push without another
+  confirmation. No PR or merge claimed. Assistance: OpenAI Codex.
+
+## Student and legacy model diagram — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#110](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/110);
+  branch `fix-reported-issues`. Fetched upstream before starting: team master
+  remains `b93206fb`, already contained in this branch. Retains the #109 commits.
+- Scope: updated ModelClassDiagram source and PNG with shared Name/Email,
+  optional legacy Phone/Address and Tag associations, and student TelegramHandle,
+  ClassMembership and AttendanceRecord associations. Attendance records reference
+  AttendanceWeek and AttendanceStatus. Plain associations avoid implying exclusive
+  composition ownership of immutable values reused by Person copies.
+- The diagram shows multiplicities across both representations. A nearby DG table
+  states conditional constraints: students require Telegram and one or more
+  memberships, while legacy contacts require phone/address. Neither representation
+  is a subclass. Documented absent fields, stored attendance decisions, and the
+  course/group/week constraints against Person and related value types.
+- Simplified the overview by describing the filtered Person view in prose instead
+  of drawing a second overlapping association. Removed obsolete layout placeholders,
+  added accessible image text, and labeled the alternative tag diagram as an
+  unimplemented legacy AB3 design. No production code, schema or tests changed.
+- Validation: compared relationships with Person constructors/getters,
+  ClassMembership, AttendanceRecord and withAttendance. Consulted the course
+  [UML reference sheet](https://nus-cs2103-ay2627-s1.github.io/website/admin/uml-reference-sheet.html).
+  Rendered PNG using PlantUML 1.2023.10 with its built-in Smetana layout and Java
+  headless mode; syntax check passed and rendered image was visually inspected.
+  Reproduction from repository root: `java -Djava.awt.headless=true -jar
+  /path/to/plantuml-1.2023.10.jar -Playout=smetana -tpng -o ../images
+  docs/diagrams/ModelClassDiagram.puml`.
+- `./gradlew check coverage --no-daemon` passed on macOS / Zulu Java 25.0.3 FX,
+  reusing the unchanged **428-test** result (zero failures/errors/skips) and
+  up-to-date style/coverage outputs. Repository scripts and `git diff --check`
+  passed. No Jekyll site build, Windows check or packaged-app check was performed
+  for this documentation-only change.
+- Status: owner authorized commit and push of this documentation fix.
+  No PR or merge claimed. Assistance: OpenAI Codex.
+
+## Issue #109 regression audit — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); branch `fix-reported-issues`. Reviewed pushed
+  implementation `0e5fc001` against pre-change team master `b93206fb`.
+- Confirmed all original test source lines were retained, with no test/build or
+  Checkstyle configuration changes. Matched all **415 original test methods**
+  against the latest execution results: none missing, failing or skipped.
+- Added seven tests covering relationship-marker names across all six contact
+  orders (add memberships before/after contacts), Unicode normalization and
+  supplementary-character length limits, all ASCII marker case variants,
+  incomplete/malformed markers and unsupported whitespace, markers outside name
+  fields, malformed stored names, namesakes/contact collisions, normalized no-op
+  updates, and failed add/update saves followed by successful retries.
+- No production-code regression found; no implementation changes were needed.
+  These tests add coverage rather than replace existing assertions. Validated
+  roster/filter/disk preservation and exact unknown-parameter errors so other
+  invalid fields cannot mask the behavior under test.
+- On macOS with Zulu Java 25.0.3 FX, forced a fresh full check/coverage run, then
+  reran after strengthening boundary/error assertions. Final `./gradlew check
+  coverage --no-daemon` passed **428 tests**, zero failures/errors/skips.
+  Checkstyle, coverage, repository scripts and `git diff --check` passed.
+  Name, AddCommandParser, UpdateCommandParser and the relationship-marker helper
+  have 100% line and branch coverage in this run; coverage is not proof of all
+  possible behaviors. Windows and packaged-app manual checks were not performed.
+- Status: implementation is pushed; audit tests and this context update are
+  prepared for commit and push at the owner's request. No PR or merge claimed.
+  AI assistance: OpenAI Codex.
+
+## Student relationship-marker names — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#109](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/109);
+  branch `fix-reported-issues`, created from freshly fetched team
+  master `b93206fb`. The separate #108 branch is not a dependency of this fix.
+- Scope authorized by the owner: support literal standalone `s/o` and `d/o` tokens
+  in student names, preserving ASCII letter case. This extends the original
+  Feature 1 name contract; it is not recorded team consensus. The exported source
+  specification remains unchanged. Other slash-containing name text stays invalid.
+- Add/update parsers treat these markers as literal text only inside `n/` values.
+  Unknown and repeated parameters still fail. Normalization and the 50-code-point
+  limit remain; storage reload uses the same validation without a schema change.
+  Legacy names, membership and attendance contracts are unchanged. UG/DG updated.
+- Validation: six new regression tests cover both reported commands, add/update
+  field ordering, case/spacing, marker boundaries, invalid slash text, unknown and
+  repeated prefixes, normalized length limits, and actual JSON save/reload with
+  preserved contacts, attendance, memberships and class filtering. Before the fix,
+  all six tests failed; afterward, 29 focused tests passed. Boundary coverage was
+  expanded before the final full run.
+- On macOS with Zulu Java 25.0.3 FX, `./gradlew check coverage --no-daemon`
+  passed **421 tests**, zero failures/errors/skips, both Checkstyle tasks and
+  coverage generation. An initial full run found one line-length violation;
+  corrected before the passing run. `.github/run-checks.sh` and `git diff --check`
+  passed. Windows checks, packaged-app GUI checks and Jekyll rendering were not
+  performed; no cross-platform or release verification is claimed.
+- Status: prepared for commit and push to the member fork at the owner's request.
+  No PR, merge or release claimed. Remaining: teammate review of this
+  name-contract extension and PR integration.
+- Assistance: OpenAI Codex for implementation, regression tests and documentation;
+  reuses the existing name model, parser and persistence-test infrastructure.
+
+## Developer Guide implementation links — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#108](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/108);
+  branch `108-fix-developer-guide-links`, based on team master `b93206fb`.
+- Scope: corrected eight Design-section source links (Main, MainApp, Ui,
+  MainWindow.fxml, MainWindow, Logic, Model and Storage) to the team repository's
+  `blob/master` files. Other external links, including SE-EDU learning resources,
+  remain unchanged. No application behavior or storage changes.
+- Validation: all eight targets exist locally and in fetched `upstream/master`;
+  checked that other external links are unchanged. On macOS with Zulu Java
+  25.0.3, `./gradlew check coverage --no-daemon` passed **415 tests**, zero
+  failures/errors/skips; Checkstyle, coverage, `.github/run-checks.sh` and
+  `git diff --check` passed. The first sandboxed Gradle attempt could not access
+  the cache; rerunning with cache access passed. Windows checks, packaged-app
+  smoke tests and Jekyll rendering were not performed for this documentation fix.
+- Status: prepared for commit and push to the member fork at the owner's request.
+  No PR, merge or publication claimed. Remaining: teammate PR review and integration.
+- Assistance: OpenAI Codex for link correction and verification.
 ## v1.5 product screenshot and guide refresh — 29 October 2026
 
 - Owner: Aston (`aston-ish`); branch `codex/refresh-product-documentation`, updated to

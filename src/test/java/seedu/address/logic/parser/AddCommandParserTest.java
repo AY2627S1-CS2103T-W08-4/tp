@@ -30,6 +30,31 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_relationshipMarkers_preservesLiteralName() throws Exception {
+        for (String name : new String[]{"Ravi s/o Kumar", "Priya d/o Raman", "Ravi S/O Kumar",
+            "Priya D/o Raman", "Ravi s/o", "d/o Priya"}) {
+            AddCommand expected = new AddCommand(student(name, "@name_audit", "name.audit@example.com", "CS2103T:T04"));
+            String contacts = " p/@name_audit e/name.audit@example.com c/CS2103T:T04";
+            assertEquals(expected, new AddressBookParser().parseCommand("add n/" + name + contacts));
+            assertParseSuccess(parser, contacts + " n/ " + name.replace(" ", "   ") + " ", expected);
+        }
+    }
+
+    @Test
+    public void parse_relationshipMarkers_doNotHideUnknownOrRepeatedPrefixes() {
+        for (String token : new String[]{"s/other", "d/other", "x/o", "s/oops", "d/o/", "s/o\t"}) {
+            String prefix = token.substring(0, token.indexOf('/'));
+            assertParseFailure(parser, valid.replace("Anne-Marie Tan", "Ravi " + token + " Kumar"),
+                    "Unknown parameter: " + prefix + "/.");
+        }
+        assertParseFailure(parser, valid + " s/o", "Unknown parameter: s/.");
+        assertParseFailure(parser, valid.replace("Anne-Marie Tan", "Ravi s/o Kumar x/value"),
+                "Unknown parameter: x/.");
+        assertParseFailure(parser, valid.replace("Anne-Marie Tan", "Ravi s/o Kumar n/Priya"),
+                "Parameter n/ must be specified only once.");
+    }
+
+    @Test
     public void parse_missingRequiredPrefixes_failure() {
         assertParseFailure(parser, "", "Missing required parameter: n/.");
         assertParseFailure(parser, " p/@anne_tan e/anne@example.com c/CS2103T:T04", "Missing required parameter: n/.");

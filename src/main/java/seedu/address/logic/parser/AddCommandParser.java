@@ -60,6 +60,9 @@ public class AddCommandParser implements Parser<AddCommand> {
         String previous = null;
         int valueStart = 0;
         while (matcher.find()) {
+            if ("n".equals(previous) && ParserUtil.isNameRelationshipMarker(args, matcher.start())) {
+                continue;
+            }
             if (previous == null && !args.substring(0, matcher.start()).matches(" *")) {
                 throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
             }

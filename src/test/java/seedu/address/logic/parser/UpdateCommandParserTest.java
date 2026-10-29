@@ -29,6 +29,32 @@ public class UpdateCommandParserTest {
     }
 
     @Test
+    public void parse_relationshipMarkers_preservesLiteralName() throws Exception {
+        for (String name : new String[]{"Ravi s/o Kumar", "Priya d/o Raman", "Ravi S/O Kumar",
+            "Priya D/o Raman", "Ravi s/o", "d/o Priya"}) {
+            UpdateCommand expected = new UpdateCommand(Index.fromOneBased(1), Optional.of(Name.forStudent(name)),
+                    Optional.empty(), Optional.empty());
+            assertEquals(expected, parser.parseCommand("update 1 n/" + name));
+            assertEquals(expected, parser.parseCommand("update 1 n/ " + name.replace(" ", "   ") + " "));
+        }
+    }
+
+    @Test
+    public void parse_relationshipMarkers_doNotHideUnknownOrRepeatedPrefixes() {
+        for (String token : new String[]{"s/other", "d/other", "x/o", "s/oops", "d/o/", "s/o\t", "s/", "d/"}) {
+            String prefix = token.substring(0, token.indexOf('/'));
+            assertThrows(ParseException.class, "Unknown parameter: " + prefix + "/.", () ->
+                    parser.parseCommand("update 1 n/Ravi " + token + " Kumar"));
+        }
+        assertThrows(ParseException.class, "Unknown parameter: s/.", () ->
+                parser.parseCommand("update 1 e/ravi@example.com s/o"));
+        assertThrows(ParseException.class, "Unknown parameter: x/.", () ->
+                parser.parseCommand("update 1 n/Ravi s/o Kumar x/value"));
+        assertThrows(ParseException.class, "Parameter n/ must be specified only once.", () ->
+                parser.parseCommand("update 1 n/Ravi s/o Kumar n/Priya"));
+    }
+
+    @Test
     public void parse_invalidIndices_rejected() {
         for (String index : new String[]{"0", "01", "-1", "+1", "1.0", "1 2", "2147483648",
             "9".repeat(100), "\u0661", "\t1"}) {

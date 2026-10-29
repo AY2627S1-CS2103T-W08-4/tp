@@ -37,6 +37,55 @@ public class StudentContactParserTest {
     }
 
     @Test
+    public void parse_relationshipMarkers_allContactOrdersPreserveEveryField() throws Exception {
+        for (String name : List.of("José s/o 王", "Priya D/O Raman")) {
+            String[] fields = {"n/ " + name.replace(" ", "   "), "p/@JOSE_TAN", "e/JOSE@EXAMPLE.COM"};
+            Command add = parser.parseCommand("add n/" + name + " p/@jose_tan e/jose@example.com c/CS2103T:T04");
+            Command update = parser.parseCommand("update 1 n/" + name + " p/@jose_tan e/jose@example.com");
+            for (int first = 0; first < fields.length; first++) {
+                for (int second = 0; second < fields.length; second++) {
+                    if (first == second) {
+                        continue;
+                    }
+                    int third = 3 - first - second;
+                    String contacts = fields[first] + " " + fields[second] + " " + fields[third];
+                    assertEquals(add, parser.parseCommand("add " + contacts + " c/cs2103t:t04"));
+                    assertEquals(add, parser.parseCommand("add c/cs2103t:t04 " + contacts));
+                    assertEquals(update, parser.parseCommand("update 1 " + contacts));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void parse_relationshipMarkers_rejectsMalformedNamesAndMarkersInOtherFields() {
+        for (String token : List.of("s/", "d/", "s/oo", "as/o", "s//o", "s /o", "s/\to", "/o",
+                "s/o\u00a0", "s/o\u2003", "s/o\u2028", "s/o\r", "s/o\u0000", "s／o", "ſ/o")) {
+            String name = "n/Ravi " + token + " Kumar";
+            assertThrows(ParseException.class, () -> parser.parseCommand(
+                    "add " + name + " p/@ravi_one e/ravi@example.com c/CS2103T:T04"));
+            assertThrows(ParseException.class, () -> parser.parseCommand("update 1 " + name));
+        }
+        for (String token : List.of("s/", "d/")) {
+            String error = "Unknown parameter: " + token + ".";
+            assertThrows(ParseException.class, error, () -> parser.parseCommand("update 1 n/Ravi " + token));
+            assertThrows(ParseException.class, error, () -> parser.parseCommand(
+                    "add p/@ravi_one e/ravi@example.com c/CS2103T:T04 n/Ravi " + token));
+        }
+        for (String field : List.of("p/@ravi_one s/o", "e/ravi@example.com d/o", "c/CS2103T:T04 s/o")) {
+            String contacts = "n/Ravi s/o Kumar " + (field.startsWith("p/") ? field : "p/@ravi_one") + " "
+                    + (field.startsWith("e/") ? field : "e/ravi@example.com") + " "
+                    + (field.startsWith("c/") ? field : "c/CS2103T:T04");
+            String error = field.startsWith("e/") ? "Unknown parameter: d/." : "Unknown parameter: s/.";
+            assertThrows(ParseException.class, error, () -> parser.parseCommand("add " + contacts));
+            if (!field.startsWith("c/")) {
+                assertThrows(ParseException.class, error, () ->
+                        parser.parseCommand("update 1 n/Ravi s/o Kumar " + field));
+            }
+        }
+    }
+
+    @Test
     public void parse_unsupportedWhitespaceInEachContact_rejectsWithoutSilentlyTrimming() {
         // Test each field independently; a valid ordinary-space control is covered above.
         for (String whitespace : List.of("\t", "\r", "\n", "\u0000", "\u00a0", "\u2003", "\u2028")) {

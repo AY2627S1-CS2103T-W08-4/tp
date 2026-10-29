@@ -22,7 +22,8 @@ public class Name {
     public static final String VALIDATION_REGEX = "[\\p{Alnum}][\\p{Alnum} ]*";
 
     public static final String STUDENT_MESSAGE_CONSTRAINTS = "Name must be 1-50 characters, contain a letter, "
-            + "and use only letters, combining marks, spaces, apostrophes, hyphens or periods.";
+            + "and use only letters, combining marks, spaces, apostrophes, hyphens or periods; "
+            + "standalone s/o and d/o markers are also allowed.";
 
     public final String fullName;
 
@@ -52,8 +53,11 @@ public class Name {
     public static boolean isValidStudentName(String name) {
         String normalized = normalizeStudentName(name);
         int length = normalized.codePointCount(0, normalized.length());
+        // Replace only complete relationship-marker tokens for character validation.
+        // Keep the original normalized text for storage, display and length checks.
+        String withoutMarkers = normalized.replaceAll("(?i)(?<![^ ])[sd]/o(?= |$)", "X");
         return length >= 1 && length <= 50
-                && normalized.matches("[\\p{L}\\p{M} '.’\\-]+")
+                && withoutMarkers.matches("[\\p{L}\\p{M} '.’\\-]+")
                 && normalized.codePoints().anyMatch(Character::isLetter);
     }
 

@@ -19,12 +19,12 @@ Class Email
 Class Name
 Class Phone
 Class Tag
-
-Class I #FFFFFF
+Class TelegramHandle
+Class ClassMembership
+Class AttendanceRecord
+Class AttendanceWeek
+Enum AttendanceStatus
 }
-
-Class HiddenOutside #FFFFFF
-HiddenOutside ..> Model
 
 AddressBook .up.|> ReadOnlyAddressBook
 
@@ -36,19 +36,21 @@ ModelManager -right-> "1" UserPrefs
 UserPrefs .up.|> ReadOnlyUserPrefs
 
 AddressBook *--> "1" UniquePersonList
-UniquePersonList --> "~* all" Person
-Person *--> Name
-Person *--> Phone
-Person *--> Email
-Person *--> Address
-Person *--> "*" Tag
+UniquePersonList --> "0..*" Person : all
+Person --> "1" Name
+Person --> "1" Email
+Person --> "0..1" Phone : legacy
+Person --> "0..1" Address : legacy
+Person --> "0..*" Tag : legacy
+Person --> "0..1" TelegramHandle : student
+Person --> "0..*" ClassMembership : student
+Person --> "0..*" AttendanceRecord : student
+AttendanceRecord --> "1" AttendanceWeek
+AttendanceRecord --> "1" AttendanceStatus
 
-Person -[hidden]up--> I
-UniquePersonList -[hidden]right-> I
+legend bottom
+  One Person class supports student and legacy profiles.
+  Multiplicities cover both; see the guide for representation constraints.
+endlegend
 
-Name -[hidden]right-> Phone
-Phone -[hidden]right-> Address
-Address -[hidden]right-> Email
-
-ModelManager --> "~* filtered" Person
 @enduml
