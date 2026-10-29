@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -94,14 +93,7 @@ public class JsonUtil {
      * @return The instance of T with the specified values in the JSON string
      */
     public static <T> T fromJsonString(String json, Class<T> instanceClass) throws IOException {
-        try (JsonParser parser = objectMapper.getFactory().createParser(json)) {
-            T value = objectMapper.readValue(parser, instanceClass);
-            // Jackson 2.7 reads only the first root value unless we explicitly check for EOF.
-            if (parser.nextToken() != null) {
-                throw new IOException("JSON must contain only one root value.");
-            }
-            return value;
-        }
+        return objectMapper.readValue(json, instanceClass);
     }
 
     /**

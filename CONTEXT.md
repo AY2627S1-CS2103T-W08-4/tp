@@ -13,10 +13,15 @@ Testing used an isolated writable folder, Java 25 and real JSON/permission probe
 this evidence does not claim a manual GUI click-through.
 
 The candidate fixes atomic legacy edit publication (#94), read-only Help (#81)
-and its TutorTrack guide link (#80). It rejects trailing JSON (#95) and invalid
-null GUI settings (#100) through existing startup recovery paths. Regression
-checks first reproduced the two storage defects. Documentation fixes cover
+and its TutorTrack guide link (#80). At the team's request, trailing-JSON (#95)
+and null GUI settings (#100) fixes and their regression tests are removed from
+PR #104; teammate PR #105 owns that work. Documentation fixes cover
 #87/#88/#97/#98/#99, with rendered transaction diagrams and an actual UI image.
+
+### Historical verification before removing the overlapping startup fixes
+
+The 425-test results below describe the earlier candidate, not the revised PR.
+Revised Mac/Windows validation will be recorded after integration.
 
 Mac Java 25.0.3 integration checks passed 419 tests before the startup fixes;
 startup/storage fixes passed 424 tests before the added startup fallback test.
