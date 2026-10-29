@@ -302,6 +302,8 @@ TutorTrack saves accepted additions, contact updates, deletions, clear operation
 
 TutorTrack stores student data in `data/addressbook.json`, relative to the folder from which you launch the application. Follow the Quick Start instructions to launch it from your TutorTrack home folder.
 
+The data file must contain one complete JSON document. Trailing spaces and line breaks are accepted, but additional JSON values or other text are rejected. If loading fails, TutorTrack displays recovery instructions and leaves the original student data file unchanged.
+
 Close TutorTrack and make a copy of the data file before editing it manually.
 
 If an existing data file is unreadable or invalid, TutorTrack displays an **Unable to load student data** dialog showing the file's location and recovery instructions. It does not open an editable roster or overwrite the student data file. Closing the dialog exits the application.
@@ -313,6 +315,14 @@ To recover:
 3. To start fresh, move the existing file to a safe location before reopening.
 
 A missing data file starts TutorTrack with sample data. A valid saved empty roster remains empty.
+
+### Recovering window preferences
+
+TutorTrack stores window settings in `preferences.json`, relative to the folder from which you launch the application.
+
+If the preferences cannot be loaded, including when GUI settings are null, TutorTrack restores default window settings. This recovery does not change your saved student records.
+
+You may need to resize or reposition the window after recovery. TutorTrack saves the recovered preferences automatically.
 
 --------------------------------------------------------------------------------------------------------------------
 

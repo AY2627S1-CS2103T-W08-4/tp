@@ -1,5 +1,17 @@
 # TutorTrack team implementation context
 
+## v1.5 startup recovery fixes — 29 October 2026
+
+- Owner: Aston (`aston-ish`); issues [#95](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/95) and [#100](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/100); target milestone v1.5. GitHub milestone assignment is pending.
+- Branch: `startup-recovery-fixes`, based on team master `5d84bc06`.
+- Implementation commit: `14d3d3d1`. PR, teammate review, remote CI and merge remain pending.
+- Scope: reject trailing JSON content and additional JSON values; recover null GUI settings through the existing default-preferences path.
+- Integration: no dependency or data-schema changes. Existing student-data recovery and preference fallback are reused.
+- Regression evidence: four targeted tests reproduced the failures before the fixes. Five new tests cover rejection, whitespace compatibility, file preservation and preference recovery.
+- Validation: Windows, Temurin Java 25.0.4; 388 tests passed with zero failures/errors/skips. Checkstyle, coverage generation, both JAR builds, repository formatting checks and `git diff --check` passed.
+- Packaged verification: instrumented Windows checks confirmed recovery guidance and unchanged invalid student data, plus successful startup and shutdown after restoring default preferences.
+- Platform limits: Mac ARM package built only; Mac execution is unverified.
+
 ## Ethan clear safety integration — 29 October 2026
 
 - Owner eatenquek; PR71 has approvals from jianyang999 and Eskalade at71ab4b87.
