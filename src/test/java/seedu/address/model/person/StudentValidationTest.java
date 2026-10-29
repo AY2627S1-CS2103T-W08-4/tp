@@ -23,6 +23,22 @@ public class StudentValidationTest {
     }
 
     @Test
+    public void name_relationshipMarkers_preserveCaseAndLengthLimits() {
+        for (String name : new String[]{"Ravi s/o Kumar", "Priya d/o Raman", "Ravi S/O Kumar",
+            "Priya D/o Raman", "Ravi s/o", "d/o Priya"}) {
+            assertEquals(name, Name.forStudent(" " + name.replace(" ", "   ") + " ").fullName);
+        }
+        String maximum = "a".repeat(44) + " s/o B";
+        assertEquals(maximum, Name.forStudent(maximum).fullName);
+        assertFalse(Name.isValidStudentName(maximum + "b"));
+        for (String invalid : new String[]{"Ravi s/other Kumar", "Ravi as/o Kumar", "Ravi s/oo Kumar",
+            "Priya d/o/Raman", "Ravi s/o\tKumar", "Ravi s/o\nKumar", "Ravi s/o\u00a0Kumar"}) {
+            assertFalse(Name.isValidStudentName(invalid), invalid);
+        }
+        assertFalse(Name.isValidName("Ravi s/o Kumar"));
+    }
+
+    @Test
     public void name_largeInternalSpacing_normalizesWithoutStalling() {
         // A pasted name is valid after collapsing spaces. The old end-anchored trim regex
         // rescanned this run quadratically and blocked the JavaFX command thread for seconds.

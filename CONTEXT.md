@@ -1,5 +1,36 @@
 # TutorTrack team implementation context
 
+## Student relationship-marker names — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#109](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/109);
+  branch `fix-reported-issues`, created from freshly fetched team
+  master `b93206fb`. The separate #108 branch is not a dependency of this fix.
+- Scope authorized by the owner: support literal standalone `s/o` and `d/o` tokens
+  in student names, preserving ASCII letter case. This extends the original
+  Feature 1 name contract; it is not recorded team consensus. The exported source
+  specification remains unchanged. Other slash-containing name text stays invalid.
+- Add/update parsers treat these markers as literal text only inside `n/` values.
+  Unknown and repeated parameters still fail. Normalization and the 50-code-point
+  limit remain; storage reload uses the same validation without a schema change.
+  Legacy names, membership and attendance contracts are unchanged. UG/DG updated.
+- Validation: six new regression tests cover both reported commands, add/update
+  field ordering, case/spacing, marker boundaries, invalid slash text, unknown and
+  repeated prefixes, normalized length limits, and actual JSON save/reload with
+  preserved contacts, attendance, memberships and class filtering. Before the fix,
+  all six tests failed; afterward, 29 focused tests passed. Boundary coverage was
+  expanded before the final full run.
+- On macOS with Zulu Java 25.0.3 FX, `./gradlew check coverage --no-daemon`
+  passed **421 tests**, zero failures/errors/skips, both Checkstyle tasks and
+  coverage generation. An initial full run found one line-length violation;
+  corrected before the passing run. `.github/run-checks.sh` and `git diff --check`
+  passed. Windows checks, packaged-app GUI checks and Jekyll rendering were not
+  performed; no cross-platform or release verification is claimed.
+- Status: prepared for commit and push to the member fork at the owner's request.
+  No PR, merge or release claimed. Remaining: teammate review of this
+  name-contract extension and PR integration.
+- Assistance: OpenAI Codex for implementation, regression tests and documentation;
+  reuses the existing name model, parser and persistence-test infrastructure.
+
 ## PR #76 integration — 29 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); issue #67 / PR #76. The owner approved

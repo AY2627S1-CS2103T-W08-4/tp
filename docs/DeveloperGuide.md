@@ -23,6 +23,7 @@ title: Developer Guide
   This work reuses the team's existing model, storage and JavaFX test infrastructure.
 * Min Thi Ha also used OpenAI Codex for the batch-attendance code, tests and
   documentation prose (#67), reusing the same attendance types and transaction infrastructure.
+* Min Thi Ha used OpenAI Codex for relationship-marker name parsing, regression tests and documentation (#109).
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -445,6 +446,16 @@ the original constructors retain the old validation rules for lossless legacy co
 `Optional<TelegramHandle>` and `getMemberships()` returns an immutable, defensively copied set in input
 order. Existing `getPhone()` and `getAddress()` return null for students; callers must check the
 representation before accessing legacy fields. No placeholder contact data is created.
+
+Issue #109 extends student names to support standalone `s/o` and `d/o` relationship
+markers in any ASCII letter case. Add and update parsers keep these tokens literal
+only while reading an `n/` value; other unknown or repeated prefixes still fail.
+`ParserUtil.isNameRelationshipMarker` requires an ordinary-space or end-of-input
+boundary after the marker. `Name.forStudent` permits slashes only in these complete
+tokens, preserving case and the existing normalization and 50-code-point limit.
+JSON loading uses the same name validation, so names survive save/reload without a
+schema change. Legacy name validation is unchanged. This is an owner-authorized
+extension to the original Feature 1 contract, pending teammate review.
 
 The student constructor requires at least one membership and at most one group per course. Add parsing
 validates every membership before checking repeated courses in appearance order. A student conflicts

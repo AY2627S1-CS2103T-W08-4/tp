@@ -23,6 +23,17 @@ public class ParserUtil {
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
 
     /**
+     * Recognizes a complete s/o or d/o token at a prefix candidate's start.
+     * Callers use this only inside n/ values; other unknown parameters remain errors.
+     */
+    static boolean isNameRelationshipMarker(String args, int start) {
+        int end = start + 3;
+        return end <= args.length()
+                && (args.regionMatches(true, start, "s/o", 0, 3) || args.regionMatches(true, start, "d/o", 0, 3))
+                && (end == args.length() || args.charAt(end) == ' ');
+    }
+
+    /**
      * Parses {@code oneBasedIndex} into an {@code Index} and returns it. Leading and trailing whitespaces will be
      * trimmed.
      * @throws ParseException if the specified index is invalid (not a non-zero unsigned integer).
