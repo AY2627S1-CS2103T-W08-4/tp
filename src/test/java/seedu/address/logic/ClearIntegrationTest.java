@@ -73,6 +73,7 @@ public class ClearIntegrationTest {
         assertEquals(1, storage.saves);
         ModelManager restarted = new ModelManager(storage.readAddressBook().orElseThrow(), new UserPrefs());
         assertTrue(restarted.getAddressBook().getPersonList().isEmpty());
+        // Replacing data without resetting the predicate checks that clear retained the class filter.
         AddressBook replacement = new AddressBook();
         replacement.addPerson(bob);
         model.setAddressBook(replacement);

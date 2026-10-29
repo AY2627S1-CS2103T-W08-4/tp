@@ -84,6 +84,16 @@ public class Person {
         this.attendance = List.copyOf(attendance);
     }
 
+    /** Returns a validated contact replacement with the exact same memberships and attendance. */
+    public Person withContactDetails(Name name, TelegramHandle telegram, Email email) {
+        requireAllNonNull(name, telegram, email);
+        if (!isStudent()) {
+            throw new IllegalArgumentException("Only student profiles have Telegram contact details.");
+        }
+        Person updated = new Person(name, telegram, email, memberships);
+        return new Person(updated, attendance);
+    }
+
     public List<AttendanceRecord> getAttendance() {
         return attendance;
     }

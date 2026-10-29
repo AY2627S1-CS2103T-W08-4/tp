@@ -3,7 +3,7 @@ layout: page
 title: User Guide
 ---
 
-TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. Version 1.3 supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
+TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This guide covers the v1.4 source, including student contact correction with `update`. The published v1.3 JAR does not support `update`; use a v1.4 build for that command. TutorTrack supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
 
 * Table of Contents
 {:toc}
@@ -11,6 +11,14 @@ TutorTrack is a desktop application for teaching staff to manage student contact
 --------------------------------------------------------------------------------------------------------------------
 
 ## Quick start
+
+When no saved data file exists, TutorTrack starts with six fictional sample students.
+They have Telegram handles and memberships across CS2103T (T04/T05) and CS1101S
+(T02/T03); Alex Yeoh belongs to both courses. All attendance starts as Unrecorded.
+Try `find c/CS2103T:T04 w/3`, then `mark 1 m/CS2103T w/3 s/present`.
+Existing saved data, including legacy contacts, is loaded unchanged instead of these
+examples. Updating the application does not replace your saved contacts.
+
 
 1. Install Java `25`. The release was validated with Java 25; newer major versions are not yet verified.
 
@@ -133,7 +141,8 @@ They are not automatically converted to student profiles. The `add` command only
 
 ### Listing all students: `list`
 
-Removes any active filter and shows every saved student once, in roster order.
+Removes any active class filter and shows every saved entry once, in roster order. Older AB3 contacts
+from an existing data file (without Telegram handles or classes) are listed and counted too.
 
 Format: `list`
 
@@ -141,9 +150,42 @@ Format: `list`
 * `list` takes no parameters. Any extra input, such as `list 3` or `list c/CS2103T:T04`, is rejected with the list format error, so you never mistake an unfiltered list for a filtered one.
 * The result shows how many students are listed, for example `3 students listed!`, `1 student listed!` or `0 students listed!`.
 
+### Correcting student contacts: `update`
+
+Format: `update INDEX [n/NAME] [p/TELEGRAM] [e/EMAIL]`
+
+Examples:
+
+* `update 1 e/alice.new@example.com` changes only the displayed student's email.
+* `update 2 n/Anne-Marie Tan p/@anne_new` corrects a name and Telegram handle together.
+* After `find c/CS2103T:T04 w/3`, `update 1 n/Alice Tan` targets row 1 of that class view.
+
+Supply at least one field, each at most once, in any order. The name, Telegram and
+email rules and normalization are the same as `add`; an empty value cannot erase a
+required contact. Unknown parameters (including `c/`, `a/` and `t/`) are rejected.
+The index is one displayed row: an ASCII integer from 1 to 2147483647, without
+signs or leading zeros. Extra indices are rejected.
+
+Omitted contacts, class memberships and all attendance records are preserved.
+Namesakes are allowed. An email or Telegram matching another saved contact rejects
+the entire update, even when that contact is hidden by the current filter. Email
+collisions are reported before Telegram collisions. Your own unchanged contacts
+are allowed. Use `edit` for legacy phone/address contacts.
+
+Success reports `Student updated: NAME.`, retains roster order and the current
+class/week view, and selects the updated student with refreshed details. If all
+supplied values normalize to existing values, the result is `Student unchanged: NAME.`;
+the student is selected without another disk write.
+
+Changes are saved before success and survive restart. Invalid input or a save
+failure leaves the data, filter and selection unchanged. On a save failure, the
+command stays in the input box and the same recovery message as `add` is shown.
+Resolve the storage problem and resubmit. Membership editing is not supported;
+`update` cannot move a student between groups or erase attendance.
+
 ### Editing a person: `edit`
 
-Edits an existing **legacy phone/address contact**. Editing new student profiles is outside this MVP increment; TutorTrack rejects it without changing their contacts or memberships.
+Edits an existing **legacy phone/address contact**. Use `update` for student contacts; `edit` rejects student targets with guidance to that command.
 
 Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`
 
@@ -169,18 +211,31 @@ Examples:
 Both prefixes are required exactly once, in either order. Class codes use the same
 rules as `add` and normalize to uppercase. Weeks are integers 1–53 without leading
 zeros. A query matches the complete course **and** group; the same group code in
-another course does not match. Name search is outside this MVP: `find John` is rejected.
+another course does not match. TutorTrack does not search by name, so `find John` is rejected.
 
 The heading includes the class, week and student count. Rows remain in roster order
 and display attendance for that course/week, including **Unrecorded** when no decision
 exists. Changing only the week refreshes the badges without changing class membership.
 A successful query clears selection and details. A failed query retains the old view.
 
+Below the heading, a non-empty class view also shows the class's totals for that week,
+for example `3 present, 1 absent, 1 unrecorded`. The totals update as soon as you `mark`
+attendance for the viewed course and week.
+
 A valid class with no students succeeds with `0 students listed!` and
 `No students found in COURSE:GROUP. Use list to view all students.` It creates no records.
 Use `list` to remove the filter. Queries are read-only and do not save the data file.
 
-![Class attendance](images/release-v1.3/attendance.png)
+![Class view of CS2103T:T04 in week 3, with attendance totals and a badge for each student](images/ClassViewSummary.png)
+
+Examples of errors (the previous view stays unchanged):
+* Missing class: `find w/3` gives `Missing required parameter: c/.`
+* Missing week: `find c/CS2103T:T04` gives `Missing required parameter: w/.`
+* Group only: `find c/T04 w/3` gives the class format error, `Class must use COURSE:GROUP, for example CS2103T:T04. ...`
+* Invalid week: `find c/CS2103T:T04 w/0` or `w/01` gives `Week must be an integer from 1 to 53 without leading zeros.`
+* Repeated parameter: `find c/CS2103T:T04 w/3 w/4` gives `Parameter w/ must be specified only once.`
+* Unknown parameter: `find c/CS2103T:T04 w/3 x/1` gives `Unknown parameter: x/.`
+* Name search: `find John` gives `Invalid command format!` followed by `Format: find c/COURSE:GROUP w/WEEK`.
 
 ### Deleting students: `delete`
 
@@ -241,27 +296,30 @@ Resolve the storage problem and try Exit again. The feedback wraps to keep the r
 
 ### Saving the data
 
-TutorTrack saves accepted additions, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list` and `find` are read-only. You do not need to save manually.
+TutorTrack saves accepted additions, contact updates, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list` and `find` are read-only. You do not need to save manually.
 
 ### Editing the data file
 
-AddressBook data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
+TutorTrack stores student data in `data/addressbook.json`, relative to the folder from which you launch the application. Follow the Quick Start instructions to launch it from your TutorTrack home folder.
 
-<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-If your changes make the data file invalid, AddressBook starts with an empty address book at the next run. The invalid file remains on disk until you run a command (AddressBook saves after every command). Still, we recommend backing up the file before editing it.<br>
-Furthermore, certain edits can cause the AddressBook to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
-</div>
+Close TutorTrack and make a copy of the data file before editing it manually.
 
-### Archiving data files `[coming in v2.0]`
+If an existing data file is unreadable or invalid, TutorTrack displays an **Unable to load student data** dialog showing the file's location and recovery instructions. It does not open an editable roster or overwrite the student data file. Closing the dialog exits the application.
 
-_Details coming soon ..._
+To recover:
+
+1. Check that you have permission to read the file.
+2. Repair the file or restore a valid copy, then reopen TutorTrack.
+3. To start fresh, move the existing file to a safe location before reopening.
+
+A missing data file starts TutorTrack with sample data. A valid saved empty roster remains empty.
 
 --------------------------------------------------------------------------------------------------------------------
 
 ## FAQ
 
 **Q**: How do I transfer my data to another computer?<br>
-**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous AddressBook home folder.
+**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous TutorTrack home folder.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -282,8 +340,8 @@ Examples:
 * `mark 1 m/cs2103t w/3 s/ABSENT` corrects that decision to Absent.
 * `mark 1 m/CS2103T w/3 s/unrecorded` clears that decision.
 
-`INDEX` is the row number in the **currently displayed list**, including after a name
-search. It must be an ASCII integer from 1 to 2147483647 without leading zeros, and
+`INDEX` is the row number in the **currently displayed list**, including after a class
+query. It must be an ASCII integer from 1 to 2147483647 without leading zeros, and
 must identify a displayed student. The student must already be enrolled in `COURSE`;
 legacy contacts without course memberships cannot have attendance recorded.
 
@@ -327,6 +385,7 @@ Action | Format, Examples
 **Add** | `add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]`<br>e.g., `add n/John Doe p/@johndoe e/john@example.com c/CS2103T:T04`
 **Clear** | `clear`
 **Delete** | `delete INDEX [INDEX...]`<br> e.g., `delete 3`
+**Update** | `update INDEX [n/NAME] [p/TELEGRAM] [e/EMAIL]`<br>e.g., `update 1 e/new@example.com`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Find** | `find c/COURSE:GROUP w/WEEK`<br> e.g., `find c/CS2103T:T04 w/3`
 **List** | `list`

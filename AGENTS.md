@@ -21,15 +21,14 @@ course policy. Preserve teammates' work and coordinate shared model changes.
 
 ## Mac and Windows verification
 
-Run focused Java 25 tests on the Mac during development. Before opening a PR or
-preparing a release, run the full `check coverage` tasks using the Gradle wrapper
-on both macOS (`./gradlew`) and the Windows PC (`gradlew.bat` via `ssh pc`).
+Run focused Java 25 tests on your development machine after code changes. Before
+opening a PR or preparing a release, run the full `check coverage` tasks with the
+Gradle wrapper on macOS (`./gradlew`) and Windows (`gradlew.bat`), using a teammate's
+machine, an isolated remote workspace or cross-platform CI as available.
 
-Read the `pc-gpu` skill for remote execution. Java tests do not use the GPU; this
-additional run checks Windows behavior. Transfer the exact source snapshot into
-a separate PC directory, record its revision/checksum, and exclude secrets,
-application data, build output and local handoffs. Do not commit or push solely
-for transfer, overwrite PC edits, or alter login/firewall settings. Retrieve logs
-and test reports; record Java version, test totals, failures and skipped checks in
-`CONTEXT.md`. If the PC is unavailable, finish Mac validation and leave Windows
-verification pending. Test-suite success is not a packaged-app GUI smoke test.
+Verify the exact source revision or snapshot on each platform, use disposable test
+data, and record Java version, test totals, failures and skipped checks in
+`CONTEXT.md`. Never overwrite another developer's work or transfer credentials or
+real application data. If a platform is unavailable, finish other checks and record
+the gap. Test-suite success is not a packaged-app GUI smoke test. Personal remote
+connection aliases and machine-specific skills belong in local setup instructions.

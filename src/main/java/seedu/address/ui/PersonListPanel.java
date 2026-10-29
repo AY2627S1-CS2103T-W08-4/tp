@@ -11,6 +11,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Region;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.model.person.AttendanceSummary;
 import seedu.address.model.person.AttendanceWeek;
 import seedu.address.model.person.ClassMembership;
 import seedu.address.model.person.Person;
@@ -27,6 +28,8 @@ public class PersonListPanel extends UiPart<Region> {
 
     @FXML
     private Label rosterHeading;
+    @FXML
+    private Label rosterSummary;
     private final Label emptyRoster = new Label();
 
     @FXML
@@ -79,6 +82,23 @@ public class PersonListPanel extends UiPart<Region> {
                 : attendanceClass + " | Week " + attendanceWeek + " | " + number);
         emptyRoster.setText(attendanceClass == null ? "No students saved. Use add to create a student."
                 : "No students found in " + attendanceClass + ". Use list to view all students.");
+        updateRosterSummary(count);
+    }
+
+    /** Shows the class's attendance totals for the viewed week, only in a non-empty class view. */
+    private void updateRosterSummary(int count) {
+        boolean showSummary = attendanceClass != null && count > 0;
+        rosterSummary.setVisible(showSummary);
+        rosterSummary.setManaged(showSummary);
+        if (!showSummary) {
+            rosterSummary.setText("");
+            return;
+        }
+        // The list may briefly hold another class's rows while a new query is applied; the summary is
+        // recomputed when setAttendanceContext supplies the new class, so it is not asserted to match count here.
+        AttendanceSummary summary = AttendanceSummary.of(personListView.getItems(), attendanceClass, attendanceWeek);
+        rosterSummary.setText(summary.toString());
+        logger.fine("Updated attendance summary for " + attendanceClass + " week " + attendanceWeek + ": " + summary);
     }
 
     /** Clears both the selected row and its details after a successful query or deletion. */

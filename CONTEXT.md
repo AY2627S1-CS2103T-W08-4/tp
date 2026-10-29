@@ -1,5 +1,20 @@
 # TutorTrack team implementation context
 
+## Ethan clear safety integration — 29 October 2026
+
+- Owner eatenquek; PR71 has approvals from jianyang999 and Eskalade at71ab4b87.
+- Reconciled documentation/context conflicts with current team master92235ba4.
+  Kept student updates, attendance verification and startup recovery documentation.
+- Addressed nonblocking feedback: TutorTrack clear-success wording, explained the
+  retained-filter test and made shared AGENTS platform instructions portable.
+  Retaining class/week context after clear is intentional and documented.
+- Java25 check/coverage/shadowJar passed after integration. New full-suite count
+  will be verified from JUnit reports before publication. Original341-test Mac/PC
+  evidence is historical and does not stand in for this integration's Windows run.
+- Status: integration local; no merge/release claimed. AI assistance credited in DG.
+
+### Historical clear-fix validation (22 October)
+
 ## Active Ethan v1.4 increment — 22 October 2026 (SGT)
 
 - Owner: Ethan Quek (`eatenquek`), issue [#62](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/62).
@@ -36,9 +51,119 @@
   checks before PR/release. The Windows runtime was portable; default Java unchanged.
 - Assistance: OpenAI Codex, credited in the Developer Guide.
 
+## v1.4 persistence and startup protection — 22 October 2026
+
+- Owner: Aston (`aston-ish`); [issue #63](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/63); milestone v1.4.
+- Branch: `exit-persistence-verification`, based on team master `3c5c440c`.
+- Implementation commit: `8b086cb5`. PR not created. Review, remote CI and merge remain pending.
+- Scope: stop startup when existing student data cannot be loaded; show recovery guidance; preserve the original file; handle null JSON records through the data-loading error path.
+- Verification: add/update/delete, attendance correction/clearing, restart, preferences, and failure/retry through all three Exit routes.
+- Validation: Windows, Temurin Java 25.0.4; 362 tests passed with zero failures/errors/skips. Checkstyle, coverage generation, repository formatting checks and both JAR builds passed.
+- Packaged verification: instrumented Windows checks passed across separate JVMs for persistence/reload and invalid-data startup/shutdown. Mac ARM package built only; Mac/Linux packaged execution is unverified.
+- Integration: no JSON schema change. Clear-command safety remains with its owner.
+
+## Active v1.4 increment — verified 21 October 2026 (SGT)
+## Active v1.4 attendance verification — 22 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#61](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/61);
+  branch `61-attendance-isolation-recovery`. User confirmed this scope on 22 October.
+- Base: `3c5c440c`, verified equal to team master before editing. PR #64 (contact
+  updates), #69 (Gradle run assertions) and #70 (class-view verification) are merged.
+  This supersedes the pending-merge claims in the historical snapshots below.
+- Status: published from `toomintyy:61-attendance-isolation-recovery` in
+  [PR #72](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/72) against team master,
+  under v1.4. Open for teammate review; not merged or released.
+- Tests cover failed initial attendance recording, correction and clearing followed
+  by retry and JSON reload; student/course/week isolation; mark -> contact update ->
+  mark -> reload; and real JavaFX selection, details, badges, heading, row order and
+  input preservation when another student's mark fails or is invalid.
+- Validation: focused attendance/update/class-view tests and `./gradlew check coverage`
+  passed; full suite **356 tests**, zero failures/errors/skips, Checkstyle passed.
+  The new GUI checks use the existing real-window JavaFX harness and temporary data.
+  No production defect was found and no functional code or model interface changed.
+- Documentation: corrected stale attendance instructions and pending-integration
+  wording in the DG, documented the shared replacement transaction, and added
+  concrete manual checks with expected outcomes. The UG already matches this flow.
+  `docs/diagrams/MarkSequenceDiagram.puml` and its PNG show unchanged, successful-save
+  and failed-save paths. Rendered with PlantUML 1.2023.10 and visually inspected;
+  notation checked against the current course modeling guidance and UML reference.
+  Existing update and find diagrams are unchanged.
+- Repository validation: `.github/run-checks.sh` and `git diff --check` passed.
+  Automated GUI verification ran through the real-window JavaFX harness with
+  isolated data. Separate packaged-app/manual platform checks and a Jekyll guide
+  build were not performed for this increment; remote CI results are not yet verified.
+- Assistance: OpenAI Codex for tests and documentation prose; reuses existing team
+  models, fixtures and GUI test harness.
+- Remaining: obtain teammate review and passing remote CI before merging and closing
+  #61. Do not close the issue merely because local tests pass.
+
+## Previous contact-update handoff — historical snapshot, 21 October 2026 (SGT)
+
+- Owner: Vincent Peh (`Eskalade`); branch `codex/student-update-v14`, based on
+  team master `e83a798ec0e0b2de611a7bb49bedc9055a6705e8`.
+- Status: published in [PR #64](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/64)
+  for teammate review; local checks and three-platform CI passed at `93a01e7a`.
+  This increment is **not merged or released**. v1.3 remains the published release.
+- Implementation issue [#58](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/58);
+  planning issue [#59](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/59), both
+  assigned to Eskalade under v1.4. Proposed teammate tasks are #60–#63.
+- Scope: `update INDEX [n/NAME] [p/TELEGRAM] [e/EMAIL]`, strict add-equivalent
+  field validation, normalized uniqueness excluding the target, filtered indices,
+  preserved memberships/attendance/order/context, selected refreshed details,
+  no-op without saving and save-before-live-update failure recovery.
+- Integration: no JSON schema change. `Person.withContactDetails` preserves immutable
+  attendance. Mark/update share `LogicManager.executeStudentReplacement`; coordinate
+  other transaction changes in this method. Legacy edit directs students to update.
+- Local validation: `./gradlew check coverage shadowJar shadowJarMacArm` passed on
+  Zulu Java 25.0.3 FX; **346 tests**, zero failures/errors/skips. Both Checkstyle
+  tasks, coverage generation, repository scripts and `git diff --check` passed. Initial test fixture filter-reset and
+  Checkstyle test-name failures were corrected before the passing run.
+- Packaged verification: both JARs passed instrumented real-window update/collision/
+  attendance-preservation tests and a second JVM reload on macOS. Standard JAR used
+  Zulu 25.0.3 FX; ARM JAR used plain Temurin 25.0.4. Screenshot visually inspected.
+  Separate Windows/Linux packaged GUI runs have not been performed.
+- UG/DG, S04, manual testing and PlantUML sequence source/render updated. Notation
+  checked against course reference sheet and modeling syllabus; rendered image
+  visually inspected. Jekyll site build is currently unverified: local Ruby lacks
+  the locked Bundler 2.5.11. Do not claim published guide rendering passed.
+- Plan: [v1.4 scope and release gates](docs/project/v1.4-plan.md). Freeze unrelated
+  new features; retain the five MVP workflows plus contact correction. v1.4 due
+  22 October 23:59 SGT; formal feature freeze at v1.5 deadline, 29 October 23:59 SGT.
+- Remote validation: [Java CI run 39523604490](https://github.com/Eskalade/tp/actions/runs/39523604490)
+  passed on Windows, macOS and Linux at `93a01e7a`. This handoff-only commit records
+  that result; production/test sources are unchanged. Recheck checks before merging.
+- Remaining: obtain real teammate review; teammates confirm
+  #60–#63 and complete acceptance/safety work (especially legacy clear); record actual
+  postmortem discussion; integrate and verify exact release JARs before publication.
+- Assistance: OpenAI Codex for planning, implementation, tests, UML and guides,
+  credited in the DG. No teammate approval or retrospective meeting is fabricated.
+
+## Dated history
+
+- 2026-10-21: Vincent completed the local student contact-update increment and
+  created v1.4 planning/acceptance issues and published PR #64. Review and integration remain pending.
+- 2026-10-20: v1.3 release and merged #56/#57 verified on GitHub on 21 October.
+
+## Previous v1.3 handoff (historical snapshot)
 
 Last verified: 2026-10-20 (Singapore time). This is a dated snapshot; verify GitHub
 before starting the next increment.
+
+## Local increment: TutorTrack sample students (2026-10-22)
+
+- Owner: `toomintyy`; issue [#65](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/65).
+- Branch: `65-tutortrack-sample-students`, based on team master `e83a798e`.
+- Status: implemented locally; no PR, merge or release claimed.
+- Replaces six first-run legacy examples with fictional student profiles, unique
+  contacts and memberships across two courses/four classes, including one student
+  in both courses. Attendance starts Unrecorded. Existing saved data is unchanged;
+  this does not migrate or remove the user's existing legacy contacts.
+- Validation: `./gradlew check coverage` passed (337 tests, zero failures,
+  errors or skips), including Checkstyle. New tests cover sample contact uniqueness,
+  all weeks initially Unrecorded, class filtering, marking and JSON reload using
+  temporary storage. No manual GUI launch was performed for this increment.
+- UG/DG updated. Reuses AB3 bootstrap and team models; OpenAI Codex assistance.
+- Remaining: publish/review PR and merge; existing user data cleanup is separate.
 
 ## Released v1.3 MVP
 
@@ -80,6 +205,30 @@ before starting the next increment.
   Apple Silicon JAR with plain ARM Java; the standard JAR contains Intel Mac natives.
 - Timing: published 20 October, after the course deadline of 15 October 23:59 SGT.
   Publication does not retroactively satisfy the on-time requirement.
+
+## Class-view attendance summary (2026-10-22)
+
+- Owner: Jian Yang (`jianyang999`); [issue #74](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/74);
+  branch `class-attendance-summary`; milestone v1.4. AI assistance: Claude Code.
+- Status: PR open for teammate review; not merged. Proposed to the team as UI clarity on the
+  existing class view; confirm it fits the v1.4 scope before merging, otherwise move it to v1.5.
+- Scope: `AttendanceSummary` (Model) counts Present/Absent/Unrecorded for the displayed class
+  students in the viewed course/week; `PersonListPanel` shows it in a `rosterSummary` label below
+  the unchanged heading, only in non-empty class views, recomputed on list or context changes.
+  No new command, storage or schema change.
+- Tests: `AttendanceSummaryTest` (6) and a real-window case in `ClassViewUiTest`.
+
+## v1.4 class-view verification (2026-10-22)
+
+- Owner: Jian Yang (`jianyang999`); [issue #60](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/60);
+  branch `verify-class-view`; milestone v1.4. AI assistance: Claude Code.
+- Scope: verification only, no functional code change. New real-window `ClassViewUiTest` covers exact
+  `COURSE:GROUP` matching, badges/details after marking another week or course, unchanged view/selection/input
+  after invalid queries, and repeated queries. No defects found; existing `MvpRosterUiTest` and
+  `MvpRosterIntegrationTest` already cover add/delete/mark context changes and save failures.
+- Docs: DG section "Viewing a class" with `FindSequenceDiagram` (PlantUML source and PNG, rendered with
+  PlantUML 1.2023.10 because newer versions print a warning for `style.puml`'s `ParticipantPadding`).
+- Not covered here: the `update` command (#64) in class view; legacy `clear` keeps the class heading.
 
 ## Release history
 
