@@ -1,5 +1,20 @@
 # TutorTrack team implementation context
 
+## Ethan v1.5 release recovery — 29 October 2026
+
+- Owner eatenquek; alpha reports #94 and #96–#99 are distinct runtime, packaging
+  and documentation findings from packaged master92235ba4 (hash recorded in reports).
+- Confirmed #94 with real filesystem permissions: failed legacy edit mutated live
+  data and later Exit persisted the rejected change. A detached candidate now saves
+  before publication; successful legacy edits reset full-roster context/selection.
+- Typed Help is read-only during save failures (#81); Help points to TutorTrack's
+  guide (#80). Existing student/attendance transactions remain separate.
+- Added four legacy/recovery integration tests. Two failed on the original code;
+  full Java25 check/coverage passed after the fix. Final integrated Mac/Windows
+  counts and packaged release evidence remain pending; no release claimed.
+- OpenAI Codex assisted investigation, code, tests and documentation.
+
+
 ## v1.4 persistence and startup protection — 22 October 2026
 
 - Owner: Aston (`aston-ish`); [issue #63](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/63); milestone v1.4.

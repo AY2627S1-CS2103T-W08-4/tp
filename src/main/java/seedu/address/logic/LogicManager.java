@@ -12,8 +12,10 @@ import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.DeleteCommand;
+import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
+import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.MarkCommand;
 import seedu.address.logic.commands.UpdateCommand;
@@ -58,9 +60,12 @@ public class LogicManager implements Logic {
 
         CommandResult commandResult;
         Command command = addressBookParser.parseCommand(commandText);
-        if (command instanceof FindCommand || command instanceof ListCommand) {
+        if (command instanceof FindCommand || command instanceof ListCommand || command instanceof HelpCommand) {
             // Queries are read-only and must also work when the data directory is not writable.
             return command.execute(model);
+        }
+        if (command instanceof EditCommand) {
+            return executeLegacyEdit(command);
         }
         if (command instanceof DeleteCommand delete) {
             List<Person> targets = delete.getTargets(model);
@@ -109,6 +114,24 @@ public class LogicManager implements Logic {
         }
 
         return commandResult;
+    }
+
+    /**
+     * Saves a legacy contact edit before publishing it and resetting the roster view.
+     */
+    private CommandResult executeLegacyEdit(Command command) throws CommandException {
+        Model candidate = new ModelManager(model.getAddressBook(), model.getUserPrefs());
+        List<Person> displayed = List.copyOf(model.getFilteredPersonList());
+        candidate.updateFilteredPersonList(displayed::contains);
+        CommandResult result = command.execute(candidate);
+        try {
+            storage.saveAddressBook(candidate.getAddressBook());
+        } catch (IOException e) {
+            throw new CommandException(ADD_SAVE_ERROR, e);
+        }
+        model.setAddressBook(candidate.getAddressBook());
+        model.updateFilteredPersonList(Model.PREDICATE_SHOW_ALL_PERSONS);
+        return CommandResult.roster(result.getFeedbackToUser(), null, null);
     }
 
     /** Saves a detached student replacement before publishing it to the live roster. */
