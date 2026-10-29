@@ -11,6 +11,9 @@ title: Developer Guide
 
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type and v1.3 add-student integration, and draft the related UG/DG and implementation context. The integration reuses the team’s `ClassMembership` type and existing SE-EDU AB3 architecture.
+* Ethan Quek used OpenAI Codex to investigate issue #62, implement strict and
+  save-before-publish clear behavior, add parser/storage/JavaFX regressions, and
+  update the guides. The fix reuses the team's existing model and storage contracts.
 * Vincent also used OpenAI Codex for v1.4 scope planning, student contact updates, regression tests, the sequence diagram and related documentation. The implementation reuses team value types and the existing attendance transaction pattern; Vincent must understand and review the generated work.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to assist with parts of the class membership, `list` and class-view work.
@@ -211,6 +214,32 @@ location, a changed update must fail while a normalized no-op still succeeds.
 
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### Safe clearing (v1.4)
+
+`ClearCommandParser` accepts only ordinary spaces after `clear`. The top-level
+parser forwards raw arguments so trimming cannot hide tabs or line breaks.
+`LogicManager` saves a new empty address book before executing `ClearCommand` on
+live data. An `IOException` uses the existing no-changes-applied recovery message;
+no live list notifications or successful result occur before saving succeeds.
+
+After saving, `ClearCommand` removes the complete roster, including students hidden
+by a class filter and attendance owned by those students. Its result clears UI
+selection while retaining class/week context. Keeping the live model untouched on
+failure avoids a rollback that could expose transient deletions to UI listeners.
+This path leaves the contact-update and attendance transaction implementations alone.
+
+`ClearIntegrationTest` verifies save ordering, hidden contacts, attendance, failure,
+absence of list notifications on failure, retry, empty rosters and JSON reload.
+`AddressBookParserTest` covers extra arguments and control whitespace.
+`MvpRosterUiTest` checks that invalid input and save failure preserve the selected
+student, details, typed command and heading, then checks a successful retry.
+
+Manual check: create students in two classes, record attendance, and filter to one
+class. Try `clear 1`; nothing should change. With an unwritable data location, try
+`clear`; the selected student should remain. Restore write access and retry. The
+roster should empty, selection should clear, the class/week heading should remain,
+and restarting should load no students. Use disposable data because clear has no undo.
 
 ### Attendance week foundation
 
@@ -598,7 +627,8 @@ validates every target, and deduplicates integer indices in first-appearance ord
 `LogicManager` executes deletion on a detached candidate, saves it, then removes
 those exact targets from the live model without replacing its filter. A failed save
 leaves data, selection and context untouched. This extends the existing add/mark
-transaction pattern; legacy `clear` and `edit` are not generalized transactions.
+transaction pattern. The v1.4 safe-clearing section covers `clear`; legacy `edit`
+remains outside this transaction handling.
 
 Regression coverage includes filtered batch indices, duplicate indices, a late invalid
 target, disk failure/retry, query operation without write access, independent course/week
