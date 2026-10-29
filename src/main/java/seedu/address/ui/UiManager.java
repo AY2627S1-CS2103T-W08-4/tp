@@ -58,6 +58,16 @@ public class UiManager implements Ui {
         return new Image(MainApp.class.getResourceAsStream(imagePath));
     }
 
+    /** Explains how to recover an unreadable data file without opening an editable empty roster. */
+    public static void showDataLoadingErrorAndWait(Path dataFilePath) {
+        showAlertDialogAndWait(null, AlertType.ERROR, "Unable to load student data",
+                "TutorTrack could not open its data file.",
+                "Data file: " + dataFilePath.toAbsolutePath() + "\n\n"
+                        + "Your student data has not been changed. Check that the file is readable and contains "
+                        + "valid TutorTrack data. Restore a valid copy or repair the file, then reopen TutorTrack. "
+                        + "To start fresh, move the existing file to a safe location first.");
+    }
+
     void showAlertDialogAndWait(Alert.AlertType type, String title, String headerText, String contentText) {
         showAlertDialogAndWait(mainWindow.getPrimaryStage(), type, title, headerText, contentText);
     }

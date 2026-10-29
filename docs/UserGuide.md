@@ -114,6 +114,10 @@ and `t/` add parameters, are rejected.
 | Email | At most 254 characters with one `@`, a 1–64-character ASCII local part and a dotted domain. The local part starts/ends alphanumeric, allows `._+-` internally and forbids consecutive periods. Domain labels contain 1–63 letters/digits/hyphens, start/end alphanumeric, and the final label has 2–63 letters. Stored lowercase. |
 | Class membership | `COURSE:GROUP`, with no internal spaces. Course: 2–4 ASCII letters, 4 digits, optional final letter. Group: one ASCII letter and 2 digits. Stored uppercase. Repeat `c/` for different courses; each course may appear only once. |
 
+Name limits apply **after** normalization: for example, `n/ José   Tan ` is stored as
+`José Tan`. Values are never shortened to fit a limit; an over-limit contact rejects
+the whole command. Telegram and email lengths do not include surrounding ordinary spaces.
+
 Namesakes are allowed. A matching email or Telegram handle rejects the entire addition, regardless of
 name or memberships. Email collisions are reported first, including collisions with existing legacy
 contact emails. No records are merged or updated.
@@ -141,7 +145,8 @@ They are not automatically converted to student profiles. The `add` command only
 
 ### Listing all students: `list`
 
-Removes any active filter and shows every saved student once, in roster order.
+Removes any active class filter and shows every saved entry once, in roster order. Older AB3 contacts
+from an existing data file (without Telegram handles or classes) are listed and counted too.
 
 Format: `list`
 
@@ -169,7 +174,9 @@ Omitted contacts, class memberships and all attendance records are preserved.
 Namesakes are allowed. An email or Telegram matching another saved contact rejects
 the entire update, even when that contact is hidden by the current filter. Email
 collisions are reported before Telegram collisions. Your own unchanged contacts
-are allowed. Use `edit` for legacy phone/address contacts.
+are allowed. After a successful contact change, the old email or Telegram can be used
+by another student, provided nobody else currently uses it. Use `edit` for legacy
+phone/address contacts.
 
 Success reports `Student updated: NAME.`, retains roster order and the current
 class/week view, and selects the updated student with refreshed details. If all
@@ -210,7 +217,7 @@ Examples:
 Both prefixes are required exactly once, in either order. Class codes use the same
 rules as `add` and normalize to uppercase. Weeks are integers 1–53 without leading
 zeros. A query matches the complete course **and** group; the same group code in
-another course does not match. Name search is outside this MVP: `find John` is rejected.
+another course does not match. TutorTrack does not search by name, so `find John` is rejected.
 
 The heading includes the class, week and student count. Rows remain in roster order
 and display attendance for that course/week, including **Unrecorded** when no decision
@@ -225,7 +232,16 @@ A valid class with no students succeeds with `0 students listed!` and
 `No students found in COURSE:GROUP. Use list to view all students.` It creates no records.
 Use `list` to remove the filter. Queries are read-only and do not save the data file.
 
-![Class attendance](images/release-v1.3/attendance.png)
+![Class view of CS2103T:T04 in week 3, with attendance totals and a badge for each student](images/ClassViewSummary.png)
+
+Examples of errors (the previous view stays unchanged):
+* Missing class: `find w/3` gives `Missing required parameter: c/.`
+* Missing week: `find c/CS2103T:T04` gives `Missing required parameter: w/.`
+* Group only: `find c/T04 w/3` gives the class format error, `Class must use COURSE:GROUP, for example CS2103T:T04. ...`
+* Invalid week: `find c/CS2103T:T04 w/0` or `w/01` gives `Week must be an integer from 1 to 53 without leading zeros.`
+* Repeated parameter: `find c/CS2103T:T04 w/3 w/4` gives `Parameter w/ must be specified only once.`
+* Unknown parameter: `find c/CS2103T:T04 w/3 x/1` gives `Unknown parameter: x/.`
+* Name search: `find John` gives `Invalid command format!` followed by `Format: find c/COURSE:GROUP w/WEEK`.
 
 ### Deleting students: `delete`
 
@@ -250,9 +266,19 @@ same recovery message as `add`.
 
 ### Clearing all entries: `clear`
 
-Clears all entries from the address book.
+Removes all students and legacy contacts, including their attendance records, even
+when a class filter hides some entries. This action has no undo.
 
 Format: `clear`
+
+Only surrounding ordinary spaces are accepted. Extra arguments such as `clear 1`
+or `clear n/Alice`, tabs and line breaks are rejected without saving or changing
+records. Use `delete INDEX [INDEX...]` to remove selected displayed students.
+
+TutorTrack saves the empty roster before clearing the screen. On success, the
+current class/week context remains and the selected student's details disappear.
+If saving fails, records, attendance, selection and the current view remain intact.
+Resolve the storage problem and enter `clear` again.
 
 ### Exiting the program: `exit`
 
@@ -276,16 +302,23 @@ Resolve the storage problem and try Exit again. The feedback wraps to keep the r
 
 ### Saving the data
 
-TutorTrack saves accepted additions, contact updates, deletions and attendance changes before reporting success, and saves before Exit. `list` and `find` are read-only. You do not need to save manually.
+TutorTrack saves accepted additions, contact updates, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list` and `find` are read-only. You do not need to save manually.
 
 ### Editing the data file
 
-TutorTrack data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
+TutorTrack stores student data in `data/addressbook.json`, relative to the folder from which you launch the application. Follow the Quick Start instructions to launch it from your TutorTrack home folder.
 
-<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-If your changes make the data file invalid, TutorTrack starts with an empty roster at the next run. The invalid file may be overwritten by a later saving command, including Exit; read-only `list` and `find` do not save. Back up the file before editing it.<br>
-Furthermore, certain edits can cause the AddressBook to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
-</div>
+Close TutorTrack and make a copy of the data file before editing it manually.
+
+If an existing data file is unreadable or invalid, TutorTrack displays an **Unable to load student data** dialog showing the file's location and recovery instructions. It does not open an editable roster or overwrite the student data file. Closing the dialog exits the application.
+
+To recover:
+
+1. Check that you have permission to read the file.
+2. Repair the file or restore a valid copy, then reopen TutorTrack.
+3. To start fresh, move the existing file to a safe location before reopening.
+
+A missing data file starts TutorTrack with sample data. A valid saved empty roster remains empty.
 
 --------------------------------------------------------------------------------------------------------------------
 

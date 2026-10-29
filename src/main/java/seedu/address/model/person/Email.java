@@ -2,6 +2,7 @@ package seedu.address.model.person;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
+import static seedu.address.commons.util.StringUtil.trimOrdinarySpaces;
 
 import java.util.Locale;
 
@@ -57,12 +58,12 @@ public class Email {
     /** Creates a normalized MVP email without changing legacy contact loading. */
     public static Email forStudent(String email) {
         requireNonNull(email);
-        return new Email(email.replaceAll("^ +| +$", ""), true);
+        return new Email(trimOrdinarySpaces(email), true);
     }
 
     /** Checks the supported ASCII email subset, including all length boundaries. */
     public static boolean isValidStudentEmail(String email) {
-        String trimmed = email.replaceAll("^ +| +$", "");
+        String trimmed = trimOrdinarySpaces(email);
         String[] parts = trimmed.split("@", -1);
         if (trimmed.length() > 254 || parts.length != 2 || parts[0].length() > 64
                 || !parts[0].matches("[A-Za-z0-9](?:[A-Za-z0-9._+\\-]*[A-Za-z0-9])?")

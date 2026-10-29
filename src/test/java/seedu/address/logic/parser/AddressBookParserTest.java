@@ -26,6 +26,9 @@ import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.PersonUtil;
 
+/**
+ * Verifies command dispatch and rejection of invalid top-level input.
+ */
 public class AddressBookParserTest {
 
     private final AddressBookParser parser = new AddressBookParser();
@@ -57,7 +60,17 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_clear() throws Exception {
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD) instanceof ClearCommand);
-        assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD + " 3") instanceof ClearCommand);
+        assertTrue(parser.parseCommand("  clear  ") instanceof ClearCommand);
+    }
+
+    @Test
+    public void parseCommand_clearWithArguments_throwsParseException() {
+        String expected = String.format(MESSAGE_INVALID_COMMAND_FORMAT, ClearCommand.MESSAGE_USAGE);
+        for (String input : new String[]{"clear 3", "clear anything", "clear n/Alice", "clear\t",
+            "\tclear", "clear\n", "clear \r", "  clear  1  "}) {
+            assertThrows(ParseException.class, expected, () -> parser.parseCommand(input));
+        }
+        assertThrows(ParseException.class, () -> parser.parseCommand("clear\u00a0"));
     }
 
     @Test

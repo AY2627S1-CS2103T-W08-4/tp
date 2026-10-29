@@ -11,7 +11,11 @@ title: Developer Guide
 
 * Vincent Peh used OpenAI Codex to help interpret the team's add-student specification,
   implement and test the Telegram handle value type and v1.3 add-student integration, and draft the related UG/DG and implementation context. The integration reuses the team’s `ClassMembership` type and existing SE-EDU AB3 architecture.
+* Ethan Quek used OpenAI Codex to investigate issue #62, implement strict and
+  save-before-publish clear behavior, add parser/storage/JavaFX regressions, and
+  update the guides. The fix reuses the team's existing model and storage contracts.
 * Vincent also used OpenAI Codex for v1.4 scope planning, student contact updates, regression tests, the sequence diagram and related documentation. The implementation reuses team value types and the existing attendance transaction pattern; Vincent must understand and review the generated work.
+* Vincent used OpenAI Codex for v1.5 contact-validation performance analysis, the linear-time trimming fix, boundary/recovery/UI tests and documentation. This increment reuses the existing team storage and JavaFX test harness; it does not take over teammate features.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to assist with parts of the class membership, `list` and class-view work.
 * Min Thi Ha used OpenAI Codex for attendance recovery and contact-update integration tests,
@@ -212,7 +216,67 @@ empty `p/`; each must leave the existing profile intact. With an unwritable data
 location, a changed update must fail while a normalized no-op still succeeds.
 
 
+#### v1.5 contact hardening
+
+Tracked in [#77](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/77), with the
+reproduced alpha defect in [#78](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/78).
+`StringUtil.trimOrdinarySpaces` scans the two boundaries once. Name, student email,
+Telegram and update-index validation use it instead of `^ +| +$` replacement.
+The previous regex repeatedly scanned long internal space runs; because command
+execution occurs on the JavaFX thread, pasted input could stall the window.
+The helper removes only U+0020 and leaves internal/control/Unicode whitespace to
+existing validators. Name normalization still uses NFC and collapses ordinary spaces.
+The command grammar, error messages, transaction order and storage schema are unchanged.
+
+| Test | Risk covered |
+| --- | --- |
+| `StringUtilTest` | Empty/all-space boundaries, internal spaces and preservation of unsupported whitespace |
+| `StudentValidationTest` | Unicode name lengths, email boundaries, locale and a reproduced large-spacing regression |
+| `StudentContactParserTest` | Contact parameter order, per-field unsupported whitespace and large pasted inputs through the main parser |
+| `StudentContactAcceptanceTest` | Maximum contacts through JSON, one-over-limit rejection without writes, normalized no-op, restart/contact reuse and permission failure/retry |
+| `MvpRosterUiTest` | Failed add keeps selection/details/context/input; retry selects the new row; invalid update of another row preserves selection; no-op selects without saving |
+
+The performance checks use 100,000 internal spaces and a generous two-second budget
+for a regression that previously took several seconds per field. They are not a
+microbenchmark. Other tests vary one invalid contact at a time so one failure cannot
+mask another missing validation. Permission errors are injected at the storage
+boundary; successful paths use real temporary JSON files. All data is synthetic.
+
+Run `./gradlew check coverage shadowJar shadowJarMacArm` and `.github/run-checks.sh`.
+Read the current validation/status in `CONTEXT.md`; coverage alone does not establish
+beta readiness. Packaged acceptance should repeat add, filtered update, collision,
+no-op and restart on the release JAR, checking contacts, memberships, attendance,
+row selection and the class/week heading. Separate OS packaging and teammate feature
+acceptance remain release gates.
+
+
 This section describes some noteworthy details on how certain features are implemented.
+
+### Safe clearing (v1.4)
+
+`ClearCommandParser` accepts only ordinary spaces after `clear`. The top-level
+parser forwards raw arguments so trimming cannot hide tabs or line breaks.
+`LogicManager` saves a new empty address book before executing `ClearCommand` on
+live data. An `IOException` uses the existing no-changes-applied recovery message;
+no live list notifications or successful result occur before saving succeeds.
+
+After saving, `ClearCommand` removes the complete roster, including students hidden
+by a class filter and attendance owned by those students. Its result clears UI
+selection while retaining class/week context. Keeping the live model untouched on
+failure avoids a rollback that could expose transient deletions to UI listeners.
+This path leaves the contact-update and attendance transaction implementations alone.
+
+`ClearIntegrationTest` verifies save ordering, hidden contacts, attendance, failure,
+absence of list notifications on failure, retry, empty rosters and JSON reload.
+`AddressBookParserTest` covers extra arguments and control whitespace.
+`MvpRosterUiTest` checks that invalid input and save failure preserve the selected
+student, details, typed command and heading, then checks a successful retry.
+
+Manual check: create students in two classes, record attendance, and filter to one
+class. Try `clear 1`; nothing should change. With an unwritable data location, try
+`clear`; the selected student should remain. Restore write access and retry. The
+roster should empty, selection should clear, the class/week heading should remain,
+and restarting should load no students. Use disposable data because clear has no undo.
 
 ### Attendance week foundation
 
@@ -465,16 +529,29 @@ reloading existing contacts after editing and deleting. GUI tests run on the
 JavaFX thread with a bounded wait. Linux checks require a display; CI uses
 `xvfb-run -a ./gradlew check coverage`. No new Gradle dependencies are required.
 
-Full student/membership/attendance restart verification depends on the changes in
-PRs #44, #49 and #51. On 2026-10-15, an isolated checkout of published PR #51 head
-`c7e88a57`, with the Exit patch applied, passed 323 tests and a two-process smoke
-test against the packaged application. It preserved profiles, memberships,
-corrected/cleared attendance, other courses/weeks and other students. Both processes
-closed their main/Help windows, reached `MainApp.stop()` and exited normally using
-isolated data. These are local integration results; the dependencies remain open
-and need reviewed integration and CI before release. Snapshot inspection also
-found light-on-light text in the pending attendance detail pane; that owner must
-address its rendering before the integrated GUI is considered verified.
+### Startup data protection
+
+`MainApp.initialize(Storage)` loads student data before constructing the model, logic and main UI. If loading raises `DataLoadingException`, initialization stops. `MainApp.start()` displays recovery guidance through `UiManager.showDataLoadingErrorAndWait()`, then exits after the dialog closes.
+
+This prevents an empty fallback roster from overwriting an unreadable or invalid existing file through a later saving command or Exit. `MainApp.stop()` skips preference saving when no model was initialized.
+
+`JsonUtil.readJsonFile()` returns an empty result only when the file is confirmed missing. Null JSON roots, null person entries and null legacy tag entries follow the data-loading error path. Missing files retain sample-data initialization; valid empty rosters remain empty.
+
+The following activity diagram shows startup after preference initialization. A missing student data file uses sample data, while a successfully loaded file supplies the saved roster, including a valid empty roster.
+
+<img src="images/StartupActivityDiagram.png" alt="Startup activity diagram showing sample data, saved data and safe shutdown after a data-loading failure" width="768" />
+
+If loading fails, initialization stops before creating the model, logic or main UI. TutorTrack displays the file location and recovery instructions, then exits when the dialog closes. The original student data file remains unchanged.
+
+Editable source: [StartupActivityDiagram.puml](diagrams/StartupActivityDiagram.puml).
+
+### Persistence and Exit verification
+
+`MainAppTest` covers invalid and unreadable data, recovery after repair, missing files and saved empty rosters. `DataLoadingErrorTest` checks the recovery dialog. `PersistenceWorkflowTest` verifies add, update, attendance correction/clearing, deletion and preference restoration through a fresh application initialization.
+
+`MainWindowExitTest` additionally verifies that typed, menu and window-close Exit failures preserve updated student data, selection, details and class context, followed by successful retry and reload.
+
+Local validation on Windows with Temurin Java 25.0.4 passed: **362 tests, zero failures/errors/skips**, Checkstyle, coverage generation, repository formatting checks and both JAR builds. Instrumented Windows packaged-app checks passed through separate creation and reload processes, plus invalid-data startup and shutdown. The Mac ARM package was built but not run.
 
 ### View-class foundation: class memberships
 
@@ -617,7 +694,8 @@ validates every target, and deduplicates integer indices in first-appearance ord
 `LogicManager` executes deletion on a detached candidate, saves it, then removes
 those exact targets from the live model without replacing its filter. A failed save
 leaves data, selection and context untouched. This extends the existing add/mark
-transaction pattern; legacy `clear` and `edit` are not generalized transactions.
+transaction pattern. The v1.4 safe-clearing section covers `clear`; legacy `edit`
+remains outside this transaction handling.
 
 Regression coverage includes filtered batch indices, duplicate indices, a late invalid
 target, disk failure/retry, query operation without write access, independent course/week
@@ -763,7 +841,8 @@ Use case ends.
 **MSS**
 
 1. The user requests students for a course, tutorial group and teaching week.
-2. TutorTrack displays the matching students and their attendance for that course and week.
+2. TutorTrack displays the matching students, their attendance for that course and week, and the week's
+   attendance totals.
 3. The user requests the full roster.
 4. TutorTrack removes the filter and displays all students once each.
 
@@ -847,7 +926,7 @@ Use case ends.
 **MSS**
 
 1. The user requests to exit TutorTrack.
-2. TutorTrack waits for any in-progress command to finish, then closes.
+2. TutorTrack saves the current student data, then closes the main window and any open Help window.
 3. The user launches TutorTrack again.
 4. TutorTrack loads all previously saved student, membership and attendance records.
 
@@ -858,6 +937,13 @@ Use case ends.
 * 1a. The exit command contains extra arguments.
   * 1a1. TutorTrack explains the correct format and keeps the application open.
   * Use case resumes at step 1.
+* 2a. Saving fails.
+  * 2a1. TutorTrack reports the failure and keeps the windows open without changing the current data or view.
+  * The user resolves the storage problem and resumes at step 1.
+* 4a. The existing data file is unreadable or invalid.
+  * 4a1. TutorTrack shows the file location and recovery instructions without opening an editable roster or overwriting the student data file.
+  * 4a2. Closing the dialog exits the application. The user repairs or restores the file before relaunching.
+  * Use case ends.
 
 ### Non-Functional Requirements
 
@@ -1059,12 +1145,19 @@ contacts and the actual displayed index instead of assuming row 1.
 
 1. _{ more test cases …​ }_
 
-### Saving data
+### Manual startup recovery checks
 
-1. Dealing with missing/corrupted data files
+Use an isolated test folder and synthetic data.
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
-
+1. Close TutorTrack and keep a valid copy of the test data file.
+2. Replace the test file's contents with invalid JSON and launch the app.
+   Expected: recovery guidance identifies the file; no editable roster opens.
+3. Close the dialog.
+   Expected: the application exits and the invalid file remains unchanged.
+4. Restore the valid copy and relaunch.
+   Expected: the saved records load successfully.
+5. Repeat with `{"persons":[]}`.
+   Expected: an empty roster opens without sample records.
 1. _{ more test cases …​ }_
 
 ### First-run sample students
@@ -1076,3 +1169,23 @@ loading and legacy compatibility are unchanged. Sample-data regression tests cov
 contact uniqueness, class filtering, marking and JSON reload using temporary files.
 This increment was implemented with OpenAI Codex assistance, reusing AB3's sample
 bootstrap and the team's existing student and attendance models.
+
+### Viewing a class and its attendance totals
+
+1. Prerequisites: start with no data file so the sample students load. `CS2103T:T04` contains
+   Alex Yeoh and Bernice Yu; `CS2103T:T05` contains Charlotte Oliveiro and Roy Balakrishnan.
+2. Run `find c/cs2103t:t04 w/3`.
+   Expected: `2 students listed!`; heading `CS2103T:T04 | Week 3 | 2 students`; totals
+   `0 present, 0 absent, 2 unrecorded`; both rows show `CS2103T | Week 3 | Unrecorded`.
+3. Run `mark 1 m/CS2103T w/3 s/present`.
+   Expected: Alex's badge and the totals change to `1 present, 0 absent, 1 unrecorded` immediately.
+4. Run `mark 1 m/CS2103T w/4 s/absent`.
+   Expected: the week 3 badge and totals do not change; Alex's details list both decisions.
+5. Run `find c/CS2103T:T04 w/4`.
+   Expected: same two students; totals `0 present, 1 absent, 1 unrecorded`.
+6. Run `find c/CS2103T:T05 w/3`, then `find c/CS1101S:T04 w/3`.
+   Expected: the first shows Charlotte and Roy only; the second succeeds with `0 students listed!`,
+   `No students found in CS1101S:T04. Use list to view all students.` and no totals line.
+7. Try invalid queries: `find c/T04 w/3`, `find c/CS2103T:T04 w/0`, `find c/CS2103T:T04`, `find John`.
+   Expected: each shows its error (see the User Guide) and the previous view, totals and selection stay unchanged.
+8. Run `list`. Expected: `All students | N students`, no totals line, and no selection.

@@ -2,9 +2,11 @@ package seedu.address.model.person;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 
+import java.time.Duration;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,14 @@ public class StudentValidationTest {
         String supplementaryLetter = new String(Character.toChars(0x10400));
         assertTrue(Name.isValidStudentName(supplementaryLetter.repeat(50)));
         assertFalse(Name.isValidStudentName(supplementaryLetter.repeat(51)));
+    }
+
+    @Test
+    public void name_largeInternalSpacing_normalizesWithoutStalling() {
+        // A pasted name is valid after collapsing spaces. The old end-anchored trim regex
+        // rescanned this run quadratically and blocked the JavaFX command thread for seconds.
+        assertTimeout(Duration.ofSeconds(2), () ->
+                assertEquals("A B", Name.forStudent("A" + " ".repeat(100_000) + "B").fullName));
     }
 
     @Test
