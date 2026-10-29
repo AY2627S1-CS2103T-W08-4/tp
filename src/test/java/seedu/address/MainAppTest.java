@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.util.SampleDataUtil;
@@ -109,6 +110,48 @@ public class MainAppTest {
         MainApp reopened = initialize(new TrackingStorage(data));
         assertEquals(getTypicalAddressBook(), reopened.model.getAddressBook());
         reopened.stop();
+    }
+
+    @Test
+    public void initialize_trailingJsonContent_stopsWithoutOverwritingExistingStudents() throws Exception {
+        Path data = directory.resolve("students.json");
+        TrackingStorage studentStorage = new TrackingStorage(data);
+        studentStorage.saveAddressBook(getTypicalAddressBook());
+        String valid = Files.readString(data);
+        studentStorage.saves = 0;
+        for (String suffix : new String[]{"THIS IS NOT VALID JSON", "{\"persons\":[]}"}) {
+            String invalid = valid + "\n" + suffix;
+            Files.writeString(data, invalid);
+
+            MainApp app = initialize(studentStorage);
+            assertNull(app.model);
+            assertNull(app.logic);
+            assertNull(app.ui);
+            app.stop();
+            assertEquals(invalid, Files.readString(data));
+            assertEquals(0, studentStorage.saves);
+        }
+    }
+
+    @Test
+    public void initialize_nullGuiSettings_usesDefaultsAndPreservesStudentData() throws Exception {
+        Path data = directory.resolve("students.json");
+        TrackingStorage studentStorage = new TrackingStorage(data);
+        studentStorage.saveAddressBook(getTypicalAddressBook());
+        studentStorage.saves = 0;
+        String saved = Files.readString(data);
+        Path prefs = directory.resolve("prefs.json");
+        Files.writeString(prefs, "{\"guiSettings\":null}");
+
+        MainApp app = initialize(studentStorage);
+
+        assertEquals(new GuiSettings(), app.model.getGuiSettings());
+        assertEquals(getTypicalAddressBook(), app.model.getAddressBook());
+        assertEquals(new GuiSettings(), new JsonUserPrefsStorage(prefs).readUserPrefs().orElseThrow().getGuiSettings());
+        assertFalse(app.logic.execute("list").isExit());
+        app.stop();
+        assertEquals(saved, Files.readString(data));
+        assertEquals(0, studentStorage.saves);
     }
 
     private MainApp initialize(TrackingStorage studentStorage) {
