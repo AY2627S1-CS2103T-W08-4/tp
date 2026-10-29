@@ -2,38 +2,42 @@
 !include style.puml
 skinparam ArrowFontStyle plain
 
-Actor User as user USER_COLOR
-Participant ":UI" as ui UI_COLOR
-Participant ":Logic" as logic LOGIC_COLOR
-Participant ":Model" as model MODEL_COLOR
-Participant ":Storage" as storage STORAGE_COLOR
+actor User as user USER_COLOR
+participant ":UI" as ui UI_COLOR
+participant ":Logic" as logic LOGIC_COLOR
+participant "live:Model" as live MODEL_COLOR
+participant "candidate:Model" as candidate MODEL_COLOR
+participant ":Storage" as storage STORAGE_COLOR
 
-user -[USER_COLOR]> ui : "delete 1"
-activate ui UI_COLOR
-
-ui -[UI_COLOR]> logic : execute("delete 1")
-activate logic LOGIC_COLOR
-
-logic -[LOGIC_COLOR]> model : deletePerson(p)
-activate model MODEL_COLOR
-
-model -[MODEL_COLOR]-> logic
-deactivate model
-
-logic -[LOGIC_COLOR]> storage : saveAddressBook(addressBook)
-activate storage STORAGE_COLOR
-
-storage -[STORAGE_COLOR]> storage : Save to file
-activate storage STORAGE_COLOR_T1
-storage --[STORAGE_COLOR]> storage
+user -> ui : "delete 1"
+activate ui
+ui -> logic : execute("delete 1")
+activate logic
+note over logic, candidate
+Valid target p is resolved against the current display.
+A detached candidate copies the roster and display filter.
+Parsing, copying and target lookup are omitted.
+end note
+logic -> candidate : deletePerson(p)
+activate candidate
+candidate --> logic
+deactivate candidate
+logic -> storage : saveAddressBook(candidate.getAddressBook())
+activate storage
+alt save succeeds
+    storage --> logic
+    logic -> live : deletePerson(p)
+    activate live
+    live --> logic
+    deactivate live
+    logic --> ui : deletion result
+    ui --> user : updated roster and confirmation
+else IOException
+    storage --> logic : throws IOException
+    logic --> ui : throws CommandException
+    ui --> user : save error; previous data and view retained
+end
 deactivate storage
-
-storage --[STORAGE_COLOR]> logic
-deactivate storage
-
-logic --[LOGIC_COLOR]> ui
 deactivate logic
-
-ui--[UI_COLOR]> user
 deactivate ui
 @enduml

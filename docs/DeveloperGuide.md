@@ -13,7 +13,9 @@ title: Developer Guide
   implement and test the Telegram handle value type and v1.3 add-student integration, and draft the related UG/DG and implementation context. The integration reuses the team’s `ClassMembership` type and existing SE-EDU AB3 architecture.
 * Ethan Quek used OpenAI Codex to investigate issue #62, implement strict and
   save-before-publish clear behavior, add parser/storage/JavaFX regressions, and
-  update the guides. The fix reuses the team's existing model and storage contracts.
+  update the guides. Ethan also used Codex for v1.5 alpha-bug investigation,
+  transactional legacy-edit recovery, Help behavior and the documentation/diagram
+  corrections. The work reuses the team's existing model and storage contracts.
 * Vincent also used OpenAI Codex for v1.4 scope planning, student contact updates, regression tests, the sequence diagram and related documentation. The implementation reuses team value types and the existing attendance transaction pattern; Vincent must understand and review the generated work.
 * Vincent used OpenAI Codex for v1.5 contact-validation performance analysis, the linear-time trimming fix, boundary/recovery/UI tests and documentation. This increment reuses the existing team storage and JavaFX test harness; it does not take over teammate features.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
@@ -70,7 +72,7 @@ The bulk of the app's work is done by the following four components:
 
 The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete 1`.
 
-<img src="images/ArchitectureSequenceDiagram.png" width="574" />
+<img src="images/ArchitectureSequenceDiagram.png" alt="Delete architecture sequence showing candidate saving before live deletion" width="1000" />
 
 Each of the four main components (also shown in the diagram above),
 
@@ -119,20 +121,27 @@ The sequence diagram below illustrates the interactions within the `Logic` compo
 
 ![Interactions Inside the Logic Component for the `delete 1` Command](images/DeleteSequenceDiagram.png)
 
-<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `DeleteCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
-</div>
+The diagram shows a valid, single-target deletion. Parser construction, candidate
+filter setup and command-result construction are omitted for readability. The
+candidate uses the pre-command displayed roster, so filtered indices identify the
+same students throughout validation and execution. Saving must finish before the
+live model is changed; the failure branch returns an error with no live mutation.
 
 How the `Logic` component works:
 
 1. When `Logic` is called upon to execute a command, the command is passed to an `AddressBookParser` object, which in turn creates a parser that matches the command (e.g., `DeleteCommandParser`) and uses it to parse the command.
 1. This results in a `Command` object (more precisely, an object of one of its subclasses e.g., `DeleteCommand`) which is executed by the `LogicManager`.
-1. The command can communicate with the `Model` when it is executed (e.g. to delete a person).<br>
-   Note that although this is shown as a single step in the diagram above for simplicity, the code can require several interactions between the command object and the `Model` to complete the operation.
+1. For deletion, `LogicManager` resolves the target against the live display and executes the command on a detached candidate model. It saves that candidate before deleting the same target from the live model. If validation or saving fails, the live data and view stay unchanged.
 1. The result of the command execution is encapsulated as a `CommandResult` object which is returned from `Logic`.
 
 Here are the other classes in `Logic` (omitted from the class diagram above) that are used for parsing a user command:
 
 <img src="images/ParserClasses.png" width="600"/>
+
+The parser-class diagram illustrates the inherited tokenizer-based parsing helpers,
+primarily used by legacy `edit`. Strict student parsers receive raw arguments and
+do not all use `ArgumentTokenizer`. The diagram is a catalogue of helpers, not a
+requirement that every parser uses all of them.
 
 How the parsing works:
 * When called upon to parse a user command, the `AddressBookParser` class creates an `XYZCommandParser` (`XYZ` is a placeholder for the specific command name, e.g., `AddCommandParser`). The parser uses the other classes shown above to parse the user command and create an `XYZCommand` object (e.g., `AddCommand`). The `AddressBookParser` returns that object as a `Command` object.
@@ -393,7 +402,7 @@ whole proposal is saved; the UI receives its selection request after all replace
 A correction replaces a course/week decision; Unrecorded removes it using the same transaction.
 
 Editable source: [MarkSequenceDiagram.puml](diagrams/MarkSequenceDiagram.puml).
-It uses activation bars, object creation and `opt`/`alt` fragments from the
+It uses activation bars, object creation, `alt` alternatives and `loop` fragments from the
 [course UML modeling guidance](https://nus-cs2103-ay2627-s1.github.io/website/se-book-adapted/chapters/modeling.html)
 and [UML reference sheet](https://nus-cs2103-ay2627-s1.github.io/website/admin/uml-reference-sheet.html).
 Render with PlantUML 1.2023.10, matching the class-view diagram's renderer, from the
@@ -506,15 +515,15 @@ specification does not completely define cross-category precedence; review this 
 the new student to the live model. This preserves the live roster, predicate, observable-list contents
 and GUI selection on save failure without attempting to reconstruct view state. The successful command
 result identifies the new student; `MainWindow` selects and scrolls to it after persistence succeeds.
-`mark` also uses save-before-publish as described below. Other commands retain their existing
-execution flow; generalized rollback remains a separate integration task.
+`mark`, `update`, `delete`, `clear` and legacy `edit` also save before publishing
+changes. The attendance and contact-update paths skip saving normalized no-ops.
 
 `JsonAdaptedPerson` stores students with `name`, `telegram`, `email` and `memberships`. Legacy
 phone/address/tag records retain their original values and schema fields. Incomplete student records,
 hybrid student/legacy records and repeated courses are rejected. `JsonAddressBookStorage` writes a sibling
 temporary file and atomically replaces the target; no non-atomic fallback is used. A failed replacement
 retains the old data file. Unsupported atomic moves are reported as save failures. This protects disk
-contents for all callers; add, mark, delete and update save before changing the live model.
+contents for all callers; add, mark, delete, update, clear and legacy edit save before changing the live model.
 
 The inherited edit command explicitly rejects student profiles, preserving their new fields. It still
 edits legacy contacts and rejects email changes that would collide with a student. Student contacts
@@ -588,13 +597,25 @@ If loading fails, initialization stops before creating the model, logic or main 
 
 Editable source: [StartupActivityDiagram.puml](diagrams/StartupActivityDiagram.puml).
 
+### JSON completeness and preference recovery
+
+`JsonUtil.fromJsonString()` reads one JSON value through a `JsonParser`, then checks for further tokens before returning. Additional JSON values cause an `IOException`; malformed trailing text also fails parsing. Surrounding JSON whitespace remains valid. The parser is closed using try-with-resources.
+
+The existing file-loading layer wraps parsing failures in `DataLoadingException`. For student data, this activates the existing startup recovery dialog without opening an editable roster or overwriting the original file.
+
+`JsonUserPrefsStorage.readUserPrefs()` also rejects a loaded preferences object whose GUI settings are null. It reports `DataLoadingException`, allowing `MainApp.initPrefs()` to reuse its existing default-preferences recovery path. The recovered preferences are saved; student data remains unchanged.
+
 ### Persistence and Exit verification
 
 `MainAppTest` covers invalid and unreadable data, recovery after repair, missing files and saved empty rosters. `DataLoadingErrorTest` checks the recovery dialog. `PersistenceWorkflowTest` verifies add, update, attendance correction/clearing, deletion and preference restoration through a fresh application initialization.
 
 `MainWindowExitTest` additionally verifies that typed, menu and window-close Exit failures preserve updated student data, selection, details and class context, followed by successful retry and reload.
 
-Local validation on Windows with Temurin Java 25.0.4 passed: **362 tests, zero failures/errors/skips**, Checkstyle, coverage generation, repository formatting checks and both JAR builds. Instrumented Windows packaged-app checks passed through separate creation and reload processes, plus invalid-data startup and shutdown. The Mac ARM package was built but not run.
+Seven new regression tests cover trailing garbage, additional JSON values, accepted surrounding whitespace, null GUI settings, original-file preservation and successful startup after preference recovery. The preferences-storage and startup tests also use a valid, non-default preferences object followed by a second JSON value or garbage. They verify `DataLoadingException` and unchanged original preference bytes before recovery, then default settings, unchanged student data and reloadable recovered preferences at startup.
+
+On Windows with Temurin Java 25.0.4, `gradlew.bat check coverage shadowJar shadowJarMacArm` passed: **390 tests, zero failures/errors/skips**, both Checkstyle tasks, coverage generation and both JAR builds. Repository formatting checks and `git diff --check` also passed.
+
+Instrumented Windows packaged-app checks confirmed that trailing invalid JSON displays recovery guidance and preserves the original file. Null GUI settings recovered to defaults, retained the existing student and allowed normal shutdown. The Mac ARM package was built but not run; Mac execution remains unverified.
 
 ### View-class foundation: class memberships
 
@@ -653,76 +674,7 @@ counting rules (only students in the class, only the viewed course and week) are
 `ClassViewUiTest` checks these behaviours in a real window: exact matching, badges and details after marking
 another week or course, unchanged views after invalid queries, and repeated queries.
 
-### \[Proposed\] Undo/redo feature
-
-#### Proposed Implementation
-
-The proposed undo/redo mechanism is facilitated by `VersionedAddressBook`. It extends `AddressBook` with an undo/redo history, stored internally as an `addressBookStateList` and `currentStatePointer`. Additionally, it implements the following operations:
-
-* `VersionedAddressBook#commit()` — Saves the current address book state in its history.
-* `VersionedAddressBook#undo()` — Restores the previous address book state from its history.
-* `VersionedAddressBook#redo()` — Restores a previously undone address book state from its history.
-
-These operations are exposed in the `Model` interface as `Model#commitAddressBook()`, `Model#undoAddressBook()` and `Model#redoAddressBook()` respectively.
-
-Given below is an example usage scenario and how the undo/redo mechanism behaves at each step.
-
-Step 1. The user launches the application for the first time. The `VersionedAddressBook` will be initialized with the initial address book state, and the `currentStatePointer` pointing to that single address book state.
-
-![UndoRedoState0](images/UndoRedoState0.png)
-
-Step 2. The user executes `delete 5` command to delete the 5th person in the address book. The `delete` command calls `Model#commitAddressBook()`, causing the modified state of the address book after the `delete 5` command executes to be saved in the `addressBookStateList`, and the `currentStatePointer` is shifted to the newly inserted address book state.
-
-![UndoRedoState1](images/UndoRedoState1.png)
-
-Step 3. The user executes `add n/David …​` to add a new person. The `add` command also calls `Model#commitAddressBook()`, causing another modified address book state to be saved into the `addressBookStateList`.
-
-![UndoRedoState2](images/UndoRedoState2.png)
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** If a command fails its execution, it will not call `Model#commitAddressBook()`, so the address book state will not be saved into the `addressBookStateList`.
-
-</div>
-
-Step 4. The user now decides that adding the person was a mistake, and decides to undo that action by executing the `undo` command. The `undo` command will call `Model#undoAddressBook()`, which will shift the `currentStatePointer` once to the left, pointing it to the previous address book state, and restores the address book to that state.
-
-![UndoRedoState3](images/UndoRedoState3.png)
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** If the `currentStatePointer` is at index 0, pointing to the initial AddressBook state, then there are no previous AddressBook states to restore. The `undo` command uses `Model#canUndoAddressBook()` to check if this is the case. If so, it will return an error to the user rather
-than attempting to perform the undo.
-
-</div>
-
-The following sequence diagram shows how an undo operation goes through the `Logic` component:
-
-![UndoSequenceDiagram](images/UndoSequenceDiagram-Logic.png)
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `UndoCommand` should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
-
-</div>
-
-Similarly, how an undo operation goes through the `Model` component is shown below:
-
-![UndoSequenceDiagram](images/UndoSequenceDiagram-Model.png)
-
-The `redo` command does the opposite — it calls `Model#redoAddressBook()`, which shifts the `currentStatePointer` once to the right, pointing to the previously undone state, and restores the address book to that state.
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** If the `currentStatePointer` is at index `addressBookStateList.size() - 1`, pointing to the latest address book state, then there are no undone AddressBook states to restore. The `redo` command uses `Model#canRedoAddressBook()` to check if this is the case. If so, it will return an error to the user rather than attempting to perform the redo.
-
-</div>
-
-Step 5. The user then decides to execute the command `list`. Commands that do not modify the address book, such as `list`, will usually not call `Model#commitAddressBook()`, `Model#undoAddressBook()` or `Model#redoAddressBook()`. Thus, the `addressBookStateList` remains unchanged.
-
-![UndoRedoState4](images/UndoRedoState4.png)
-
-Step 6. The user executes `clear`, which calls `Model#commitAddressBook()`. Since the `currentStatePointer` is not pointing at the end of the `addressBookStateList`, all address book states after the `currentStatePointer` will be purged. Reason: It no longer makes sense to redo the `add n/David …​` command. This is the behavior that most modern desktop applications follow.
-
-![UndoRedoState5](images/UndoRedoState5.png)
-
-The following activity diagram summarizes what happens when a user executes a new command:
-
-<img src="images/CommitActivityDiagram.png" width="250" />
-
-#### v1.3 roster and deletion integration
+### Roster and deletion integration
 
 The release completion increment is tracked in [issue #55](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/55).
 `FindCommandParser` validates exact class/week queries using `ClassMembership` and
@@ -737,8 +689,10 @@ validates every target, and deduplicates integer indices in first-appearance ord
 `LogicManager` executes deletion on a detached candidate, saves it, then removes
 those exact targets from the live model without replacing its filter. A failed save
 leaves data, selection and context untouched. This extends the existing add/mark
-transaction pattern. The v1.4 safe-clearing section covers `clear`; legacy `edit`
-remains outside this transaction handling.
+transaction pattern. Safe clearing saves an empty roster before publishing it.
+Legacy `edit` also uses a detached candidate: it saves the edited roster before
+replacing live records, then resets the full-roster view and selection. A failed
+legacy edit retains the original data, filter, selection and command input.
 
 Regression coverage includes filtered batch indices, duplicate indices, a late invalid
 target, disk failure/retry, query operation without write access, independent course/week
@@ -749,26 +703,6 @@ to the full roster. See `MvpRosterIntegrationTest` and `MvpRosterUiTest`.
 Release validation and remaining work are recorded in `CONTEXT.md`. Implementation
 and tests for this increment were prepared with OpenAI Codex assistance, reusing AB3
 and the team's existing model, parser and storage contracts.
-
-## Design considerations:
-
-**Aspect: How undo & redo execute:**
-
-* **Alternative 1 (current choice):** Saves the entire address book.
-  * Pros: Easy to implement.
-  * Cons: May have performance issues in terms of memory usage.
-
-* **Alternative 2:** Individual command knows how to undo/redo by
-  itself.
-  * Pros: Will use less memory (e.g. for `delete`, just save the person being deleted).
-  * Cons: We must ensure that the implementation of each individual command is correct.
-
-_{more aspects and alternatives to be added}_
-
-### \[Proposed\] Data archiving
-
-_{Explain here how the data archiving feature will be implemented}_
-
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -808,8 +742,11 @@ express product ordering, not course iteration numbers.
 memberships; delete students; list all students or view one class for a chosen
 week; record, correct or clear attendance; and save, reload and exit. v1.4 adds
 name/email/Telegram correction while retaining attendance. Membership editing,
-GitHub usernames, project teams, participation points, tags, Telegram search,
-bulk attendance and absence analytics are beyond this MVP.
+GitHub usernames, project teams, participation points, tags, Telegram search and
+absence analytics remain outside the implemented student workflows. v1.5 extends
+the original MVP with atomic multi-student attendance. Mark-all, index ranges and
+mixed per-student statuses remain unsupported. These extensions do not rewrite
+the original MVP specification.
 
 **Domain rules from the MVP specification**:
 
@@ -1071,8 +1008,8 @@ If these contacts already exist, start a fresh disposable dataset or use unique 
 ### Batch attendance
 
 Use a fresh disposable dataset and run each command separately. These fictional
-contacts/groups must not already be present. This checks the #67 extension; use a
-build containing it rather than the published v1.3 JAR.
+contacts/groups must not already be present. This checks the batch-attendance
+extension (#67) included in v1.5.
 
 1. Create the fixtures:
    - `add n/Batch Alice p/@batch_alice e/batch.alice@example.com c/CS2103T:T97 c/MA2001:T97`
@@ -1127,20 +1064,39 @@ contacts and the actual displayed index instead of assuming row 1.
    `MvpRosterUiTest` using injected IO failures. These tests verify unchanged disk
    content/live state, retained input and selection, then a successful retry.
 
+### Atomic batch deletion
+
+Use an isolated dataset with three students in the same class and at least one
+attendance decision. Use their actual displayed indices in the steps below.
+
+1. Query that class, then run `delete 1 99` where 99 is beyond its displayed roster.
+   Expected: an invalid-index error; neither row 1 nor any attendance is removed.
+   Selection, details and the class/week view remain unchanged.
+2. With storage-save failure injected, run `delete 3 1 3`. Expected: no live removal
+   or disk change for any target; the attempted input and existing view remain.
+   `MvpRosterIntegrationTest` and `MvpRosterUiTest` automate this safely.
+3. Restore storage and retry `delete 3 1 3`. Expected: original rows 3 and 1 are
+   removed once each, including their memberships/attendance. Original row 2
+   remains and becomes row 1; the current class/week filter stays active and the
+   selection/details clear. The deletion feedback lists targets in input order.
+4. Restart and query the same class. Expected: only the remaining student loads;
+   no partial batch or orphan attendance appears.
+
 ### Launch and shutdown
 
 1. Initial launch
 
    1. Download the JAR file and copy it into an empty folder.
 
-   1. Double-click the JAR file.<br>
+   1. Verify `java -version` reports Java 25, then launch with `java -jar addressbook.jar`
+      (or `java -jar tutortrack-macos-arm64.jar` for Apple Silicon).<br>
       Expected: The GUI opens with a set of sample contacts. The window size may not be optimal.
 
 1. Saving window preferences
 
    1. Resize the window to an optimal size. Move the window to a different location. Close the window.
 
-   1. Relaunch the app by double-clicking the JAR file.<br>
+   1. Relaunch the app with the same `java -jar` command.<br>
        Expected: The most recent window size and location are retained.
 
 1. Exit command validation
@@ -1201,7 +1157,12 @@ Use an isolated test folder and synthetic data.
    Expected: the saved records load successfully.
 5. Repeat with `{"persons":[]}`.
    Expected: an empty roster opens without sample records.
-1. _{ more test cases …​ }_
+6. Append `THIS IS NOT VALID JSON` after the closing brace of a valid student data file.
+   Expected: startup displays recovery guidance; closing the dialog exits without changing the file.
+7. Restore the valid file, append a second JSON object, and relaunch.
+   Expected: the same rejection and unchanged file.
+8. Restore valid student data and set `preferences.json` to `{"guiSettings":null}`.
+   Expected: the main window opens with default window settings, the original students remain available, and normal Exit works.
 
 ### First-run sample students
 
