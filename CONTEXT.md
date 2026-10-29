@@ -1,5 +1,28 @@
 # TutorTrack team implementation context
 
+## Combined issue-fix PR — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); branch `fix-reported-issues` in member fork.
+  [PR #114](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/114) is open against
+  team `master`, assigned to toomintyy under v1.5, resolving issues #108–#112.
+  No review, merge or release is claimed.
+- Fetched upstream immediately before PR preparation; latest team master remains
+  `b93206fb`, already an ancestor. Fast-forward-only synchronization confirmed
+  already up to date. The old #108 branch was merged and deleted locally/remotely.
+- Scope: eight implementation links; literal student relationship-marker names;
+  student/legacy model diagram and field constraints; corrected test-class name;
+  documented existing keyboard navigation. Name-contract extension requires team
+  review. No new selection command or JSON schema change.
+- Exact production/test snapshot `57e8198f` passed a fresh macOS / Zulu Java
+  25.0.3 FX run: `./gradlew check coverage --no-daemon --rerun-tasks`, **428 tests**,
+  zero failures/errors/skips. All 415 original tests remain unchanged; 13 added
+  regressions. Repository scripts, whitespace checks, eight source-link paths
+  and PlantUML syntax passed. Diagram and keyboard verification are detailed below.
+- This handoff changes only CONTEXT.md. Windows/Linux CI, Jekyll rendering and
+  packaged-app platform checks remain unverified; local JavaFX tests do not
+  establish packaged-app behavior. Remaining: teammate review and remote checks.
+- Assistance: OpenAI Codex for implementation, tests, documentation and PR preparation.
+
 ## Consolidate issue #108 branch — 29 October 2026 (SGT)
 
 - Owner authorized deleting the #108 branch if superseded by `fix-reported-issues`.
