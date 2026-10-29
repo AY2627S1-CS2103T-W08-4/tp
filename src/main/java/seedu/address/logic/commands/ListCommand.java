@@ -3,6 +3,9 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
+import java.util.logging.Logger;
+
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.model.Model;
 
 /**
@@ -18,11 +21,15 @@ public class ListCommand extends Command {
 
     public static final String MESSAGE_SUCCESS_SINGULAR = "1 student listed!";
 
+    private static final Logger logger = LogsCenter.getLogger(ListCommand.class);
+
     @Override
     public CommandResult execute(Model model) {
         requireNonNull(model);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return CommandResult.roster(getSuccessMessage(model.getFilteredPersonList().size()), null, null);
+        int count = model.getFilteredPersonList().size();
+        logger.fine("Cleared roster filter; listing all " + count + " saved entries");
+        return CommandResult.roster(getSuccessMessage(count), null, null);
     }
 
     /**

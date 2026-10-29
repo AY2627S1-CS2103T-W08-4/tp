@@ -90,8 +90,15 @@ public class PersonListPanel extends UiPart<Region> {
         boolean showSummary = attendanceClass != null && count > 0;
         rosterSummary.setVisible(showSummary);
         rosterSummary.setManaged(showSummary);
-        rosterSummary.setText(showSummary
-                ? AttendanceSummary.of(personListView.getItems(), attendanceClass, attendanceWeek).toString() : "");
+        if (!showSummary) {
+            rosterSummary.setText("");
+            return;
+        }
+        // The list may briefly hold another class's rows while a new query is applied; the summary is
+        // recomputed when setAttendanceContext supplies the new class, so it is not asserted to match count here.
+        AttendanceSummary summary = AttendanceSummary.of(personListView.getItems(), attendanceClass, attendanceWeek);
+        rosterSummary.setText(summary.toString());
+        logger.fine("Updated attendance summary for " + attendanceClass + " week " + attendanceWeek + ": " + summary);
     }
 
     /** Clears both the selected row and its details after a successful query or deletion. */
