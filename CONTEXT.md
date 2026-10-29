@@ -1,5 +1,25 @@
 # TutorTrack team implementation context
 
+## Testing-guide class reference — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#111](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/111);
+  branch `fix-reported-issues`. Freshly fetched team master is still `b93206fb`,
+  already contained in the branch. The #110 diagram correction was pushed as
+  `9e043c9c` before starting this change.
+- Scope: corrected the unit-test example in `docs/Testing.md` from the nonexistent
+  `seedu.address.commons.StringUtilTest` to
+  `seedu.address.commons.util.StringUtilTest`, and linked the team source file.
+  No production code, test code or test configuration changed.
+- Validation: checked the package declaration, public class name and source path
+  locally and in fetched team master; the original incorrect reference is gone.
+  The existing XML report confirms this class passes. `./gradlew check coverage
+  --no-daemon` passed on macOS / Zulu Java 25.0.3 FX, reusing unchanged outputs
+  from the **428-test** run (zero failures/errors/skips). Repository scripts and
+  `git diff --check` passed. Windows, Jekyll rendering and packaged-app checks
+  were not performed for this documentation typo.
+- Status: owner authorized implementation, commit and push without another
+  confirmation. No PR or merge claimed. Assistance: OpenAI Codex.
+
 ## Student and legacy model diagram — 29 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); issue [#110](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/110);
