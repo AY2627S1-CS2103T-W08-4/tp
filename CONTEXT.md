@@ -12,9 +12,12 @@
   `./gradlew check coverage --no-daemon` passed **415 tests**, zero failures,
   errors or skips, both Checkstyle tasks and coverage generation. Repository scripts
   and staged/unstaged whitespace checks passed. Synthetic temporary data only.
-- Status: integration prepared for push; PR #76 is not yet merged. Remote CI on
-  this integration and Windows/Linux validation remain pending. Separate packaged-app
-  smoke checks and Jekyll rendering were not performed; release verification is separate.
+- Status: integration pushed as `0eaed2bf`; GitHub reports PR #76 conflict-free.
+  The owner authorized merge after this verification. The prior teammate approval
+  covers `2ae6e80`, not the integration. No Actions run/checks appeared after pushing
+  despite the fork workflow being active; no exact-head remote CI or Windows/Linux
+  result is claimed. Separate packaged-app smoke checks and Jekyll rendering were
+  not performed; release verification is separate. This handoff precedes the merge.
 - Historical entries below retain their dated status; #79 is now merged on master.
 - Assistance: OpenAI Codex for conflict resolution, verification and context updates.
 
