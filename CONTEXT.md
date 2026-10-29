@@ -1,5 +1,16 @@
 # TutorTrack team implementation context
 
+## Preserve concurrent team documentation refresh — 29 October 2026 (SGT)
+
+- Integrated newly arrived team master `331ce46f` / PR #116 into PR #114.
+  Retained current Ui/help screenshots, product guidance and the refreshed scope
+  while preserving names, keyboard instructions, optional legacy/student model
+  relationships and atomic-batch manual checks. Adopted the team's equivalent
+  unimplemented-legacy-tag note; retained unsupported mark-all/range/status limits.
+- Documentation-only merge: production/test sources match the validated 439-test
+  snapshot. Repository/whitespace checks passed. Existing Bundler/Jekyll and
+  platform verification gaps remain. Assistance: OpenAI Codex.
+
 ## Combined documentation audit and team sync — 29 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); PR #114 / issues #108–#112. Integrated team
@@ -228,6 +239,36 @@
 - Status: prepared for commit and push to the member fork at the owner's request.
   No PR, merge or publication claimed. Remaining: teammate PR review and integration.
 - Assistance: OpenAI Codex for link correction and verification.
+## v1.5 product screenshot and guide refresh — 29 October 2026
+
+- Owner: Aston (`aston-ish`); branch `codex/refresh-product-documentation`, updated to
+  team master `5024299d`. Documentation-only changes; the user will open the PR.
+- Scope: replace `docs/images/Ui.png` with a real application capture, use it on the
+  landing page and in the UG, correct the landing-page status, and clarify launch and
+  preference-recovery instructions. The audit also refreshes the Help screenshot,
+  corrects the DG's current feature scope and labels its alternative legacy design
+  as unimplemented. Existing AI acknowledgements are unchanged.
+- Capture: current v1.5 application built from master `5024299d`, Windows Java 25.0.4;
+  884 x 1135 PNG, fictional contacts only, six displayed students, attendance totals
+  and selected-student history. The main-window layout matches merged master.
+  Help is captured separately with the TutorTrack guide URL. Both images were
+  visually inspected; the app opened Help and exited normally using disposable data.
+- Integration: PR #105 merged at `e59ed71b`; PR #104 merged at `5024299d` on
+  29 October. Retained their implementation records and guide cleanup. PR #114 is
+  still open; its new name syntax is not documented as available here.
+- Validation: Windows Temurin Java 25.0.4, `gradlew.bat --no-daemon check coverage
+  shadowJar shadowJarMacArm` passed: 426 tests, zero failures/errors/skips,
+  Checkstyle, coverage and both JAR builds. Static audit passed 36 local/source
+  links, all 10 command sections against the parser, repository formatting and
+  whitespace checks. No unsupported feature is presented as available in the UG.
+  Production/test source is unchanged from master `5024299d`.
+- Limits: no fresh Mac/Linux execution; the fork Java CI workflow remains manually
+  disabled. Ruby/Bundler are unavailable, so the Jekyll site was not rendered locally.
+  Latest published release is v1.4; the refreshed guides explicitly target v1.5.
+- Remaining: user-created PR, teammate review, merge and deployed-site verification;
+  cross-platform checks and publication of the v1.5 release packages remain team work.
+
+
 ## v1.5 release candidate (29 October 2026, Ethan)
 
 PR #71, #79 and #76 are merged. The revised candidate integrates team master
@@ -425,7 +466,7 @@ A real teammate review is still required for this candidate's new changes.
 
 - Owner: Aston (`aston-ish`); issues [#95](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/95) and [#100](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/100); both assigned milestone v1.5.
 - Branch: `startup-recovery-fixes`, based on team master `5d84bc06`.
-- Implementation commit: `14d3d3d1`. Published in [PR #105](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/105); teammate review and merge remain pending. GitHub currently reports merge conflicts; recheck after pushing the follow-up. The fork's Java CI workflow is manually disabled, so the new follow-up has no remote validation yet.
+- Implementation commit: `14d3d3d1`; review follow-up `9829b34a`. [PR #105](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/105) merged on 29 October at `e59ed71b`, verified on GitHub. The validation below records the original local checks; it does not describe a fresh run against the integrated team branch.
 - Scope: reject trailing JSON content and additional JSON values; recover null GUI settings through the existing default-preferences path.
 - Integration: no dependency or data-schema changes. Existing student-data recovery and preference fallback are reused.
 - Regression evidence: four targeted tests reproduced the failures before the fixes. Seven new tests cover rejection, whitespace compatibility, file preservation and preference recovery.
