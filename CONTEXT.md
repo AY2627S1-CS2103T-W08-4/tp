@@ -1,5 +1,14 @@
 # TutorTrack team implementation context
 
+## Keep the model-paragraph correction on the audit branch — 29 October 2026
+
+- Preserved the concurrent PR #115 keyboard/direct-selection clarification.
+  Centralized its general model-diagram paragraph correction on
+  `docs-workflow-audit` alongside the broad testing guide, rather than retaining
+  duplicate fixes in the selection PR. Feature-specific guide changes stay here.
+- Documentation-only scope correction; production/test sources match the 451-test
+  validated snapshot. Repository and whitespace checks passed. Assistance: OpenAI Codex.
+
 ## Separate the documentation audit from selection — 29 October 2026 (SGT)
 
 - The owner requested a separate branch for the cross-cutting documentation audit.
