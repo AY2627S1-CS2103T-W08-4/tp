@@ -1,5 +1,6 @@
 package seedu.address.commons.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -9,6 +10,27 @@ import java.io.FileNotFoundException;
 import org.junit.jupiter.api.Test;
 
 public class StringUtilTest {
+
+    @Test
+    public void trimOrdinarySpaces_emptyAndBoundarySpaces_returnsExpectedText() {
+        // Empty/all-space inputs exercise the meeting-point of the two boundary scans.
+        for (String input : new String[]{"", " ", "    "}) {
+            assertEquals("", StringUtil.trimOrdinarySpaces(input));
+        }
+        for (String input : new String[]{"A B", " A B", "A B ", "  A B  "}) {
+            assertEquals("A B", StringUtil.trimOrdinarySpaces(input));
+        }
+        assertThrows(NullPointerException.class, () -> StringUtil.trimOrdinarySpaces(null));
+    }
+
+    @Test
+    public void trimOrdinarySpaces_otherWhitespace_isPreservedForValidation() {
+        // String.trim/strip would silently accept some forbidden whitespace in student commands.
+        for (String whitespace : new String[]{"\t", "\n", "\r", "\u0000", "\u00a0", "\u2003", "\u2028"}) {
+            String value = whitespace + " A  B " + whitespace;
+            assertEquals(value, StringUtil.trimOrdinarySpaces("  " + value + "  "));
+        }
+    }
 
     //---------------- Tests for isNonZeroUnsignedInteger --------------------------------------
 

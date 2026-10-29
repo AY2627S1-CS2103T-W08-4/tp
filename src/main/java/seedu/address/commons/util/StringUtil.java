@@ -13,6 +13,24 @@ import java.util.Arrays;
 public class StringUtil {
 
     /**
+     * Removes only surrounding U+0020 spaces in linear time. Internal spaces and all
+     * other whitespace remain available for the caller's validation. Unlike an
+     * end-anchored replacement regex, this does not rescan long internal space runs.
+     */
+    public static String trimOrdinarySpaces(String value) {
+        requireNonNull(value);
+        int start = 0;
+        int end = value.length();
+        while (start < end && value.charAt(start) == ' ') {
+            start++;
+        }
+        while (end > start && value.charAt(end - 1) == ' ') {
+            end--;
+        }
+        return value.substring(start, end);
+    }
+
+    /**
      * Returns true if the {@code sentence} contains the {@code word}.
      *   Ignores case, but a full word match is required.
      *   <br>examples:<pre>
