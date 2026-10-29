@@ -22,7 +22,18 @@
   Checkstyle, coverage, repository scripts and whitespace checks passed. Later
   audit edits affect documentation only. Windows, packaged-app manual checks
   and Jekyll rendering remain unverified. No new feature/release claim.
-- Assistance: OpenAI Codex. Status: preparing audit/merge commit for existing PR.
+- Follow-up: synchronized shared scope/parser wording with PR #114 so the two
+  PRs describe atomic batch behavior consistently. Added Testing-guide regression
+  coverage for selection, batch marking/deletion, contacts and legacy recovery;
+  verified every referenced test class exists and the test-class example resolves.
+  Added S17/UC07 and selection manual checks, command-summary/quick-start entries
+  and source-build availability. Reviewed the updated delete/architecture PNGs.
+- Final validation after branch synchronization: **438 tests**, zero failures,
+  errors or skips; full check/coverage, repository scripts and whitespace checks
+  passed. All 426 current team tests are preserved; 12 selection tests are added.
+  Guide command sections/summaries, image references and read-only commands were
+  checked. Jekyll rendering is blocked by missing locked Bundler 2.5.11.
+- Assistance: OpenAI Codex. Status: audit follow-up prepared for existing PR #115.
 
 ## Direct student selection — 29 October 2026 (SGT)
 

@@ -29,8 +29,27 @@ You can run tests in two ways.
 This project has three types of tests:
 
 1. *Unit tests* target the lowest-level methods and classes.<br>
-   For example: `seedu.address.commons.StringUtilTest`
+   For example: [`seedu.address.commons.util.StringUtilTest`](https://github.com/AY2627S1-CS2103T-W08-4/tp/blob/master/src/test/java/seedu/address/commons/util/StringUtilTest.java)
 1. *Integration tests* check how multiple code units work together; the individual units are assumed to work.<br>
    For example: `seedu.address.storage.StorageManagerTest`
 1. *Hybrid tests* combine unit and integration testing. These tests check both the individual units and how they work together.<br>
    For example: `seedu.address.logic.LogicManagerTest`
+
+
+## TutorTrack regression checks
+
+Run `./gradlew check coverage` (Windows: `gradlew.bat check coverage`) for the full
+suite, code style and coverage checks. Focused tests supplement this full run:
+
+| Area | Relevant tests |
+| --- | --- |
+| Read-only `select`, displayed indices and no storage writes | `SelectCommandParserTest`, `SelectCommandTest`, `StudentSelectionIntegrationTest` |
+| Selection/details/focus, invalid-input retention and roster context | `MvpRosterUiTest` |
+| Atomic multi-index attendance, deduplication, enrolment/bounds and unchanged batches | `MarkCommandParserTest`, `MarkCommandTest`, `AttendanceIntegrationTest`, `MvpRosterUiTest` |
+| Batch deletion, save-before-live-update and retry | `MvpRosterIntegrationTest`, `MvpRosterUiTest` |
+| Contact correction and attendance preservation | `StudentUpdateIntegrationTest` |
+| Legacy edit/Help recovery and read-only Help | `LegacyRecoveryIntegrationTest` |
+
+Use synthetic data and temporary storage. A passing suite does not establish
+packaged-JAR behavior or cross-platform keyboard navigation; see the DG's manual
+checks for selection, batch attendance/deletion and launch/reload workflows.

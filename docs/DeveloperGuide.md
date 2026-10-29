@@ -128,10 +128,9 @@ Here are the other classes in `Logic` (omitted from the class diagram above) tha
 <img src="images/ParserClasses.png" width="600"/>
 
 The parser-class diagram illustrates the inherited tokenizer-based parsing helpers,
-primarily used by legacy `edit`. Strict student parsers receive raw arguments;
-`SelectCommandParser` validates one index directly and does not use
-`ArgumentTokenizer`. The diagram is not a requirement that every parser uses all
-of these helpers.
+primarily used by legacy `edit`. Strict student parsers receive raw arguments and
+do not all use `ArgumentTokenizer`. The diagram is a catalogue of helpers, not a
+requirement that every parser uses all of them.
 
 How the parsing works:
 * When called upon to parse a user command, the `AddressBookParser` class creates an `XYZCommandParser` (`XYZ` is a placeholder for the specific command name, e.g., `AddCommandParser`). The parser uses the other classes shown above to parse the user command and create an `XYZCommand` object (e.g., `AddCommand`). The `AddressBookParser` returns that object as a `Command` object.
@@ -730,9 +729,9 @@ week; record, correct or clear attendance; and save, reload and exit. v1.4 adds
 name/email/Telegram correction while retaining attendance. Membership editing,
 GitHub usernames, project teams, participation points, tags, Telegram search and
 absence analytics remain outside the implemented student workflows. v1.5 extends
-the original MVP with atomic multi-student attendance; this source also adds
-read-only `select INDEX`. Mark-all, index ranges and mixed per-student statuses
-remain unsupported. These extensions do not rewrite the original MVP specification.
+the original MVP with atomic multi-student attendance. Mark-all, index ranges and
+mixed per-student statuses remain unsupported. These extensions do not rewrite
+the original MVP specification.
 
 **Domain rules from the MVP specification**:
 
