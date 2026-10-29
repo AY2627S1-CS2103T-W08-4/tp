@@ -33,6 +33,9 @@ import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.StorageManager;
 
+/**
+ * Verifies roster context, selection and details in a real JavaFX window.
+ */
 public class MvpRosterUiTest {
     @TempDir
     public Path directory;
@@ -89,6 +92,33 @@ public class MvpRosterUiTest {
             assertEquals("All students | 0 students", label("rosterHeading").getText());
             assertEquals("No students saved. Use add to create a student.", placeholderText());
         });
+    }
+
+    @Test
+    public void clear_invalidInputAndSaveFailure_preserveSelectionUntilSuccessfulRetry() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 1 m/CS2103T w/3 s/present");
+            Object selected = list().getSelectionModel().getSelectedItem();
+            String details = label("studentDetails").getText();
+            enter("clear 1");
+            assertEquals(selected, list().getSelectionModel().getSelectedItem());
+            assertEquals(details, label("studentDetails").getText());
+            assertEquals("clear 1", input().getText());
+            storage.fail = true;
+            enter("clear");
+            assertEquals(selected, list().getSelectionModel().getSelectedItem());
+            assertEquals(details, label("studentDetails").getText());
+            assertEquals("clear", input().getText());
+            assertEquals("CS2103T:T04 | Week 3 | 2 students", label("rosterHeading").getText());
+            storage.fail = false;
+            enter("clear");
+            assertNull(list().getSelectionModel().getSelectedItem());
+            assertFalse(stage.getScene().lookup("#studentDetailsPane").isVisible());
+            assertEquals("CS2103T:T04 | Week 3 | 0 students", label("rosterHeading").getText());
+            assertEquals("", input().getText());
+        });
+        assertTrue(storage.readAddressBook().orElseThrow().getPersonList().isEmpty());
     }
 
     @Test
