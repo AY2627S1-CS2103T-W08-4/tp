@@ -1,5 +1,31 @@
 # TutorTrack team implementation context
 
+## Keyboard navigation documentation — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue [#112](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/112);
+  branch `fix-reported-issues`. Freshly fetched upstream remains `b93206fb`,
+  already included in this branch. Retains the separate #109–#111 commits.
+- Scope: added UG instructions for Tab navigation from the command box through
+  results to the roster, Up/Down selection and details below the roster, and
+  Shift+Tab navigation back to the command box. Included list/class-view entry
+  points and empty-roster guidance. DG explains the existing JavaFX controls and
+  selection listener, with a link to the user instructions. No new selection
+  command, production behavior, storage format or committed tests changed.
+- Verification: inspected FXML focus order and PersonListPanel's selection
+  listener. A temporary test in the existing real-window JavaFX harness passed
+  with synthetic students: dispatched Tab events traversed input/results/roster,
+  Home/Down/Up selected rows and refreshed the visible details, and Shift+Tab
+  twice returned to the command field. The probe was removed after verification;
+  the test source is identical to its pre-change version. This was application
+  event dispatch, not physical-keyboard or packaged-JAR platform testing.
+- Final `./gradlew check coverage --no-daemon` on macOS / Zulu Java 25.0.3 FX
+  reran the full suite: **428 tests**, zero failures/errors/skips. Style checks,
+  coverage generation, repository scripts and `git diff --check` passed. Verified
+  the DG link matches the new UG heading. Windows, Jekyll rendering and separate
+  packaged-app checks were not performed.
+- Status: owner authorized implementation, commit and push without another
+  confirmation. No PR or merge claimed. Assistance: OpenAI Codex.
+
 ## Testing-guide class reference — 29 October 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); issue [#111](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/111);

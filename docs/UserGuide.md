@@ -52,6 +52,24 @@ examples. Updating the application does not replace your saved contacts.
 
 --------------------------------------------------------------------------------------------------------------------
 
+## Viewing student details with the keyboard
+
+You can browse student details without using the mouse:
+
+1. Enter `list` to show all students, or use `find c/COURSE:GROUP w/WEEK` to show a class.
+1. From the command box, press **Tab** until the roster (the list of students) has focus.
+   The command results area receives focus before the roster.
+1. Press **Up** or **Down** to select a student. Their name, Telegram handle, email,
+   class memberships and attendance details appear below the roster and update as
+   you change the selection. Selecting a student does not change their saved data.
+1. Press **Shift+Tab** until focus returns to the command box, passing through the
+   results area. You can then type your next command.
+
+If the roster is empty, there is no student to select. Use `list` to leave an empty
+class view, or `add` to create a student if no students have been saved.
+
+--------------------------------------------------------------------------------------------------------------------
+
 ## Features
 
 <div markdown="block" class="alert alert-info">

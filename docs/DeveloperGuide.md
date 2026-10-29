@@ -91,6 +91,13 @@ The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDi
 
 The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
 
+Keyboard navigation uses the standard JavaFX focus traversal: Tab moves from the
+command text field through the result text area to the roster `ListView`; Shift+Tab
+traverses in reverse. The list's Up/Down behavior changes selection, and
+`PersonListPanel`'s selection listener refreshes and shows `studentDetailsPane` for
+student profiles. This uses the existing controls rather than a selection command.
+See the [User Guide keyboard instructions](UserGuide.md#viewing-student-details-with-the-keyboard).
+
 The `UI` component,
 
 * executes user commands using the `Logic` component.
