@@ -33,10 +33,15 @@ Initial Mac display restrictions and a Windows PowerShell logging-wrapper error
 were corrected before successful reruns. No manual click-through is claimed.
 No final release or approval of these new fixes is claimed here.
 
-Git attribution retains teammates' original commits. Ethan's new changes use the
-existing `eatenquek` author identity. The course dashboard and its linked author
-configuration returned errors on 29 October; remote attribution needs a later
-check. Do not add author tags over code rewritten by another teammate.
+Git attribution retains teammates' original commits. RepoSense's published
+29 October 17:00 SGT report recognises `eatenquek` as Ethan and credits two
+surviving Java test lines; the old deletion implementation has since been
+rewritten by a teammate. No tags claim that rewritten code. PR #71 merged after
+that report, so the clear/recovery contributions need a later dashboard refresh.
+The linked author-config page returns404, but the public report data is readable.
+PR #104 contains this candidate; reviews requested from Eskalade and toomintyy.
+The existing Java CI workflow in Ethan's fork was disabled manually; enabled it
+to validate subsequent candidate updates.
 
 Codex assisted with investigation, implementation, documentation and reviews.
 A real teammate review is still required for this candidate's new changes.
