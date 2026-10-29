@@ -2,6 +2,7 @@ package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,12 +53,14 @@ public class MarkCommandParser implements Parser<MarkCommand> {
         if (indexText.isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, MarkCommand.MESSAGE_USAGE));
         }
-        int number;
+        List<Index> indices = new ArrayList<>();
         try {
-            if (!indexText.matches("[1-9][0-9]*")) {
-                throw new NumberFormatException();
+            for (String token : indexText.split(" +")) {
+                if (!token.matches("[1-9][0-9]*")) {
+                    throw new NumberFormatException();
+                }
+                indices.add(Index.fromOneBased(Integer.parseInt(token)));
             }
-            number = Integer.parseInt(indexText);
         } catch (NumberFormatException e) {
             throw new ParseException(INDEX_CONSTRAINTS);
         }
@@ -70,7 +73,7 @@ public class MarkCommandParser implements Parser<MarkCommand> {
             String course = AttendanceRecord.normalizeCourse(values.get("m"));
             AttendanceWeek week = new AttendanceWeek(values.get("w"));
             AttendanceStatus status = AttendanceStatus.fromString(values.get("s"));
-            return new MarkCommand(Index.fromOneBased(number), new AttendanceRecord(course, week, status));
+            return new MarkCommand(indices, new AttendanceRecord(course, week, status));
         } catch (IllegalArgumentException e) {
             throw new ParseException(e.getMessage(), e);
         }
