@@ -3,7 +3,7 @@ layout: page
 title: User Guide
 ---
 
-TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This guide covers the v1.4 source, including student contact correction with `update`. The published v1.3 JAR does not support `update`; use a v1.4 build for that command. TutorTrack supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
+TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This guide covers TutorTrack v1.5 and the direct-selection enhancement in the current source, including contact correction with `update` and attendance commands that accept multiple student indices. TutorTrack supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
 
 * Table of Contents
 {:toc}
@@ -33,18 +33,20 @@ examples. Updating the application does not replace your saved contacts.
 
 1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar addressbook.jar`.<br>
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
-   ![TutorTrack v1.3 roster](images/release-v1.3/roster.png)
+   ![TutorTrack class roster and attendance summary](images/ClassViewSummary.png)
 
 1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to open the help window.<br>
    Some example commands you can try:
 
-   * `list` : Lists all contacts.
+   * `list` : Lists all students.
+
+   * `select 1` : Shows the first displayed student's details in a build containing direct selection.
 
    * `add n/John Doe p/@johndoe e/johnd@example.com c/CS2103T:T04` : Adds a student named `John Doe`.
 
-   * `delete 3` : Deletes the 3rd contact shown in the current list.
+   * `delete 3` : Deletes the 3rd student shown in the current list.
 
-   * `clear` : Deletes all contacts.
+   * `clear` : Deletes all student records.
 
    * `exit` : Exits the app.
 
@@ -62,15 +64,15 @@ examples. Updating the application does not replace your saved contacts.
   For example, in `add n/NAME`, replace `NAME` with a value such as `John Doe`.
 
 * Items in square brackets are optional.<br>
-  For example, `n/NAME [t/TAG]` can be used as `n/John Doe t/friend` or as `n/John Doe`.
+  For example, `update INDEX [n/NAME] [e/EMAIL]` allows `update 1 n/John Doe` or `update 1 e/john@example.com`. At least one contact field is required.
 
-* Items followed by `…`​ can appear zero or more times.<br>
-  For example, `[t/TAG]…​` may be omitted, or written as `t/friend` or `t/friend t/family`.
+* An ellipsis (`...`) indicates repetition.<br>
+  For example, `mark INDEX [INDEX ...] m/COURSE w/WEEK s/STATUS` accepts one or more indices: `mark 1 m/CS2103T w/3 s/present` and `mark 1 2 m/CS2103T w/3 s/present` are both valid.
 
 * Parameters can be in any order.<br>
-  For example, if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
+  For example, `add p/@johndoe e/john@example.com c/CS2103T:T04 n/John Doe` has the same effect as putting `n/John Doe` first. For commands with indices, put all indices before the prefixed parameters.
 
-* Extraneous parameters for `help` and `clear` are ignored.<br>
+* Extraneous parameters for `help` are ignored.<br>
   For example, `help 123` is interpreted as `help`.
 
 * `list` takes no parameters. Extra input, including tabs or line breaks, produces a format error.<br>
@@ -158,6 +160,8 @@ Format: `list`
 
 Selects a displayed row and reveals the student's details below the roster without
 changing their saved data or moving focus away from the command box.
+Use a build containing this enhancement; published releases made before its
+integration do not support `select`.
 
 Format: `select INDEX`
 
@@ -217,7 +221,7 @@ command stays in the input box and the same recovery message as `add` is shown.
 Resolve the storage problem and resubmit. Membership editing is not supported;
 `update` cannot move a student between groups or erase attendance.
 
-### Editing a person: `edit`
+### Editing a legacy contact: `edit`
 
 Edits an existing **legacy phone/address contact**. Use `update` for student contacts; `edit` rejects student targets with guidance to that command.
 
@@ -232,6 +236,11 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`
 Examples:
 *  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
 *  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
+
+Successful legacy edits are saved before the full roster is shown and selection is
+cleared. If saving fails, the original contacts, view and selection remain intact,
+and the attempted command stays available for correction. Resolve the storage
+problem and retry; the recovery message is the same as for `add`.
 
 ### Viewing a class and teaching week: `find`
 
@@ -271,115 +280,11 @@ Examples of errors (the previous view stays unchanged):
 * Unknown parameter: `find c/CS2103T:T04 w/3 x/1` gives `Unknown parameter: x/.`
 * Name search: `find John` gives `Invalid command format!` followed by `Format: find c/COURSE:GROUP w/WEEK`.
 
-### Deleting students: `delete`
-
-Format: `delete INDEX [INDEX...]`
-
-Examples: `delete 1` or `delete 1 3 2`.
-
-Indices refer to the **currently displayed roster before the command**. Each must
-be an ASCII integer from 1 to 2147483647 without signs or leading zeros, and identify
-a displayed row. Every target is validated before any deletion. Repeated indices
-within one command delete that target once, in first-appearance order.
-
-Removal includes all memberships and attendance. Success reports
-`Deleted student(s): Alice | Carol`, retains the class/week filter, renumbers rows
-and clears selection/details. Deleting the final row shows the appropriate empty state.
-There is no confirmation dialog or undo. Repeating `delete 1` in a later submission
-targets the new row 1.
-
-Invalid indices and save failures leave all records, the view and selection unchanged.
-No success is reported until the complete batch is saved. Saving failures use the
-same recovery message as `add`.
-
-### Clearing all entries: `clear`
-
-Removes all students and legacy contacts, including their attendance records, even
-when a class filter hides some entries. This action has no undo.
-
-Format: `clear`
-
-Only surrounding ordinary spaces are accepted. Extra arguments such as `clear 1`
-or `clear n/Alice`, tabs and line breaks are rejected without saving or changing
-records. Use `delete INDEX [INDEX...]` to remove selected displayed students.
-
-TutorTrack saves the empty roster before clearing the screen. On success, the
-current class/week context remains and the selected student's details disappear.
-If saving fails, records, attendance, selection and the current view remain intact.
-Resolve the storage problem and enter `clear` again.
-
-### Exiting the program: `exit`
-
-Exits the program.
-
-Format: `exit`
-
-Surrounding spaces are accepted, for example `  exit  `. Extra arguments such as
-`exit 3`, `exit anything`, or `exit n/Alice` show the correct usage without closing
-the application or changing your data or current view. Enter `exit` to close the application.
-
-Exit saves your current data before closing the main window and any open Help window.
-Choosing **File > Exit** or the main window's close button uses the same save-before-close behavior.
-Your previously saved records are loaded when you launch the application again.
-
-If saving fails, the windows stay open and TutorTrack displays:
-
-> Unable to save changes. TutorTrack will remain open. Check available disk space and file permissions, then try again.
-
-Resolve the storage problem and try Exit again. The feedback wraps to keep the recovery instructions readable.
-
-### Saving the data
-
-TutorTrack saves accepted additions, contact updates, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list`, `find` and `select` are read-only. You do not need to save manually.
-
-### Editing the data file
-
-TutorTrack stores student data in `data/addressbook.json`, relative to the folder from which you launch the application. Follow the Quick Start instructions to launch it from your TutorTrack home folder.
-
-The data file must contain one complete JSON document. Trailing spaces and line breaks are accepted, but additional JSON values or other text are rejected. If loading fails, TutorTrack displays recovery instructions and leaves the original student data file unchanged.
-
-Close TutorTrack and make a copy of the data file before editing it manually.
-
-If an existing data file is unreadable or invalid, TutorTrack displays an **Unable to load student data** dialog showing the file's location and recovery instructions. It does not open an editable roster or overwrite the student data file. Closing the dialog exits the application.
-
-To recover:
-
-1. Check that you have permission to read the file.
-2. Repair the file or restore a valid copy, then reopen TutorTrack.
-3. To start fresh, move the existing file to a safe location before reopening.
-
-A missing data file starts TutorTrack with sample data. A valid saved empty roster remains empty.
-
-### Recovering window preferences
-
-TutorTrack stores window settings in `preferences.json`, relative to the folder from which you launch the application.
-
-If the preferences cannot be loaded, including when GUI settings are null, TutorTrack restores default window settings. This recovery does not change your saved student records.
-
-You may need to resize or reposition the window after recovery. TutorTrack saves the recovered preferences automatically.
-
---------------------------------------------------------------------------------------------------------------------
-
-## FAQ
-
-**Q**: How do I transfer my data to another computer?<br>
-**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous TutorTrack home folder.
-
---------------------------------------------------------------------------------------------------------------------
-
-## Known issues
-
-1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
-2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
-
---------------------------------------------------------------------------------------------------------------------
-
-## Recording, correcting and clearing attendance: `mark`
+### Recording, correcting and clearing attendance: `mark`
 
 Format: `mark INDEX [INDEX ...] m/COURSE w/WEEK s/STATUS`
 
-Multiple-index marking is an extension in this source version. Use a build containing
-the extension; the published v1.3 JAR supports only single-index marking.
+Multiple-index marking is available in v1.5. Earlier releases support only single-index marking.
 
 Examples:
 
@@ -445,13 +350,117 @@ their attendance; adding that contact again starts with no attendance records.
 Class/week queries display a badge for the requested course/week. Marking that context
 refreshes the badge immediately; marking another course/week preserves the displayed context.
 
+
+### Deleting students: `delete`
+
+Format: `delete INDEX [INDEX...]`
+
+Examples: `delete 1` or `delete 1 3 2`.
+
+Indices refer to the **currently displayed roster before the command**. Each must
+be an ASCII integer from 1 to 2147483647 without signs or leading zeros, and identify
+a displayed row. Every target is validated before any deletion. Repeated indices
+within one command delete that target once, in first-appearance order.
+
+Removal includes all memberships and attendance. Success reports
+`Deleted student(s): Alice | Carol`, retains the class/week filter, renumbers rows
+and clears selection/details. Deleting the final row shows the appropriate empty state.
+There is no confirmation dialog or undo. Repeating `delete 1` in a later submission
+targets the new row 1.
+
+Invalid indices and save failures leave all records, the view and selection unchanged.
+No success is reported until the complete batch is saved. Saving failures use the
+same recovery message as `add`.
+
+### Clearing all entries: `clear`
+
+Removes all students and legacy contacts, including their attendance records, even
+when a class filter hides some entries. This action has no undo.
+
+Format: `clear`
+
+Only surrounding ordinary spaces are accepted. Extra arguments such as `clear 1`
+or `clear n/Alice`, tabs and line breaks are rejected without saving or changing
+records. Use `delete INDEX [INDEX...]` to remove selected displayed students.
+
+TutorTrack saves the empty roster before clearing the screen. On success, the
+current class/week context remains and the selected student's details disappear.
+If saving fails, records, attendance, selection and the current view remain intact.
+Resolve the storage problem and enter `clear` again.
+
+### Exiting the program: `exit`
+
+Exits the program.
+
+Format: `exit`
+
+Surrounding spaces are accepted, for example `  exit  `. Extra arguments such as
+`exit 3`, `exit anything`, or `exit n/Alice` show the correct usage without closing
+the application or changing your data or current view. Enter `exit` to close the application.
+
+Exit saves your current data before closing the main window and any open Help window.
+Choosing **File > Exit** or the main window's close button uses the same save-before-close behavior.
+Your previously saved records are loaded when you launch the application again.
+
+If saving fails, the windows stay open and TutorTrack displays:
+
+> Unable to save changes. TutorTrack will remain open. Check available disk space and file permissions, then try again.
+
+Resolve the storage problem and try Exit again. The feedback wraps to keep the recovery instructions readable.
+
+### Saving the data
+
+TutorTrack saves accepted additions, contact updates, deletions, clear operations and attendance changes before reporting success, and saves before Exit. `list`, `find`, `help` and `select` are read-only. You do not need to save manually.
+
+### Editing the data file
+
+TutorTrack stores student data in `data/addressbook.json`, relative to the folder from which you launch the application. Follow the Quick Start instructions to launch it from your TutorTrack home folder.
+
+The data file must contain one complete JSON document. Trailing spaces and line breaks are accepted, but additional JSON values or other text are rejected. If loading fails, TutorTrack displays recovery instructions and leaves the original student data file unchanged.
+
+Close TutorTrack and make a copy of the data file before editing it manually.
+
+If an existing data file is unreadable or invalid, TutorTrack displays an **Unable to load student data** dialog showing the file's location and recovery instructions. It does not open an editable roster or overwrite the student data file. Closing the dialog exits the application.
+
+To recover:
+
+1. Check that you have permission to read the file.
+2. Repair the file or restore a valid copy, then reopen TutorTrack.
+3. To start fresh, move the existing file to a safe location before reopening.
+
+A missing data file starts TutorTrack with sample data. A valid saved empty roster remains empty.
+
+### Recovering window preferences
+
+TutorTrack stores window settings in `preferences.json`, relative to the folder from which you launch the application.
+
+If the preferences cannot be loaded, including when GUI settings are null, TutorTrack restores default window settings. This recovery does not change your saved student records.
+
+You may need to resize or reposition the window after recovery. TutorTrack saves the recovered preferences automatically.
+
+--------------------------------------------------------------------------------------------------------------------
+
+## FAQ
+
+**Q**: How do I transfer my data to another computer?<br>
+**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous TutorTrack home folder.
+
+--------------------------------------------------------------------------------------------------------------------
+
+## Known issues
+
+1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
+2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
+
+--------------------------------------------------------------------------------------------------------------------
+
 ## Command summary
 
 Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME p/TELEGRAM e/EMAIL c/COURSE:GROUP [c/COURSE:GROUP ...]`<br>e.g., `add n/John Doe p/@johndoe e/john@example.com c/CS2103T:T04`
 **Clear** | `clear`
-**Delete** | `delete INDEX [INDEX...]`<br> e.g., `delete 3`
+**Delete** | `delete INDEX [INDEX...]`<br> e.g., `delete 1 3 2`
 **Update** | `update INDEX [n/NAME] [p/TELEGRAM] [e/EMAIL]`<br>e.g., `update 1 e/new@example.com`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Find** | `find c/COURSE:GROUP w/WEEK`<br> e.g., `find c/CS2103T:T04 w/3`
