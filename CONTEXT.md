@@ -13,6 +13,21 @@
   --no-daemon`: **451 tests**, zero failures/errors/skips, style and coverage
   passed. Repository scripts and whitespace checks passed. Windows, packaged-app
   checks and Jekyll rendering remain unverified. Assistance: OpenAI Codex.
+## PR #115 conflict resolution — 29 October 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); issue #113 / PR #115. Merged team master
+  `f36d03b6`, including merged PR #114, into `113-select-student`.
+- Resolved the additive context conflict by preserving both PR histories. Kept
+  the selection command together with the relationship-marker name changes,
+  updated model diagram, keyboard guidance and corrected testing reference.
+- Earlier statements about PR #114 being separate/unmerged are dated history;
+  PR #114 is now included through team master. PR #115 remains open for review.
+- Validation: macOS / Zulu Java 25.0.3 FX `./gradlew check coverage --no-daemon`
+  passed 451 tests, 0 failures, 0 errors and 0 skips; Checkstyle,
+  coverage, repository scripts and whitespace checks passed. No tests removed.
+  Reconciled the model/keyboard guide wording after automatic documentation merging.
+  Windows and packaged-app manual verification are unavailable in this session.
+- Assistance: OpenAI Codex.
 
 ## Preserve concurrent team documentation refresh — 29 October 2026 (SGT)
 
@@ -108,6 +123,7 @@
   review and cross-platform checks remain before merge/release. This handoff
   changes only CONTEXT.md; the validated production/test snapshot is unchanged.
   Assistance: OpenAI Codex.
+## PR #114 documentation refresh — 29 October 2026 (SGT)
 
 - Integrated newly arrived team master `331ce46f` / PR #116 into PR #114.
   Retained current Ui/help screenshots, product guidance and the refreshed scope

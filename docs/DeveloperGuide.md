@@ -105,7 +105,8 @@ Keyboard navigation uses the standard JavaFX focus traversal: Tab moves from the
 command text field through the result text area to the roster `ListView`; Shift+Tab
 traverses in reverse. The list's Up/Down behavior changes selection, and
 `PersonListPanel`'s selection listener refreshes and shows `studentDetailsPane` for
-student profiles. This uses the existing controls rather than a selection command.
+student profiles. Keyboard traversal uses these controls; `select INDEX` provides
+a direct command-box alternative using the same selection listener.
 See the [User Guide keyboard instructions](UserGuide.md#viewing-student-details-with-the-keyboard).
 
 The `UI` component,
@@ -180,10 +181,10 @@ course/week means Unrecorded. Check `isStudent()` before using legacy-only gette
 See [Add-student integration](#add-student-integration-v13) and
 [Record and correct attendance](#record-and-correct-attendance) for implementation details.
 
-This inherited diagram shows shared and legacy contact fields. Student profiles
+The diagram includes shared, legacy and student contact fields. Student profiles
 use the same `Person` class, with a `TelegramHandle`, course/group memberships and
-attendance records instead of legacy phone/address fields. Those student fields
-are omitted from this diagram; see the add-student and attendance sections below.
+attendance records instead of legacy phone/address fields. See the add-student
+and attendance sections below for their behavior.
 
 The `Model` component,
 
