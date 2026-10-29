@@ -40,7 +40,12 @@ public class JsonUserPrefsStorage {
      * @throws DataLoadingException if the file format is not as expected.
      */
     public Optional<UserPrefs> readUserPrefs(Path prefsFilePath) throws DataLoadingException {
-        return JsonUtil.readJsonFile(prefsFilePath, UserPrefs.class);
+        Optional<UserPrefs> preferences = JsonUtil.readJsonFile(prefsFilePath, UserPrefs.class);
+        // Field-based deserialization bypasses the model setter's non-null invariant.
+        if (preferences.isPresent() && preferences.orElseThrow().getGuiSettings() == null) {
+            throw new DataLoadingException(new IOException("GUI settings must not be null."));
+        }
+        return preferences;
     }
 
     /**

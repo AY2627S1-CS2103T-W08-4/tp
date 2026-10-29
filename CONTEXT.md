@@ -1,5 +1,40 @@
 # TutorTrack team implementation context
 
+## v1.5 release candidate (29 October 2026, Ethan)
+
+PR #71 is merged as 5d84bc06. This branch preserves the reviewed PR #79
+contact hardening and approved PR #76 batch attendance commits, resolving their
+shared logic/UI-test conflicts without dropping either set of regressions.
+
+Alpha testing against the packaged current-master JAR produced Ethan's reports
+#94, #96, #97, #98 and #99. The exact JAR SHA-256 is
+`ea273bb847db37df09f29afc2c58e35d707b3ba6804b610a338153d67310e43f`.
+Testing used an isolated writable folder, Java 25 and real JSON/permission probes;
+this evidence does not claim a manual GUI click-through.
+
+The candidate fixes atomic legacy edit publication (#94), read-only Help (#81)
+and its TutorTrack guide link (#80). It rejects trailing JSON (#95) and invalid
+null GUI settings (#100) through existing startup recovery paths. Regression
+checks first reproduced the two storage defects. Documentation fixes cover
+#87/#88/#97/#98/#99, with rendered transaction diagrams and an actual UI image.
+
+Mac Java 25.0.3 integration checks passed 419 tests before the startup fixes;
+startup/storage fixes passed 424 tests before the added startup fallback test.
+Final Mac Java25 checks pass 425 tests, zero failures/errors/skips, with
+Checkstyle and both release JAR builds. Packaged-JAR command/storage probes pass
+add/find/batch mark/update/invalid clear/delete/exit/reload/clear/help/corrupt JSON.
+Independent AI review found no introduced blockers; Windows checks follow.
+No final release or approval of these new fixes is claimed here.
+
+Git attribution retains teammates' original commits. Ethan's new changes use the
+existing `eatenquek` author identity. The course dashboard and its linked author
+configuration returned errors on 29 October; remote attribution needs a later
+check. Do not add author tags over code rewritten by another teammate.
+
+Codex assisted with investigation, implementation, documentation and reviews.
+A real teammate review is still required for this candidate's new changes.
+
+
 ## Ethan v1.5 release recovery — 29 October 2026
 
 - Owner eatenquek; alpha reports #94 and #96–#99 are distinct runtime, packaging
