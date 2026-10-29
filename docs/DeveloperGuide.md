@@ -15,6 +15,7 @@ title: Developer Guide
   save-before-publish clear behavior, add parser/storage/JavaFX regressions, and
   update the guides. The fix reuses the team's existing model and storage contracts.
 * Vincent also used OpenAI Codex for v1.4 scope planning, student contact updates, regression tests, the sequence diagram and related documentation. The implementation reuses team value types and the existing attendance transaction pattern; Vincent must understand and review the generated work.
+* Vincent used OpenAI Codex for v1.5 contact-validation performance analysis, the linear-time trimming fix, boundary/recovery/UI tests and documentation. This increment reuses the existing team storage and JavaFX test harness; it does not take over teammate features.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to assist with parts of the class membership, `list` and class-view work.
 * Min Thi Ha used OpenAI Codex for attendance recovery and contact-update integration tests,
@@ -211,6 +212,40 @@ heading and attendance remain correct. Restart and check the updated contacts.
 Attempt the other student's email, a repeated prefix, `update 0 n/Alice`, and an
 empty `p/`; each must leave the existing profile intact. With an unwritable data
 location, a changed update must fail while a normalized no-op still succeeds.
+
+
+#### v1.5 contact hardening
+
+Tracked in [#77](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/77), with the
+reproduced alpha defect in [#78](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/78).
+`StringUtil.trimOrdinarySpaces` scans the two boundaries once. Name, student email,
+Telegram and update-index validation use it instead of `^ +| +$` replacement.
+The previous regex repeatedly scanned long internal space runs; because command
+execution occurs on the JavaFX thread, pasted input could stall the window.
+The helper removes only U+0020 and leaves internal/control/Unicode whitespace to
+existing validators. Name normalization still uses NFC and collapses ordinary spaces.
+The command grammar, error messages, transaction order and storage schema are unchanged.
+
+| Test | Risk covered |
+| --- | --- |
+| `StringUtilTest` | Empty/all-space boundaries, internal spaces and preservation of unsupported whitespace |
+| `StudentValidationTest` | Unicode name lengths, email boundaries, locale and a reproduced large-spacing regression |
+| `StudentContactParserTest` | Contact parameter order, per-field unsupported whitespace and large pasted inputs through the main parser |
+| `StudentContactAcceptanceTest` | Maximum contacts through JSON, one-over-limit rejection without writes, normalized no-op, restart/contact reuse and permission failure/retry |
+| `MvpRosterUiTest` | Failed add keeps selection/details/context/input; retry selects the new row; invalid update of another row preserves selection; no-op selects without saving |
+
+The performance checks use 100,000 internal spaces and a generous two-second budget
+for a regression that previously took several seconds per field. They are not a
+microbenchmark. Other tests vary one invalid contact at a time so one failure cannot
+mask another missing validation. Permission errors are injected at the storage
+boundary; successful paths use real temporary JSON files. All data is synthetic.
+
+Run `./gradlew check coverage shadowJar shadowJarMacArm` and `.github/run-checks.sh`.
+Read the current validation/status in `CONTEXT.md`; coverage alone does not establish
+beta readiness. Packaged acceptance should repeat add, filtered update, collision,
+no-op and restart on the release JAR, checking contacts, memberships, attendance,
+row selection and the class/week heading. Separate OS packaging and teammate feature
+acceptance remain release gates.
 
 
 This section describes some noteworthy details on how certain features are implemented.

@@ -232,6 +232,63 @@ public class MvpRosterUiTest {
         });
     }
 
+    @Test
+    public void add_failedSave_keepsSelectedAttendanceAndRetrySelectsNewStudent() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 1 m/CS2103T w/3 s/present");
+            Object selected = list().getSelectionModel().getSelectedItem();
+            String details = label("studentDetails").getText();
+            List<Person> before = displayedStudents();
+            String command = "add n/Carol p/@carol_1 e/carol@example.com c/MA2001:T01";
+
+            // A failed add must not reset the class view or steal the current selection.
+            storage.fail = true;
+            enter(command);
+            assertEquals(LogicManager.ADD_SAVE_ERROR, feedback());
+            assertEquals(selected, list().getSelectionModel().getSelectedItem());
+            assertEquals(details, label("studentDetails").getText());
+            assertEquals(before, displayedStudents());
+            assertEquals("CS2103T:T04 | Week 3 | 2 students", label("rosterHeading").getText());
+            assertEquals(command, input().getText());
+
+            storage.fail = false;
+            enter(command);
+            assertEquals("New student added: Carol.", feedback());
+            assertEquals("All students | 3 students", label("rosterHeading").getText());
+            assertEquals(2, list().getSelectionModel().getSelectedIndex());
+            assertTrue(label("studentDetails").getText().contains("No attendance recorded."));
+            assertEquals("", input().getText());
+        });
+    }
+
+    @Test
+    public void update_invalidOtherStudent_preservesSelectionThenNoOpSelectsTarget() throws Exception {
+        runOnFxThread(() -> {
+            enter("find c/CS2103T:T04 w/3");
+            enter("mark 1 m/CS2103T w/3 s/present");
+            Object selected = list().getSelectionModel().getSelectedItem();
+            String details = label("studentDetails").getText();
+            List<Person> before = displayedStudents();
+            // Both parse errors and uniqueness failures leave Alice selected while editing Bobby.
+            for (String command : List.of("update 2 e/alice@example.com", "update 2 p/@ALICE_1",
+                    "update 2 n/", "update 2 e/new@example.com e/other@example.com")) {
+                enter(command);
+                assertEquals(selected, list().getSelectionModel().getSelectedItem(), command);
+                assertEquals(details, label("studentDetails").getText(), command);
+                assertEquals(before, displayedStudents(), command);
+                assertEquals(command, input().getText(), command);
+            }
+            storage.fail = true;
+            enter("update 2 n/Bobby");
+            assertEquals("Student unchanged: Bobby.", feedback());
+            assertEquals(1, list().getSelectionModel().getSelectedIndex());
+            assertTrue(label("studentDetails").getText().contains("Bobby"));
+            assertEquals("CS2103T:T04 | Week 3 | 2 students", label("rosterHeading").getText());
+            assertEquals("", input().getText());
+        });
+    }
+
     private List<Person> displayedStudents() {
         return list().getItems().stream().map(Person.class::cast).toList();
     }

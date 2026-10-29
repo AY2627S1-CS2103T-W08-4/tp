@@ -2,6 +2,7 @@ package seedu.address.model.person;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
+import static seedu.address.commons.util.StringUtil.trimOrdinarySpaces;
 
 import java.text.Normalizer;
 
@@ -57,7 +58,7 @@ public class Name {
     }
 
     private static String normalizeStudentName(String name) {
-        return Normalizer.normalize(name, Normalizer.Form.NFC).replaceAll("^ +| +$", "").replaceAll(" +", " ");
+        return trimOrdinarySpaces(Normalizer.normalize(name, Normalizer.Form.NFC)).replaceAll(" +", " ");
     }
 
     /**

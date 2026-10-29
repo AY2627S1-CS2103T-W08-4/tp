@@ -1,5 +1,68 @@
 # TutorTrack team implementation context
 
+## PR #79 integration — 29 October 2026 (SGT)
+
+- Owner: Vincent Peh (`Eskalade`); issues [#77](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/77) and [#78](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/78), v1.5; [PR #79](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/79).
+- Integrated team master `5d84bc06` (including merged #71). The only conflict was
+  this handoff; retained both owners' records. Java, tests and guide merges were automatic.
+- Ethan approved original head `69a6abe9`; that approval predates this integration.
+- Actual local validation: `./gradlew check coverage` passed, 397 tests,
+  zero failures/errors/skips, both Checkstyle tasks and coverage generation passed.
+- Status: integration pushed as `27aad58b`; GitHub retains Ethan's approval and
+  reports no conflicts. Merge pending at this handoff. Fork Java CI is manually
+  disabled, so no new remote run is available; prior-head CI passed.
+  Release verification remains separate. OpenAI Codex assisted conflict resolution.
+
+## Active v1.5 contact hardening — verified 28 October 2026 (SGT)
+
+- Owner: Vincent Peh (`Eskalade`); branch `codex/student-hardening-v15` in his fork.
+  Base: current team master `5d155e5ef0b235c44d250706865ea50130101d7a`.
+- Scope: Vincent's add student and contact update only. Linear-time ordinary-space
+  trimming fixes a reproduced pasted-input stall; commented tests strengthen contact
+  boundaries, normalization, persistence, recovery and UI behavior. UG/DG updated.
+- Issues: [#77](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/77) (implementation)
+  and [#78](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/78) (`alpha-bug`),
+  self-assigned under v1.5. Published for teammate review in
+  [PR #79](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/79), not merged or released.
+  Remote CI is running; consult PR checks before merge.
+- Live state: GitHub confirms #64 merged at `3c5c440c`; current team master includes
+  subsequent integration. Teammate PRs #71 (clear) and #76 (batch attendance) remain
+  open on 28 October. Historical pending-status statements below are dated snapshots.
+- Reproduction: on unmodified master, the new 100,000-space name regression failed
+  its two-second budget. A separate 50,000-space probe took 1,928 ms before the fix
+  and 1 ms after it on this machine; timings are observations, not performance promises.
+- Validation: `./gradlew check coverage` passed on Zulu Java 25.0.3 FX: **391 tests**,
+  zero failures/errors/skips (baseline: 377). Checkstyle and coverage generation
+  passed; both JAR tasks, `.github/run-checks.sh` and `git diff --check` passed.
+  Add/Update parsers, Name, Email and TelegramHandle: 100% line/branch coverage.
+  AddCommand: 100% line/branch; UpdateCommand: 32/33 lines, 24/30 branches.
+  The new trimming method has 100% line/branch coverage. No claim of global 100% coverage.
+- Packaged verification: standard JAR on Zulu Java 25.0.3 FX and ARM JAR on plain
+  Temurin Java 25.0.4 each passed instrumented real-window add/update/collision/
+  long-input tests and separate-JVM JSON reload. Memberships, attendance, filtered
+  indices, selected row and heading were checked. ARM reload screenshot inspected.
+  Isolated evidence: `/private/tmp/tutortrack-v15-probe/` (local, not committed).
+- Integration: additive StringUtil helper; no shared Person/schema/transaction
+  changes. Contact validation rules and error text are preserved. Teammate-owned
+  ClassMembership and other validators still contain similar trimming regexes;
+  their owners should assess long malformed inputs. Those features were not changed.
+- Remaining: teammate review, exact-head remote CI and team integration; test final
+  release JARs and guides on supported OSes. Windows/Linux packaged execution and
+  Jekyll site rendering were not verified locally. This increment is not the team
+  v1.5 release, and does not establish that all features are bug-free.
+- Course: v1.5 due 29 October 23:59 SGT; the course asks each student to submit at
+  least five `alpha-bug` reports. This increment records one reproduced defect,
+  not five independent reports. Continue authentic alpha testing; do not invent bugs.
+- Assistance: OpenAI Codex, credited in DG; reused team models, JSON storage,
+  SE-EDU AB3 architecture and existing JavaFX test infrastructure.
+
+### Recent history
+
+- 2026-10-28: Vincent reproduced and fixed contact trimming stall; added 14 tests,
+  passed local validation and both packaged contact workflows. Review/merge pending.
+- 2026-10-28: verified prior contact-update PR #64 is merged, superseding its old handoff.
+
+## Historical handoffs (status applies only to the date of each entry)
 ## Ethan clear safety integration — 29 October 2026
 
 - Owner eatenquek; PR71 has approvals from jianyang999 and Eskalade at71ab4b87.
