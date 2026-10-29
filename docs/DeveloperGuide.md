@@ -549,13 +549,25 @@ If loading fails, initialization stops before creating the model, logic or main 
 
 Editable source: [StartupActivityDiagram.puml](diagrams/StartupActivityDiagram.puml).
 
+### JSON completeness and preference recovery
+
+`JsonUtil.fromJsonString()` reads one JSON value through a `JsonParser`, then checks for further tokens before returning. Additional JSON values cause an `IOException`; malformed trailing text also fails parsing. Surrounding JSON whitespace remains valid. The parser is closed using try-with-resources.
+
+The existing file-loading layer wraps parsing failures in `DataLoadingException`. For student data, this activates the existing startup recovery dialog without opening an editable roster or overwriting the original file.
+
+`JsonUserPrefsStorage.readUserPrefs()` also rejects a loaded preferences object whose GUI settings are null. It reports `DataLoadingException`, allowing `MainApp.initPrefs()` to reuse its existing default-preferences recovery path. The recovered preferences are saved; student data remains unchanged.
+
 ### Persistence and Exit verification
 
 `MainAppTest` covers invalid and unreadable data, recovery after repair, missing files and saved empty rosters. `DataLoadingErrorTest` checks the recovery dialog. `PersistenceWorkflowTest` verifies add, update, attendance correction/clearing, deletion and preference restoration through a fresh application initialization.
 
 `MainWindowExitTest` additionally verifies that typed, menu and window-close Exit failures preserve updated student data, selection, details and class context, followed by successful retry and reload.
 
-Local validation on Windows with Temurin Java 25.0.4 passed: **362 tests, zero failures/errors/skips**, Checkstyle, coverage generation, repository formatting checks and both JAR builds. Instrumented Windows packaged-app checks passed through separate creation and reload processes, plus invalid-data startup and shutdown. The Mac ARM package was built but not run.
+Seven new regression tests cover trailing garbage, additional JSON values, accepted surrounding whitespace, null GUI settings, original-file preservation and successful startup after preference recovery. The preferences-storage and startup tests also use a valid, non-default preferences object followed by a second JSON value or garbage. They verify `DataLoadingException` and unchanged original preference bytes before recovery, then default settings, unchanged student data and reloadable recovered preferences at startup.
+
+On Windows with Temurin Java 25.0.4, `gradlew.bat check coverage shadowJar shadowJarMacArm` passed: **390 tests, zero failures/errors/skips**, both Checkstyle tasks, coverage generation and both JAR builds. Repository formatting checks and `git diff --check` also passed.
+
+Instrumented Windows packaged-app checks confirmed that trailing invalid JSON displays recovery guidance and preserves the original file. Null GUI settings recovered to defaults, retained the existing student and allowed normal shutdown. The Mac ARM package was built but not run; Mac execution remains unverified.
 
 ### View-class foundation: class memberships
 
@@ -1076,7 +1088,12 @@ Use an isolated test folder and synthetic data.
    Expected: the saved records load successfully.
 5. Repeat with `{"persons":[]}`.
    Expected: an empty roster opens without sample records.
-1. _{ more test cases …​ }_
+6. Append `THIS IS NOT VALID JSON` after the closing brace of a valid student data file.
+   Expected: startup displays recovery guidance; closing the dialog exits without changing the file.
+7. Restore the valid file, append a second JSON object, and relaunch.
+   Expected: the same rejection and unchanged file.
+8. Restore valid student data and set `preferences.json` to `{"guiSettings":null}`.
+   Expected: the main window opens with default window settings, the original students remain available, and normal Exit works.
 
 ### First-run sample students
 
