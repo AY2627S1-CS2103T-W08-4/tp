@@ -19,8 +19,14 @@ PR #104; teammate PR #105 owns that work. Documentation fixes cover
 #87/#88/#97/#98/#99, with rendered transaction diagrams and an actual UI image.
 
 Current revised validation: Mac Java 25.0.3 `check coverage` passes 419 tests,
-zero failures/errors/skips, Checkstyle and repository checks. Final Windows
-validation is pending for the revised snapshot.
+zero failures/errors/skips, Checkstyle and repository checks. Windows 11,
+Zulu Java 25.0.3, also passes 419 tests with zero failures/errors/skips and
+zero Checkstyle errors. Tested source: `add0a7eb40ee75644fcf8a265fc277cfbf747a3d`.
+Transferred archive SHA-256:
+`1afefb658255efe6b2ca6df613b9a66b95d32078f03cdc68d6227ce5f1f769e7`.
+Later changes only record this evidence. The five startup source/test files
+match team master; no closing keywords for the two removed issues remain in
+the candidate commit messages. PR #105 retains ownership of that work.
 
 ### Historical verification before removing the overlapping startup fixes
 
