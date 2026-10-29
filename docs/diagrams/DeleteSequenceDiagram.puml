@@ -3,68 +3,62 @@
 skinparam ArrowFontStyle plain
 
 box Logic LOGIC_COLOR_T1
-participant ":LogicManager" as LogicManager LOGIC_COLOR
-participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
-participant ":DeleteCommandParser" as DeleteCommandParser LOGIC_COLOR
-participant "d:DeleteCommand" as DeleteCommand LOGIC_COLOR
-participant "r:CommandResult" as CommandResult LOGIC_COLOR
+participant ":LogicManager" as logic LOGIC_COLOR
+participant ":AddressBookParser" as parser LOGIC_COLOR
+participant "d:DeleteCommand" as command LOGIC_COLOR
 end box
-
 box Model MODEL_COLOR_T1
-participant "m:Model" as Model MODEL_COLOR
+participant "live:Model" as live MODEL_COLOR
+participant "candidate:ModelManager" as candidate MODEL_COLOR
 end box
+participant ":Storage" as storage STORAGE_COLOR
 
-[-> LogicManager : execute("delete 1")
-activate LogicManager
+[-> logic : execute("delete 1")
+activate logic
+logic -> parser : parseCommand("delete 1")
+activate parser
+parser --> logic : d
+deactivate parser
+note over parser, command
+DeleteCommandParser constructs d.
+Parser and command creation are omitted.
+end note
+logic -> command : getTargets(live)
+activate command
+command -> live : getFilteredPersonList()
+activate live
+live --> command : displayed roster
+deactivate live
+command --> logic : targets = [p]
+deactivate command
 
-LogicManager -> AddressBookParser : parseCommand("delete 1")
-activate AddressBookParser
-
-create DeleteCommandParser
-AddressBookParser -> DeleteCommandParser
-activate DeleteCommandParser
-
-DeleteCommandParser --> AddressBookParser
-deactivate DeleteCommandParser
-
-AddressBookParser -> DeleteCommandParser : parse("1")
-activate DeleteCommandParser
-
-create DeleteCommand
-DeleteCommandParser -> DeleteCommand
-activate DeleteCommand
-
-DeleteCommand --> DeleteCommandParser :
-deactivate DeleteCommand
-
-DeleteCommandParser --> AddressBookParser : d
-deactivate DeleteCommandParser
-'Hidden arrow to position the destroy marker below the end of the activation bar.
-DeleteCommandParser -[hidden]-> AddressBookParser
-destroy DeleteCommandParser
-
-AddressBookParser --> LogicManager : d
-deactivate AddressBookParser
-
-LogicManager -> DeleteCommand : execute(m)
-activate DeleteCommand
-
-DeleteCommand -> Model : deletePerson(1)
-activate Model
-
-Model --> DeleteCommand
-deactivate Model
-
-create CommandResult
-DeleteCommand -> CommandResult
-activate CommandResult
-
-CommandResult --> DeleteCommand
-deactivate CommandResult
-
-DeleteCommand --> LogicManager : r
-deactivate DeleteCommand
-
-[<--LogicManager
-deactivate LogicManager
+create candidate
+logic -> candidate : new ModelManager(live.getAddressBook(), live.getUserPrefs())
+note over logic, candidate
+Candidate filter is set to the pre-command display.
+Filter setup and repeated target lookup are omitted.
+end note
+logic -> command : execute(candidate)
+activate command
+command -> candidate : deletePerson(p)
+activate candidate
+candidate --> command
+deactivate candidate
+command --> logic : r:CommandResult
+deactivate command
+logic -> storage : saveAddressBook(candidate.getAddressBook())
+activate storage
+alt save succeeds
+    storage --> logic
+    logic -> live : deletePerson(p)
+    activate live
+    live --> logic
+    deactivate live
+    [<-- logic : r
+else IOException
+    storage --> logic : throws IOException
+    [<-- logic : throws CommandException
+end
+deactivate storage
+deactivate logic
 @enduml

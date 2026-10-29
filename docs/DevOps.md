@@ -73,7 +73,7 @@ Any warnings or errors will be printed out to the console.
 
 Here are the steps to create a new release.
 
-1. Update the version number in [`MainApp.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/MainApp.java).
+1. Update the version number in [`MainApp.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/MainApp.java).
 1. Run `./gradlew check coverage shadowJar shadowJarMacArm` and `./.github/run-checks.sh`.
    `build/libs/addressbook.jar` is the standard build; `build/libs/tutortrack-macos-arm64.jar`
    is a separate Apple Silicon build. The additional task keeps ARM and Intel native libraries

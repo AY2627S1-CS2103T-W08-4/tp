@@ -13,7 +13,9 @@ title: Developer Guide
   implement and test the Telegram handle value type and v1.3 add-student integration, and draft the related UG/DG and implementation context. The integration reuses the team’s `ClassMembership` type and existing SE-EDU AB3 architecture.
 * Ethan Quek used OpenAI Codex to investigate issue #62, implement strict and
   save-before-publish clear behavior, add parser/storage/JavaFX regressions, and
-  update the guides. The fix reuses the team's existing model and storage contracts.
+  update the guides. Ethan also used Codex for v1.5 alpha-bug investigation,
+  transactional legacy-edit recovery, Help behavior and the documentation/diagram
+  corrections. The work reuses the team's existing model and storage contracts.
 * Vincent also used OpenAI Codex for v1.4 scope planning, student contact updates, regression tests, the sequence diagram and related documentation. The implementation reuses team value types and the existing attendance transaction pattern; Vincent must understand and review the generated work.
 * Vincent used OpenAI Codex for v1.5 contact-validation performance analysis, the linear-time trimming fix, boundary/recovery/UI tests and documentation. This increment reuses the existing team storage and JavaFX test harness; it does not take over teammate features.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
@@ -49,7 +51,7 @@ The following provides a quick overview of the main components and their interac
 
 **Main components of the architecture**
 
-**`Main`** (consisting of classes [`Main`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
+**`Main`** (consisting of classes [`Main`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
 * At app launch, it initializes the other components in the correct sequence, and connects them up with each other.
 * At shut down, it shuts down the other components and invokes cleanup methods where necessary.
 
@@ -66,7 +68,7 @@ The bulk of the app's work is done by the following four components:
 
 The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete 1`.
 
-<img src="images/ArchitectureSequenceDiagram.png" width="574" />
+<img src="images/ArchitectureSequenceDiagram.png" alt="Delete architecture sequence showing candidate saving before live deletion" width="1000" />
 
 Each of the four main components (also shown in the diagram above),
 
@@ -81,13 +83,13 @@ The sections below give more details of each component.
 
 ### UI component
 
-The **API** of this component is specified in [`Ui.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/Ui.java)
+The **API** of this component is specified in [`Ui.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/ui/Ui.java)
 
 ![Structure of the UI Component](images/UiClassDiagram.png)
 
 The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, and `StatusBarFooter`. All of these, including `MainWindow`, inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
 
-The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
+The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
 
 The `UI` component,
 
@@ -98,7 +100,7 @@ The `UI` component,
 
 ### Logic component
 
-**API** : [`Logic.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/logic/Logic.java)
+**API** : [`Logic.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/logic/Logic.java)
 
 Here's a (partial) class diagram of the `Logic` component:
 
@@ -108,15 +110,17 @@ The sequence diagram below illustrates the interactions within the `Logic` compo
 
 ![Interactions Inside the Logic Component for the `delete 1` Command](images/DeleteSequenceDiagram.png)
 
-<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `DeleteCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
-</div>
+The diagram shows a valid, single-target deletion. Parser construction, candidate
+filter setup and command-result construction are omitted for readability. The
+candidate uses the pre-command displayed roster, so filtered indices identify the
+same students throughout validation and execution. Saving must finish before the
+live model is changed; the failure branch returns an error with no live mutation.
 
 How the `Logic` component works:
 
 1. When `Logic` is called upon to execute a command, the command is passed to an `AddressBookParser` object, which in turn creates a parser that matches the command (e.g., `DeleteCommandParser`) and uses it to parse the command.
 1. This results in a `Command` object (more precisely, an object of one of its subclasses e.g., `DeleteCommand`) which is executed by the `LogicManager`.
-1. The command can communicate with the `Model` when it is executed (e.g. to delete a person).<br>
-   Note that although this is shown as a single step in the diagram above for simplicity, the code can require several interactions between the command object and the `Model` to complete the operation.
+1. For deletion, `LogicManager` resolves the target against the live display and executes the command on a detached candidate model. It saves that candidate before deleting the same target from the live model. If validation or saving fails, the live data and view stay unchanged.
 1. The result of the command execution is encapsulated as a `CommandResult` object which is returned from `Logic`.
 
 Here are the other classes in `Logic` (omitted from the class diagram above) that are used for parsing a user command:
@@ -128,7 +132,7 @@ How the parsing works:
 * All `XYZCommandParser` classes, such as `AddCommandParser` and `DeleteCommandParser`, implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
 
 ### Model component
-**API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
+**API** : [`Model.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/model/Model.java)
 
 <img src="images/ModelClassDiagram.png" width="450" />
 
@@ -149,7 +153,7 @@ The `Model` component,
 
 ### Storage component
 
-**API** : [`Storage.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/storage/Storage.java)
+**API** : [`Storage.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/storage/Storage.java)
 
 <img src="images/StorageClassDiagram.png" width="550" />
 
@@ -463,15 +467,15 @@ specification does not completely define cross-category precedence; review this 
 the new student to the live model. This preserves the live roster, predicate, observable-list contents
 and GUI selection on save failure without attempting to reconstruct view state. The successful command
 result identifies the new student; `MainWindow` selects and scrolls to it after persistence succeeds.
-`mark` also uses save-before-publish as described below. Other commands retain their existing
-execution flow; generalized rollback remains a separate integration task.
+`mark`, `update`, `delete`, `clear` and legacy `edit` also save before publishing
+changes. The attendance and contact-update paths skip saving normalized no-ops.
 
 `JsonAdaptedPerson` stores students with `name`, `telegram`, `email` and `memberships`. Legacy
 phone/address/tag records retain their original values and schema fields. Incomplete student records,
 hybrid student/legacy records and repeated courses are rejected. `JsonAddressBookStorage` writes a sibling
 temporary file and atomically replaces the target; no non-atomic fallback is used. A failed replacement
 retains the old data file. Unsupported atomic moves are reported as save failures. This protects disk
-contents for all callers; add, mark, delete and update save before changing the live model.
+contents for all callers; add, mark, delete, update, clear and legacy edit save before changing the live model.
 
 The inherited edit command explicitly rejects student profiles, preserving their new fields. It still
 edits legacy contacts and rejects email changes that would collide with a student. Student contacts
@@ -622,76 +626,7 @@ counting rules (only students in the class, only the viewed course and week) are
 `ClassViewUiTest` checks these behaviours in a real window: exact matching, badges and details after marking
 another week or course, unchanged views after invalid queries, and repeated queries.
 
-### \[Proposed\] Undo/redo feature
-
-#### Proposed Implementation
-
-The proposed undo/redo mechanism is facilitated by `VersionedAddressBook`. It extends `AddressBook` with an undo/redo history, stored internally as an `addressBookStateList` and `currentStatePointer`. Additionally, it implements the following operations:
-
-* `VersionedAddressBook#commit()` — Saves the current address book state in its history.
-* `VersionedAddressBook#undo()` — Restores the previous address book state from its history.
-* `VersionedAddressBook#redo()` — Restores a previously undone address book state from its history.
-
-These operations are exposed in the `Model` interface as `Model#commitAddressBook()`, `Model#undoAddressBook()` and `Model#redoAddressBook()` respectively.
-
-Given below is an example usage scenario and how the undo/redo mechanism behaves at each step.
-
-Step 1. The user launches the application for the first time. The `VersionedAddressBook` will be initialized with the initial address book state, and the `currentStatePointer` pointing to that single address book state.
-
-![UndoRedoState0](images/UndoRedoState0.png)
-
-Step 2. The user executes `delete 5` command to delete the 5th person in the address book. The `delete` command calls `Model#commitAddressBook()`, causing the modified state of the address book after the `delete 5` command executes to be saved in the `addressBookStateList`, and the `currentStatePointer` is shifted to the newly inserted address book state.
-
-![UndoRedoState1](images/UndoRedoState1.png)
-
-Step 3. The user executes `add n/David …​` to add a new person. The `add` command also calls `Model#commitAddressBook()`, causing another modified address book state to be saved into the `addressBookStateList`.
-
-![UndoRedoState2](images/UndoRedoState2.png)
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** If a command fails its execution, it will not call `Model#commitAddressBook()`, so the address book state will not be saved into the `addressBookStateList`.
-
-</div>
-
-Step 4. The user now decides that adding the person was a mistake, and decides to undo that action by executing the `undo` command. The `undo` command will call `Model#undoAddressBook()`, which will shift the `currentStatePointer` once to the left, pointing it to the previous address book state, and restores the address book to that state.
-
-![UndoRedoState3](images/UndoRedoState3.png)
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** If the `currentStatePointer` is at index 0, pointing to the initial AddressBook state, then there are no previous AddressBook states to restore. The `undo` command uses `Model#canUndoAddressBook()` to check if this is the case. If so, it will return an error to the user rather
-than attempting to perform the undo.
-
-</div>
-
-The following sequence diagram shows how an undo operation goes through the `Logic` component:
-
-![UndoSequenceDiagram](images/UndoSequenceDiagram-Logic.png)
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `UndoCommand` should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
-
-</div>
-
-Similarly, how an undo operation goes through the `Model` component is shown below:
-
-![UndoSequenceDiagram](images/UndoSequenceDiagram-Model.png)
-
-The `redo` command does the opposite — it calls `Model#redoAddressBook()`, which shifts the `currentStatePointer` once to the right, pointing to the previously undone state, and restores the address book to that state.
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** If the `currentStatePointer` is at index `addressBookStateList.size() - 1`, pointing to the latest address book state, then there are no undone AddressBook states to restore. The `redo` command uses `Model#canRedoAddressBook()` to check if this is the case. If so, it will return an error to the user rather than attempting to perform the redo.
-
-</div>
-
-Step 5. The user then decides to execute the command `list`. Commands that do not modify the address book, such as `list`, will usually not call `Model#commitAddressBook()`, `Model#undoAddressBook()` or `Model#redoAddressBook()`. Thus, the `addressBookStateList` remains unchanged.
-
-![UndoRedoState4](images/UndoRedoState4.png)
-
-Step 6. The user executes `clear`, which calls `Model#commitAddressBook()`. Since the `currentStatePointer` is not pointing at the end of the `addressBookStateList`, all address book states after the `currentStatePointer` will be purged. Reason: It no longer makes sense to redo the `add n/David …​` command. This is the behavior that most modern desktop applications follow.
-
-![UndoRedoState5](images/UndoRedoState5.png)
-
-The following activity diagram summarizes what happens when a user executes a new command:
-
-<img src="images/CommitActivityDiagram.png" width="250" />
-
-#### v1.3 roster and deletion integration
+### Roster and deletion integration
 
 The release completion increment is tracked in [issue #55](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/55).
 `FindCommandParser` validates exact class/week queries using `ClassMembership` and
@@ -706,8 +641,10 @@ validates every target, and deduplicates integer indices in first-appearance ord
 `LogicManager` executes deletion on a detached candidate, saves it, then removes
 those exact targets from the live model without replacing its filter. A failed save
 leaves data, selection and context untouched. This extends the existing add/mark
-transaction pattern. The v1.4 safe-clearing section covers `clear`; legacy `edit`
-remains outside this transaction handling.
+transaction pattern. Safe clearing saves an empty roster before publishing it.
+Legacy `edit` also uses a detached candidate: it saves the edited roster before
+replacing live records, then resets the full-roster view and selection. A failed
+legacy edit retains the original data, filter, selection and command input.
 
 Regression coverage includes filtered batch indices, duplicate indices, a late invalid
 target, disk failure/retry, query operation without write access, independent course/week
@@ -718,26 +655,6 @@ to the full roster. See `MvpRosterIntegrationTest` and `MvpRosterUiTest`.
 Release validation and remaining work are recorded in `CONTEXT.md`. Implementation
 and tests for this increment were prepared with OpenAI Codex assistance, reusing AB3
 and the team's existing model, parser and storage contracts.
-
-## Design considerations:
-
-**Aspect: How undo & redo execute:**
-
-* **Alternative 1 (current choice):** Saves the entire address book.
-  * Pros: Easy to implement.
-  * Cons: May have performance issues in terms of memory usage.
-
-* **Alternative 2:** Individual command knows how to undo/redo by
-  itself.
-  * Pros: Will use less memory (e.g. for `delete`, just save the person being deleted).
-  * Cons: We must ensure that the implementation of each individual command is correct.
-
-_{more aspects and alternatives to be added}_
-
-### \[Proposed\] Data archiving
-
-_{Explain here how the data archiving feature will be implemented}_
-
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -1040,8 +957,8 @@ If these contacts already exist, start a fresh disposable dataset or use unique 
 ### Batch attendance
 
 Use a fresh disposable dataset and run each command separately. These fictional
-contacts/groups must not already be present. This checks the #67 extension; use a
-build containing it rather than the published v1.3 JAR.
+contacts/groups must not already be present. This checks the batch-attendance
+extension (#67) included in v1.5.
 
 1. Create the fixtures:
    - `add n/Batch Alice p/@batch_alice e/batch.alice@example.com c/CS2103T:T97 c/MA2001:T97`
@@ -1102,14 +1019,15 @@ contacts and the actual displayed index instead of assuming row 1.
 
    1. Download the JAR file and copy it into an empty folder.
 
-   1. Double-click the JAR file.<br>
+   1. Verify `java -version` reports Java 25, then launch with `java -jar addressbook.jar`
+      (or `java -jar tutortrack-macos-arm64.jar` for Apple Silicon).<br>
       Expected: The GUI opens with a set of sample contacts. The window size may not be optimal.
 
 1. Saving window preferences
 
    1. Resize the window to an optimal size. Move the window to a different location. Close the window.
 
-   1. Relaunch the app by double-clicking the JAR file.<br>
+   1. Relaunch the app with the same `java -jar` command.<br>
        Expected: The most recent window size and location are retained.
 
 1. Exit command validation
