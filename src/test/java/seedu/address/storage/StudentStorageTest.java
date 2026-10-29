@@ -55,6 +55,14 @@ public class StudentStorageTest {
     }
 
     @Test
+    public void student_malformedRelationshipMarkers_rejectedWhenLoading() {
+        for (String name : List.of("Ravi s/other Kumar", "Priya d/o/Raman", "Ravi as/o Kumar", "Ravi s/o\tKumar")) {
+            JsonAdaptedPerson invalid = adapted(name, "@ravi_one", "ravi@example.com", List.of("CS2103T:T04"));
+            assertThrows(IllegalValueException.class, invalid::toModelType);
+        }
+    }
+
+    @Test
     public void legacy_roundTrip_preservesOriginalValuesWithoutInventingStudentFields() throws Exception {
         var legacy = new PersonBuilder().withName("Agent 007").withEmail("UPPER@example.com").build();
         var reloaded = new JsonAdaptedPerson(legacy).toModelType();

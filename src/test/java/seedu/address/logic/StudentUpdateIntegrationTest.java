@@ -84,6 +84,26 @@ public class StudentUpdateIntegrationTest {
     }
 
     @Test
+    public void addAndUpdate_relationshipMarkers_saveAndReloadWithoutLosingAttendance() throws Exception {
+        CommandResult added = logic.execute(
+                "add n/Ravi s/o Kumar p/@name_audit e/name.audit@example.com c/CS2103T:T04");
+        assertEquals("New student added: Ravi s/o Kumar.", added.getFeedbackToUser());
+        assertEquals("Ravi s/o Kumar", storage.readAddressBook().orElseThrow().getPersonList()
+                .get(2).getName().fullName);
+        logic.execute("find c/CS2103T:T04 w/1");
+        CommandResult result = logic.execute("update 1 n/Priya d/o Raman");
+        Person updated = result.getSelectedPerson().orElseThrow();
+        assertEquals("Student updated: Priya d/o Raman.", result.getFeedbackToUser());
+        assertEquals(alice.getAttendance(), updated.getAttendance());
+        assertEquals(alice.getMemberships(), updated.getMemberships());
+        assertEquals(alice.getEmail(), updated.getEmail());
+        assertEquals(alice.getTelegramHandle(), updated.getTelegramHandle());
+        assertEquals(List.of(updated, added.getSelectedPerson().orElseThrow()), model.getFilteredPersonList());
+        assertEquals(2, storage.writes);
+        assertEquals(model.getAddressBook(), storage.readAddressBook().orElseThrow());
+    }
+
+    @Test
     public void update_singleFieldsAndNamesakes_preserveOmittedData() throws Exception {
         logic.execute("update 2 n/Bobby");
         Person renamed = model.getFilteredPersonList().get(1);
