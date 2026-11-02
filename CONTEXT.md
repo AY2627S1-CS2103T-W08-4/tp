@@ -2,6 +2,10 @@
 
 ## v1.6 release audit baseline — 3 November 2026 (SGT)
 
+- A04 implemented: FXML minimum height reduced from 600 to 400. A settled real
+  window at logical 853x480 failed before the change (height forced to 600), then
+  passed while preserving a scrolling roster and visible input/details. Existing
+  roster/class UI tests and Checkstyle passed. Actual OS-scale tests remain a gap.
 - A03 implemented: data/preferences/logs resolve beside packaged JARs, satisfying
   the course home-folder constraint; unpackaged development remains relative to
   its working directory. UG documents the upgrade/location contract. Path/logger
