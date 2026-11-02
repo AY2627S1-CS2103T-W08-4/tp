@@ -30,11 +30,11 @@ jobs:
 
       - name: Build and check with Gradle
         if: runner.os != 'Linux'
-        run: ./gradlew check coverage
+        run: ./gradlew check coverage shadowJar
 
       - name: Build and check with Gradle using a virtual display
         if: runner.os == 'Linux'
-        run: xvfb-run -a ./gradlew check coverage
+        run: xvfb-run -a ./gradlew check coverage shadowJar
 
       - name: Upload coverage reports to Codecov
         if: runner.os == 'Linux'

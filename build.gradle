@@ -81,12 +81,8 @@ shadowJar {
 
 defaultTasks 'clean', 'test'
 
-// Separate native libraries avoid x86/ARM filename collisions inside a fat JAR.
+// Both Mac architectures are combined by the universal-native packaging task below.
 configurations {
-    macArmRuntime {
-        extendsFrom implementation
-        exclude group: 'org.openjfx'
-    }
     macArmJavafx
 }
 
@@ -98,11 +94,4 @@ dependencies {
     }
 }
 
-tasks.register('shadowJarMacArm', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
-    archiveFileName = 'tutortrack-macos-arm64.jar'
-    from sourceSets.main.output
-    configurations = [project.configurations.macArmRuntime, project.configurations.macArmJavafx]
-    manifest {
-        attributes 'Main-Class': application.mainClass.get()
-    }
-}
+apply from: 'gradle/universal-mac.gradle'

@@ -2,6 +2,22 @@
 
 ## v1.6 release audit baseline — 3 November 2026 (SGT)
 
+- A02 implemented: single-JAR packaging wraps the existing seven JavaFX 17.0.7
+  Intel/ARM Mac native pairs in universal Mach-O containers. No dependency upgrade
+  or external native build tool required. Both original slices and Windows/Linux
+  natives are byte-identical to released binaries. CI now builds `shadowJar`.
+- Final production snapshot passed fresh macOS Java 25.0.3 FX
+  `check coverage shadowJar shadowJarMacArm --no-daemon --rerun-tasks`: **460 tests**,
+  zero failures/errors/skips; Checkstyle and repository checks passed. One JAR
+  produced (12,898,862 bytes); legacy ARM task aliases the same artifact.
+- The final JAR passed packaged-window workflows and clean exit on plain ARM64
+  Java 25.0.3 and Intel Java 25.0.3 under Rosetta. Small/large logical viewports
+  inspected. Normal `java -jar` startup reached the v1.6 UI and used JAR-home paths.
+- Fresh Windows/Linux validation, physical Intel hardware and actual OS scaling
+  combinations remain unverified. Local Jekyll rendering is unavailable because
+  locked Bundler 2.5.11 is absent; deployed UG/DG render and anchors were inspected.
+- Local only; no issue/PR/push/merge/release. Existing PR #118 must be reconciled
+  with v1.6 guide changes before integration. Assistance: OpenAI Codex.
 - A04 implemented: FXML minimum height reduced from 600 to 400. A settled real
   window at logical 853x480 failed before the change (height forced to 600), then
   passed while preserving a scrolling roster and visible input/details. Existing
