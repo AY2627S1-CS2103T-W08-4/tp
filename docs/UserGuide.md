@@ -3,7 +3,7 @@ layout: page
 title: User Guide
 ---
 
-TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This guide covers TutorTrack v1.5 and the direct-selection enhancement in the current source, including contact correction with `update` and attendance commands that accept multiple student indices. TutorTrack supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
+TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This guide covers TutorTrack commands available since v1.5, including direct selection with `select`, contact correction with `update` and attendance commands that accept multiple student indices. TutorTrack supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
 
 * Table of Contents
 {:toc}
@@ -27,8 +27,8 @@ examples. Updating the application does not replace your saved contacts.
    * `tutortrack-macos-arm64.jar`: Apple Silicon Macs using an ARM64 Java 25 installation (for example Temurin). Run `java -jar tutortrack-macos-arm64.jar`.
    * Do not run the standard JAR with a plain ARM64 JDK without JavaFX; use the Apple Silicon JAR instead.
 
-1. Download the matching v1.5 `.jar` file from [GitHub Releases](https://github.com/AY2627S1-CS2103T-W08-4/tp/releases).
-   This guide describes v1.5; earlier release JARs may not include all of these features.
+1. Download the matching `.jar` file from [GitHub Releases](https://github.com/AY2627S1-CS2103T-W08-4/tp/releases).
+   Choose v1.5 or later and follow that release's Java/platform instructions. Earlier JARs may not include all of these commands.
 
 1. Copy the file to the folder you want to use as the _home folder_ for TutorTrack.
    Choose a folder where you can create and replace files. A write-protected folder can prevent saving changes or exiting successfully.
@@ -45,7 +45,7 @@ examples. Updating the application does not replace your saved contacts.
 
    * `list` : Lists all students.
 
-   * `select 1` : Shows the first displayed student's details in a build containing direct selection.
+   * `select 1` : Shows the first displayed student's details.
 
    * `add n/John Doe p/@johndoe e/johnd@example.com c/CS2103T:T04` : Adds a student named `John Doe`.
 
@@ -195,8 +195,7 @@ below the roster. Selecting a row does not change saved data.
 
 Selects a displayed row and reveals the student's details below the roster without
 changing their saved data or moving focus away from the command box.
-Use a build containing this enhancement; published releases made before its
-integration do not support `select`.
+Available since v1.5; older release JARs do not support `select`.
 
 Format: `select INDEX`
 
