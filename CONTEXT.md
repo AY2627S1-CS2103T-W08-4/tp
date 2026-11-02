@@ -5,7 +5,8 @@
 - Owner: Vincent Peh (`Eskalade`); issue [#117](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/117),
   self-assigned under v1.6. Branch: `codex/final-contact-docs-v16` in his fork.
   Base: team master / v1.5 tag `20294cd249e63fe813cb6007e954d22a3267fe17`.
-- Status: implemented locally; contribution PR pending. Not merged or released.
+- Status: published for teammate review in
+  [PR #118](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/118). Not merged or released.
   The user confirmed a teammate owns the final release and Canvas upload.
 - Scope: refresh the README screenshot/capabilities, reconcile UG/site selection
   availability and merged DG name support, and add reproducible contact acceptance
