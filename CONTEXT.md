@@ -1,5 +1,47 @@
 # TutorTrack team implementation context
 
+## v1.6 beta-test recovery fixes — 3 November 2026 (Aston)
+
+- Owner: Aston (`aston-ish`); [issue #119](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/119),
+  milestone v1.6; branch `codex/v16-beta-fixes`, updated to team master `49fcd352`.
+  User reviewed and authorized committing/pushing; the user will create the PR.
+  No teammate approval, merge or release is claimed.
+- Beta target: actual downloaded v1.5 `addressbook.jar`, SHA-256
+  `5a933d13ba05eac0e7136a3346714962ee328e4b79b2dec958303cd742324836`,
+  with published UG/DG snapshots. Windows, Temurin Java 25.0.4; disposable data only.
+- Reproduced two existing documented window bugs in the release JAR: Help remains
+  minimized after another request; a disconnected-monitor position can leave the
+  main window/title bar outside all screens. Five of six new real-window regression
+  cases failed before fixes; the valid-position case already passed.
+- Scope: recenter inaccessible saved main-window positions and restore minimized
+  Help, including hidden/reopened Help. No new feature, schema or grammar change.
+  UG distinguishes the development fixes from published v1.5 workarounds; DG removes
+  a paragraph falsely claiming student fields are omitted from its updated diagram
+  and records that selection already merged in #115. Existing acknowledgements kept.
+- Validation: Windows `gradlew.bat --no-daemon check coverage shadowJar shadowJarMacArm`
+  passes 457 tests, zero failures/errors/skips, Checkstyle, coverage and both JAR
+  builds. An initial full-check attempt caught one test-formatting violation;
+  corrected it before the successful full rerun. All six targeted UI recovery
+  regressions pass after the fixes, and rebuilt-package probes confirm visible
+  startup placement and Help restored from minimized state.
+  The downloaded JAR passed the packaged contact checklist proposed in PR #118,
+  including hidden duplicate checks, normalized no-op, invalid-input preservation,
+  released-contact reuse and reload. Its actual `java -jar` workflow also passed
+  add/find/select/batch mark/update/delete/Help/invalid Exit and separate-JVM restart
+  checks. Four invalid student-file cases preserve original bytes and refuse an
+  editable roster; two invalid-preference cases restore defaults without changing
+  student records. Evidence is under `build/beta-v15-20261103` (not committed).
+- PR #118 review: documentation-only; head `2e8e4a06` has successful Windows,
+  macOS and Linux CI. Its twelve-step packaged contact checklist was independently
+  checked above. PR #118 has now merged at `49fcd352`; integrated its README,
+  testing checklist and version-availability updates, retaining both context records.
+- Functional patch size: 13 added and two removed lines across two `src/main`
+  files; tests/docs are separate. This is the draft's size, not a full RepoSense
+  audit of the member's cumulative freeze-period changes.
+- Remaining: user-created PR, teammate review, remote checks and platform checks.
+  Mac/Linux execution and fresh Jekyll rendering are not claimed for this draft.
+  Do not publish or create a release from these unreviewed changes.
+
 ## Active v1.6 documentation and contact verification — 3 November 2026 (SGT)
 
 - Owner: Vincent Peh (`Eskalade`); issue [#117](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/117),

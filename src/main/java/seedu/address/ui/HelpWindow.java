@@ -64,6 +64,7 @@ public class HelpWindow extends UiPart<Stage> {
      */
     public void show() {
         logger.fine("Showing help page about the application.");
+        getRoot().setIconified(false);
         getRoot().show();
         getRoot().centerOnScreen();
     }
@@ -86,6 +87,7 @@ public class HelpWindow extends UiPart<Stage> {
      * Focuses on the help window.
      */
     public void focus() {
+        getRoot().setIconified(false);
         getRoot().requestFocus();
     }
 
