@@ -1,59 +1,36 @@
 # TutorTrack team implementation context
 
-## v1.6 release audit baseline — 3 November 2026 (SGT)
+## v1.6 audit and local release candidate — 3 November 2026 (SGT)
 
-- A02 implemented: single-JAR packaging wraps the existing seven JavaFX 17.0.7
-  Intel/ARM Mac native pairs in universal Mach-O containers. No dependency upgrade
-  or external native build tool required. Both original slices and Windows/Linux
-  natives are byte-identical to released binaries. CI now builds `shadowJar`.
-- Final production snapshot passed fresh macOS Java 25.0.3 FX
-  `check coverage shadowJar shadowJarMacArm --no-daemon --rerun-tasks`: **460 tests**,
-  zero failures/errors/skips; Checkstyle and repository checks passed. One JAR
-  produced (12,898,862 bytes); legacy ARM task aliases the same artifact.
-- The final JAR passed packaged-window workflows and clean exit on plain ARM64
-  Java 25.0.3 and Intel Java 25.0.3 under Rosetta. Small/large logical viewports
-  inspected. Normal `java -jar` startup reached the v1.6 UI and used JAR-home paths.
-- Fresh Windows/Linux validation, physical Intel hardware and actual OS scaling
-  combinations remain unverified. Local Jekyll rendering is unavailable because
-  locked Bundler 2.5.11 is absent; deployed UG/DG render and anchors were inspected.
-- Local only; no issue/PR/push/merge/release. Existing PR #118 must be reconciled
-  with v1.6 guide changes before integration. Assistance: OpenAI Codex.
-- A04 implemented: FXML minimum height reduced from 600 to 400. A settled real
-  window at logical 853x480 failed before the change (height forced to 600), then
-  passed while preserving a scrolling roster and visible input/details. Existing
-  roster/class UI tests and Checkstyle passed. Actual OS-scale tests remain a gap.
-- A03 implemented: data/preferences/logs resolve beside packaged JARs, satisfying
-  the course home-folder constraint; unpackaged development remains relative to
-  its working directory. UG documents the upgrade/location contract. Path/logger
-  and MainApp tests plus Checkstyle passed on macOS Java 25.0.3 FX. A real rebuilt
-  full-JAR startup/restart probe used a home path containing spaces and `%t`, kept
-  all four application files there and left its other launch folder empty.
-- Two additional path regressions cover unpackaged development and a packaged
-  logger launched elsewhere. Source changes stay well below the initial 150-line
-  allowance; exact final diff and full-suite results will follow. Local only.
-- A01 implementation: logging failures use the already-installed base console
-  logger, avoiding static-initializer NullPointerException. Added two isolated JVM
-  tests; blocked-file case failed before the production change. Six focused tests
-  and production/test Checkstyle passed on macOS Java 25.0.3 FX. Functional diff is
-  one replacement and two removals. Full final-suite checks remain pending.
-- Owner: Min Thi Ha (`toomintyy`); new local branch `codex/v16-bug-audit`, based
-  on freshly fetched team master / v1.5 `20294cd2`. Original branches preserved.
-- Scope: full application audit and eligible small fixes before the deadline;
-  evidence and inspection matrix in `docs/project/v1.6-audit.md`.
-- Fresh macOS ARM64 / Zulu Java 25.0.3 FX validation:
-  `./gradlew check coverage shadowJar --no-daemon --rerun-tasks` passed 451 tests,
-  zero failures/errors/skips; Checkstyle and coverage passed. No Java changed yet.
-- Confirmed logging-initialization failure under a real blocked log path;
-  additional investigations continue. Open documentation PR #118 remains separate.
-- Public RepoSense shows 658 functional lines for owner and zero published
-  feature-freeze edits; 150-line minimum allowance, subject to final attribution.
-- Local work only: no issue, PR, push, merge or release. Assistance: OpenAI Codex.
-- Independent audit additions: four integration tests pass unchanged production,
-  including 480 seeded steps and real save-failure/retry checks across seven
-  command families. Separate logging regression reproduces A01 before its fix.
-  Plain ARM64 Java cannot launch the standard release; startup also writes files
-  relative to the working directory rather than the JAR folder. Investigating
-  minimal fixes; no new production changes at this checkpoint.
+- Owner: Min Thi Ha (`toomintyy`); branch `codex/v16-bug-audit`, created before
+  changes from freshly fetched team master / v1.5 `20294cd2`. Original branches
+  preserved. Team master still matched that baseline on final remote inspection.
+- Fixed logging-startup failure, JAR-home file paths, minimum window height and
+  single-JAR Intel/ARM Mac packaging. Production/build revision: `63adf48f`.
+  No student command/model behavior or dependency versions changed. Details,
+  reproductions, individual commits and matrix: `docs/project/v1.6-audit.md`.
+- Fresh macOS ARM64 / Zulu Java 25.0.3 FX `./gradlew check coverage shadowJar
+  --no-daemon` passed **462 tests**, zero failures/errors/skips, Checkstyle and
+  coverage. Eleven tests added across five new classes; original tests unchanged.
+  Includes 480 seeded steps, seven-command real I/O recovery and 250-student UI
+  recycling. Off-screen preference warning did not reproduce; no restore fix.
+- Same candidate passed packaged GUI/clean-exit probes on plain ARM Java 25.0.3
+  and Intel Java 25.0.3 under Rosetta; all seven universal native pairs preserve
+  original slices. Windows/Linux natives unchanged. Normal JAR entry point opens.
+- One 12,898,862-byte JAR; SHA-256
+  `356d131e99492f877cb415edb63ceeb9d23ab6aca48d675445707d3f2668fb7d`.
+  Candidate/structured evidence staged locally in the outer workspace's
+  `output/v1.6-audit/`. No remote issue/PR/push/merge/release/submission performed.
+- Freeze evidence: official report attributes 658 functional lines to owner,
+  no published freeze edits at audit start; 150-line minimum. Conservative patch
+  estimate is 44 functional added/deleted lines, 142 including build/CI glue.
+  Recheck final RepoSense attribution before merge; no tolerance margin assumed.
+- Remaining: peer review; reconcile PR #118 with v1.6 guide/package/path changes;
+  fresh Windows/Linux checks, physical Intel/actual OS scaling and integrated
+  rendered-doc verification. Local Jekyll lacks locked Bundler 2.5.11; deployed
+  UG/DG and their anchors were inspected. Full 107-file inventory accompanies report.
+- Assistance: OpenAI Codex; teammate work preserved. This is a local candidate,
+  not team approval or a published release, and not a guarantee of no bugs.
 
 ## Keep the model-paragraph correction on the audit branch — 29 October 2026
 

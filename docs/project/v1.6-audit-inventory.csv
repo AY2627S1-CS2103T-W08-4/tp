@@ -1,0 +1,108 @@
+file,kind,course_file_type,covered_lines,missed_lines,covered_branches,missed_branches
+src/main/java/seedu/address/Main.java,Java,functional-code,0,5,,
+src/main/java/seedu/address/MainApp.java,Java,functional-code,42,15,6,2
+src/main/java/seedu/address/commons/core/ApplicationPaths.java,Java,functional-code,4,2,1,1
+src/main/java/seedu/address/commons/core/GuiSettings.java,Java,functional-code,23,2,9,3
+src/main/java/seedu/address/commons/core/LogsCenter.java,Java,functional-code,28,3,,
+src/main/java/seedu/address/commons/core/index/Index.java,Java,functional-code,15,0,8,0
+src/main/java/seedu/address/commons/exceptions/DataLoadingException.java,Java,functional-code,2,0,,
+src/main/java/seedu/address/commons/exceptions/IllegalValueException.java,Java,functional-code,4,0,,
+src/main/java/seedu/address/commons/util/AppUtil.java,Java,functional-code,8,1,4,0
+src/main/java/seedu/address/commons/util/CollectionUtil.java,Java,functional-code,7,1,4,0
+src/main/java/seedu/address/commons/util/FileUtil.java,Java,functional-code,3,10,0,4
+src/main/java/seedu/address/commons/util/JsonUtil.java,Java,functional-code,31,1,6,0
+src/main/java/seedu/address/commons/util/StringUtil.java,Java,functional-code,26,1,16,0
+src/main/java/seedu/address/commons/util/ToStringBuilder.java,Java,functional-code,12,0,2,0
+src/main/java/seedu/address/logic/Logic.java,Java,functional-code,,,,
+src/main/java/seedu/address/logic/LogicManager.java,Java,functional-code,81,3,27,3
+src/main/java/seedu/address/logic/Messages.java,Java,functional-code,17,2,2,2
+src/main/java/seedu/address/logic/commands/AddCommand.java,Java,functional-code,26,0,12,0
+src/main/java/seedu/address/logic/commands/ClearCommand.java,Java,functional-code,4,0,,
+src/main/java/seedu/address/logic/commands/Command.java,Java,functional-code,1,0,,
+src/main/java/seedu/address/logic/commands/CommandResult.java,Java,functional-code,43,1,20,6
+src/main/java/seedu/address/logic/commands/DeleteCommand.java,Java,functional-code,26,1,9,1
+src/main/java/seedu/address/logic/commands/EditCommand.java,Java,functional-code,79,0,39,3
+src/main/java/seedu/address/logic/commands/ExitCommand.java,Java,functional-code,2,0,,
+src/main/java/seedu/address/logic/commands/FindCommand.java,Java,functional-code,11,6,10,2
+src/main/java/seedu/address/logic/commands/HelpCommand.java,Java,functional-code,2,0,,
+src/main/java/seedu/address/logic/commands/ListCommand.java,Java,functional-code,9,0,3,1
+src/main/java/seedu/address/logic/commands/MarkCommand.java,Java,functional-code,44,0,28,0
+src/main/java/seedu/address/logic/commands/SelectCommand.java,Java,functional-code,11,0,6,0
+src/main/java/seedu/address/logic/commands/UpdateCommand.java,Java,functional-code,32,1,24,6
+src/main/java/seedu/address/logic/commands/exceptions/CommandException.java,Java,functional-code,4,0,,
+src/main/java/seedu/address/logic/parser/AddCommandParser.java,Java,functional-code,48,0,32,0
+src/main/java/seedu/address/logic/parser/AddressBookParser.java,Java,functional-code,26,0,16,0
+src/main/java/seedu/address/logic/parser/ArgumentMultimap.java,Java,functional-code,18,0,10,0
+src/main/java/seedu/address/logic/parser/ArgumentTokenizer.java,Java,functional-code,37,1,6,0
+src/main/java/seedu/address/logic/parser/ClearCommandParser.java,Java,functional-code,5,0,2,0
+src/main/java/seedu/address/logic/parser/CliSyntax.java,Java,functional-code,5,1,,
+src/main/java/seedu/address/logic/parser/DeleteCommandParser.java,Java,functional-code,12,1,6,2
+src/main/java/seedu/address/logic/parser/EditCommandParser.java,Java,functional-code,27,0,17,1
+src/main/java/seedu/address/logic/parser/ExitCommandParser.java,Java,functional-code,5,0,2,0
+src/main/java/seedu/address/logic/parser/FindCommandParser.java,Java,functional-code,32,0,22,0
+src/main/java/seedu/address/logic/parser/ListCommandParser.java,Java,functional-code,7,0,2,0
+src/main/java/seedu/address/logic/parser/MarkCommandParser.java,Java,functional-code,43,0,20,0
+src/main/java/seedu/address/logic/parser/Parser.java,Java,functional-code,,,,
+src/main/java/seedu/address/logic/parser/ParserUtil.java,Java,functional-code,39,1,24,0
+src/main/java/seedu/address/logic/parser/Prefix.java,Java,functional-code,11,0,5,1
+src/main/java/seedu/address/logic/parser/SelectCommandParser.java,Java,functional-code,7,0,2,0
+src/main/java/seedu/address/logic/parser/UpdateCommandParser.java,Java,functional-code,39,0,18,0
+src/main/java/seedu/address/logic/parser/exceptions/ParseException.java,Java,functional-code,4,0,,
+src/main/java/seedu/address/model/AddressBook.java,Java,functional-code,26,3,2,2
+src/main/java/seedu/address/model/Model.java,Java,functional-code,1,0,,
+src/main/java/seedu/address/model/ModelManager.java,Java,functional-code,39,0,10,0
+src/main/java/seedu/address/model/ReadOnlyAddressBook.java,Java,functional-code,,,,
+src/main/java/seedu/address/model/ReadOnlyUserPrefs.java,Java,functional-code,,,,
+src/main/java/seedu/address/model/UserPrefs.java,Java,functional-code,14,3,2,2
+src/main/java/seedu/address/model/person/Address.java,Java,functional-code,12,1,4,0
+src/main/java/seedu/address/model/person/AttendanceRecord.java,Java,functional-code,14,0,8,0
+src/main/java/seedu/address/model/person/AttendanceStatus.java,Java,functional-code,15,0,4,0
+src/main/java/seedu/address/model/person/AttendanceSummary.java,Java,functional-code,27,1,20,6
+src/main/java/seedu/address/model/person/AttendanceWeek.java,Java,functional-code,14,0,6,0
+src/main/java/seedu/address/model/person/ClassMembership.java,Java,functional-code,20,0,8,0
+src/main/java/seedu/address/model/person/Email.java,Java,functional-code,32,0,22,0
+src/main/java/seedu/address/model/person/Name.java,Java,functional-code,26,0,12,0
+src/main/java/seedu/address/model/person/NameContainsKeywordsPredicate.java,Java,functional-code,11,0,4,0
+src/main/java/seedu/address/model/person/Person.java,Java,functional-code,98,1,57,1
+src/main/java/seedu/address/model/person/Phone.java,Java,functional-code,12,1,4,0
+src/main/java/seedu/address/model/person/TelegramHandle.java,Java,functional-code,14,0,6,0
+src/main/java/seedu/address/model/person/UniquePersonList.java,Java,functional-code,41,4,20,2
+src/main/java/seedu/address/model/person/exceptions/DuplicatePersonException.java,Java,functional-code,2,0,,
+src/main/java/seedu/address/model/person/exceptions/PersonNotFoundException.java,Java,functional-code,1,0,,
+src/main/java/seedu/address/model/tag/Tag.java,Java,functional-code,11,2,2,2
+src/main/java/seedu/address/model/util/SampleDataUtil.java,Java,functional-code,26,1,2,0
+src/main/java/seedu/address/storage/JsonAdaptedAttendance.java,Java,functional-code,12,0,6,0
+src/main/java/seedu/address/storage/JsonAdaptedPerson.java,Java,functional-code,88,1,63,3
+src/main/java/seedu/address/storage/JsonAdaptedTag.java,Java,functional-code,10,0,2,0
+src/main/java/seedu/address/storage/JsonAddressBookStorage.java,Java,functional-code,25,0,2,0
+src/main/java/seedu/address/storage/JsonSerializableAddressBook.java,Java,functional-code,17,0,6,0
+src/main/java/seedu/address/storage/JsonUserPrefsStorage.java,Java,functional-code,11,0,4,0
+src/main/java/seedu/address/storage/Storage.java,Java,functional-code,,,,
+src/main/java/seedu/address/storage/StorageManager.java,Java,functional-code,15,0,,
+src/main/java/seedu/address/ui/AttendanceFormatter.java,Java,functional-code,4,0,2,0
+src/main/java/seedu/address/ui/CommandBox.java,Java,functional-code,18,2,2,2
+src/main/java/seedu/address/ui/HelpWindow.java,Java,functional-code,13,7,,
+src/main/java/seedu/address/ui/MainWindow.java,Java,functional-code,63,8,10,6
+src/main/java/seedu/address/ui/PersonCard.java,Java,functional-code,13,2,9,1
+src/main/java/seedu/address/ui/PersonListPanel.java,Java,functional-code,58,1,25,3
+src/main/java/seedu/address/ui/ResultDisplay.java,Java,functional-code,5,0,,
+src/main/java/seedu/address/ui/StatusBarFooter.java,Java,functional-code,3,0,,
+src/main/java/seedu/address/ui/Ui.java,Java,functional-code,,,,
+src/main/java/seedu/address/ui/UiManager.java,Java,functional-code,17,18,,
+src/main/java/seedu/address/ui/UiPart.java,Java,functional-code,25,0,,
+src/main/resources/images/address_book_32.png,resource,not in published report,,,,
+src/main/resources/images/calendar.png,resource,not in published report,,,,
+src/main/resources/images/clock.png,resource,not in published report,,,,
+src/main/resources/images/fail.png,resource,not in published report,,,,
+src/main/resources/images/help_icon.png,resource,not in published report,,,,
+src/main/resources/images/info_icon.png,resource,not in published report,,,,
+src/main/resources/view/CommandBox.fxml,resource,not in published report,,,,
+src/main/resources/view/DarkTheme.css,resource,not in published report,,,,
+src/main/resources/view/Extensions.css,resource,not in published report,,,,
+src/main/resources/view/HelpWindow.css,resource,not in published report,,,,
+src/main/resources/view/HelpWindow.fxml,resource,not in published report,,,,
+src/main/resources/view/MainWindow.fxml,resource,functional-code,,,,
+src/main/resources/view/PersonListCard.fxml,resource,not in published report,,,,
+src/main/resources/view/PersonListPanel.fxml,resource,functional-code,,,,
+src/main/resources/view/ResultDisplay.fxml,resource,functional-code,,,,
+src/main/resources/view/StatusBarFooter.fxml,resource,not in published report,,,,
