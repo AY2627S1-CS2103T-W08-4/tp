@@ -14,6 +14,12 @@
 - Public RepoSense shows 658 functional lines for owner and zero published
   feature-freeze edits; 150-line minimum allowance, subject to final attribution.
 - Local work only: no issue, PR, push, merge or release. Assistance: OpenAI Codex.
+- Independent audit additions: four integration tests pass unchanged production,
+  including 480 seeded steps and real save-failure/retry checks across seven
+  command families. Separate logging regression reproduces A01 before its fix.
+  Plain ARM64 Java cannot launch the standard release; startup also writes files
+  relative to the working directory rather than the JAR folder. Investigating
+  minimal fixes; no new production changes at this checkpoint.
 
 ## Keep the model-paragraph correction on the audit branch — 29 October 2026
 
