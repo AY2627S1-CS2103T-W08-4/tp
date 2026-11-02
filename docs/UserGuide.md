@@ -453,7 +453,7 @@ TutorTrack saves accepted additions, contact updates, deletions, clear operation
 
 ### Editing the data file
 
-TutorTrack stores student data in `data/addressbook.json`, relative to the folder from which you launch the application. Follow the Quick Start instructions to launch it from your TutorTrack home folder.
+TutorTrack stores student data in `data/addressbook.json` inside the folder containing the JAR, even when you launch it from another directory. Keep your existing `data` folder beside the JAR when upgrading. Development runs from unpackaged classes use the working directory.
 
 The data file must contain one complete JSON document. Trailing spaces and line breaks are accepted, but additional JSON values or other text are rejected. If loading fails, TutorTrack displays recovery instructions and leaves the original student data file unchanged.
 
@@ -471,7 +471,7 @@ A missing data file starts TutorTrack with sample data. A valid saved empty rost
 
 ### Recovering window preferences
 
-TutorTrack stores window settings in `preferences.json`, relative to the folder from which you launch the application.
+TutorTrack stores window settings in `preferences.json` beside the JAR. Log files are kept in that same folder. Development runs from unpackaged classes use the working directory.
 
 If the preferences cannot be loaded, including when GUI settings are null, TutorTrack restores default window settings. This recovery does not change your saved student records.
 

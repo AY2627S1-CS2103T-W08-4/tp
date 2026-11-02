@@ -2,6 +2,15 @@
 
 ## v1.6 release audit baseline — 3 November 2026 (SGT)
 
+- A03 implemented: data/preferences/logs resolve beside packaged JARs, satisfying
+  the course home-folder constraint; unpackaged development remains relative to
+  its working directory. UG documents the upgrade/location contract. Path/logger
+  and MainApp tests plus Checkstyle passed on macOS Java 25.0.3 FX. A real rebuilt
+  full-JAR startup/restart probe used a home path containing spaces and `%t`, kept
+  all four application files there and left its other launch folder empty.
+- Two additional path regressions cover unpackaged development and a packaged
+  logger launched elsewhere. Source changes stay well below the initial 150-line
+  allowance; exact final diff and full-suite results will follow. Local only.
 - A01 implementation: logging failures use the already-installed base console
   logger, avoiding static-initializer NullPointerException. Added two isolated JVM
   tests; blocked-file case failed before the production change. Six focused tests
