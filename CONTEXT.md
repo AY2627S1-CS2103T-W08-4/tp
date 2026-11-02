@@ -2,6 +2,11 @@
 
 ## v1.6 release audit baseline — 3 November 2026 (SGT)
 
+- A01 implementation: logging failures use the already-installed base console
+  logger, avoiding static-initializer NullPointerException. Added two isolated JVM
+  tests; blocked-file case failed before the production change. Six focused tests
+  and production/test Checkstyle passed on macOS Java 25.0.3 FX. Functional diff is
+  one replacement and two removals. Full final-suite checks remain pending.
 - Owner: Min Thi Ha (`toomintyy`); new local branch `codex/v16-bug-audit`, based
   on freshly fetched team master / v1.5 `20294cd2`. Original branches preserved.
 - Scope: full application audit and eligible small fixes before the deadline;
