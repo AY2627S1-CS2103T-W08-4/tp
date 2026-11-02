@@ -1,5 +1,20 @@
 # TutorTrack team implementation context
 
+## v1.6 release audit baseline — 3 November 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); new local branch `codex/v16-bug-audit`, based
+  on freshly fetched team master / v1.5 `20294cd2`. Original branches preserved.
+- Scope: full application audit and eligible small fixes before the deadline;
+  evidence and inspection matrix in `docs/project/v1.6-audit.md`.
+- Fresh macOS ARM64 / Zulu Java 25.0.3 FX validation:
+  `./gradlew check coverage shadowJar --no-daemon --rerun-tasks` passed 451 tests,
+  zero failures/errors/skips; Checkstyle and coverage passed. No Java changed yet.
+- Confirmed logging-initialization failure under a real blocked log path;
+  additional investigations continue. Open documentation PR #118 remains separate.
+- Public RepoSense shows 658 functional lines for owner and zero published
+  feature-freeze edits; 150-line minimum allowance, subject to final attribution.
+- Local work only: no issue, PR, push, merge or release. Assistance: OpenAI Codex.
+
 ## Keep the model-paragraph correction on the audit branch — 29 October 2026
 
 - Preserved the concurrent PR #115 keyboard/direct-selection clarification.
