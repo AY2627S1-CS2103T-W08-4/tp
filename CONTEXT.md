@@ -1,5 +1,57 @@
 # TutorTrack team implementation context
 
+## Active v1.6 documentation and contact verification — 3 November 2026 (SGT)
+
+- Owner: Vincent Peh (`Eskalade`); issue [#117](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/117),
+  self-assigned under v1.6. Branch: `codex/final-contact-docs-v16` in his fork.
+  Base: team master / v1.5 tag `20294cd249e63fe813cb6007e954d22a3267fe17`.
+- Status: implemented locally; contribution PR pending. Not merged or released.
+  The user confirmed a teammate owns the final release and Canvas upload.
+- Scope: refresh the README screenshot/capabilities, reconcile UG/site selection
+  availability and merged DG name support, and add reproducible contact acceptance
+  checks to the Testing guide. No production, test, build or schema changes;
+  functional-code change count for this increment is zero.
+- Validation: macOS ARM64 / Zulu Java 25.0.3 FX, `./gradlew check coverage shadowJar
+  --no-daemon` passed: **451 tests**, zero failures/errors/skips; Checkstyle and
+  coverage generated. `.github/run-checks.sh`, `git diff --check` and local Markdown
+  link/image-target checks passed.
+- Packaging verification: an external Gradle init task reran the existing contact
+  acceptance/update/parser and real-window `MvpRosterUiTest` classes with the built
+  JAR replacing main classes/resources on the runtime classpath: **34 tests passed**,
+  zero failures/errors/skips. This is instrumented packaged-class verification,
+  not a manual `java -jar` launch or Windows/Linux packaged GUI validation.
+  JAR SHA-256: `a0c8c30acbc841742025a01af1c77faae5cd8f68c1c07cb816358284b90cb1b1`.
+- Remote baseline: [CI 40904820281](https://github.com/AY2627S1-CS2103T-W08-4/tp/actions/runs/40904820281)
+  at the exact base has passing Windows and Linux jobs; the Mac job was cancelled
+  before steps ran, so the overall run is not green. Local macOS checks above passed.
+  New PR CI must be checked separately. GitHub Pages deployment of the base passed.
+- Published artifact audit: downloaded v1.5 `addressbook.jar` matches GitHub's
+  SHA-256 `5a933d13ba05eac0e7136a3346714962ee328e4b79b2dec958303cd742324836`.
+  Its SelectCommand, SelectCommandParser and Name class bytes match the local build.
+  PR #114 is merged (`f36d03b6`); v1.5 includes selection and relationship-marker names.
+  No v1.6 tag/release existed when checked. Older pending-status entries below are history.
+- Rendering limitation: local `bundle check` cannot run because system Ruby lacks
+  locked Bundler 2.5.11. Updated Jekyll rendering is not verified; review the deployed
+  guides after merge. Existing deployed UG/DG return successfully.
+- Release-owner handoff: the course requires one Canvas JAR named
+  `CS2103T-W08-4TutorTrack.jar`, a version tag/release and deployed UG/DG by
+  **3 November 2026, 14:00 SGT**. Current releases offer separate standard and Mac
+  ARM JARs; verify the single submission JAR on the course-supported Java setup.
+  Do not submit both variants or assume the standard JAR works on plain ARM Java.
+  Retest the actual final artifact and any subsequently integrated source changes.
+- Remaining: teammate review and merge, exact-head CI, deployed-guide review,
+  release-owner packaging/platform validation, GitHub v1.6 release and Canvas receipt.
+  This contribution does not claim those team tasks are complete.
+- Assistance: OpenAI Codex for audit, verification and prose, credited in the DG.
+  Existing team tests, model/storage contracts and screenshots are reused unchanged.
+
+### Recent completed work
+
+- 2026-11-03: Vincent completed the local documentation audit and verified contact
+  regressions against source and packaged classes; issue #117 tracks review/integration.
+
+## Historical handoffs (status applies only to each entry's date)
+
 ## Keep the model-paragraph correction on the audit branch — 29 October 2026
 
 - Preserved the concurrent PR #115 keyboard/direct-selection clarification.

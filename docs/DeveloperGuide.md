@@ -18,6 +18,7 @@ title: Developer Guide
   corrections. The work reuses the team's existing model and storage contracts.
 * Vincent also used OpenAI Codex for v1.4 scope planning, student contact updates, regression tests, the sequence diagram and related documentation. The implementation reuses team value types and the existing attendance transaction pattern; Vincent must understand and review the generated work.
 * Vincent used OpenAI Codex for v1.5 contact-validation performance analysis, the linear-time trimming fix, boundary/recovery/UI tests and documentation. This increment reuses the existing team storage and JavaFX test harness; it does not take over teammate features.
+* Vincent used OpenAI Codex for the v1.6 documentation audit and contact regression verification. No functional code was changed in this increment.
 * Aston used OpenAI Codex to test Exit argument validation and add implementation context.
 * Jian Yang used Claude Code to assist with parts of the class membership, `list` and class-view work.
 * Min Thi Ha used OpenAI Codex for attendance recovery and contact-update integration tests,
@@ -507,7 +508,8 @@ boundary after the marker. `Name.forStudent` permits slashes only in these compl
 tokens, preserving case and the existing normalization and 50-code-point limit.
 JSON loading uses the same name validation, so names survive save/reload without a
 schema change. Legacy name validation is unchanged. This is an owner-authorized
-extension to the original Feature 1 contract, pending teammate review.
+extension to the original Feature 1 contract, merged in
+[PR #114](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/114).
 
 The student constructor requires at least one membership and at most one group per course. Add parsing
 validates every membership before checking repeated courses in appearance order. A student conflicts
@@ -519,7 +521,7 @@ entire saved roster, checking email before Telegram, independently of any active
 for validation instead of using AB3's whitespace-trimming tokenizer. For simultaneous errors, the
 implemented order is: preamble/unknown/repeated prefix errors as encountered, missing required prefixes
 in `n,p,e,c` order, name/Telegram/email validation, all class values, then repeated courses. The supplied
-specification does not completely define cross-category precedence; review this order during integration.
+specification does not completely define cross-category precedence; this is the implemented order.
 `AddressBookParser` preserves control whitespace so it cannot silently turn an invalid add into a valid one.
 
 `LogicManager` executes additions on a detached `ModelManager`. It saves the candidate before publishing

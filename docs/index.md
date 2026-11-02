@@ -16,7 +16,7 @@ and weekly attendance through typed commands.**
 Add students with their Telegram handles, email addresses and course memberships.
 View a class for a chosen week, record or correct attendance for one or more
 students, and correct contact details without losing attendance history.
-Source builds with the direct-selection enhancement also support `select INDEX`
+Use `select INDEX`
 to reveal a displayed student's details without editing or saving data.
 TutorTrack saves accepted changes automatically and restores your records on restart.
 
