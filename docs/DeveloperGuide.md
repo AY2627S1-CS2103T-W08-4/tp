@@ -28,6 +28,9 @@ title: Developer Guide
   documentation prose (#67), reusing the same attendance types and transaction infrastructure.
 * Min Thi Ha used OpenAI Codex to update and verify the student/legacy model diagram and explanation (#110).
 * Min Thi Ha used OpenAI Codex for relationship-marker name parsing, regression tests and documentation (#109).
+* Min Thi Ha used OpenAI Codex for the v1.6 bug audit, startup/file-location/window-size fixes,
+  universal Mac packaging, regression and packaged-app checks, and documentation (#121).
+  This work reuses AB3, the team's JavaFX test utilities and existing JavaFX native libraries.
 
 * Min Thi Ha used OpenAI Codex to correct and verify the TutorTrack implementation links in this guide (#108).
 
