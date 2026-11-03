@@ -1,10 +1,12 @@
 # TutorTrack team implementation context
 
-## v1.6 bug-fix PR preparation — 3 November 2026 (SGT)
+## v1.6 bug-fix PR handoff — 3 November 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); branch `codex/v16-bug-audit`;
   issue [#121](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/121), milestone v1.6.
-  Preparing the four audited fixes below for teammate review; no merge or release.
+  Published for teammate review in
+  [PR #122](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/122).
+  Pushed to the owner's fork; no merge or release. Remote checks must be verified.
 - Team master remains `49fcd352`. Aston's open PR #120 (`d7f8df87`) addresses
   separate window-recovery defects. A temporary combined snapshot passed all 468
   tests on macOS ARM64 / Zulu Java 25.0.3 FX, plus Checkstyle, coverage and JAR
