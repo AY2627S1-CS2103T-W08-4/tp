@@ -17,7 +17,10 @@
 - Local macOS ARM64 / Zulu Java 25.0.3 FX `./gradlew check coverage shadowJar
   --no-daemon` passed all 462 tests, zero failures/errors/skips, Checkstyle and coverage.
   Packaged GUI/clean-exit probes passed on plain ARM Java 25.0.3 and Intel Java
-  25.0.3 under Rosetta. Cross-platform CI for this follow-up is pending; no release
+  25.0.3 under Rosetta. Fork [CI run 41580256918](https://github.com/toomintyy/tp/actions/runs/41580256918)
+  passed the full check/coverage/JAR build on Windows, Linux and macOS at `b34cc38a`.
+  User-authorized temporary CI activation was restored to disabled afterward.
+  This result update changes context only; peer review is pending and no release
   has been published.
 - Assistance: OpenAI Codex. Existing team history below is retained.
 
