@@ -596,7 +596,7 @@ No new application or Gradle dependencies are required.
 
 ### Startup data protection
 
-#### Window recovery in the v1.6 development build
+#### Window recovery in the v1.6 release
 
 `MainWindow` retains saved coordinates only when the title-bar region intersects
 a connected display's visual bounds; otherwise it calls `centerOnScreen()`.
