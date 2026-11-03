@@ -3,69 +3,31 @@
 ## v1.6 bug-fix PR handoff — 3 November 2026 (SGT)
 
 - Owner: Min Thi Ha (`toomintyy`); branch `codex/v16-bug-audit`;
-  issue [#121](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/121), milestone v1.6.
-  Published for teammate review in
-  [PR #122](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/122).
-  Pushed to the owner's fork; no merge or release. Remote checks must be verified.
-- Team master remains `49fcd352`. Aston's open PR #120 (`d7f8df87`) addresses
-  separate window-recovery defects. A temporary combined snapshot passed all 468
-  tests on macOS ARM64 / Zulu Java 25.0.3 FX, plus Checkstyle, coverage and JAR
-  packaging. Only the two CONTEXT.md handoffs conflict; retain both on integration.
-- This branch's production/test/build inputs retain the 462-test validation below.
-  PR preparation changes only documentation and assistance acknowledgements.
-  Windows/Linux checks and fresh local Jekyll rendering remain unverified;
-  the suggested manual checklist has not been reported completed by the owner.
-- Assistance: OpenAI Codex.
-
-## Team synchronization — 3 November 2026 (SGT)
-
-- Owner: Min Thi Ha (`toomintyy`); branch `codex/v16-bug-audit`.
-- Fetched team master `49fcd352`, which merges PR #118. Integrating all team
-  README, site, DG, selection-availability and contact-testing improvements.
-- Resolved UG conflicts using the audit branch's v1.6 single-JAR/home-folder
-  contract while retaining the team's since-v1.5 command availability corrections.
-  Preserved both prior handoffs below. Clarified that packaged destructive checks
-  require copying the JAR into the disposable folder before launching.
-- Production, test and build inputs are unchanged from the validated audit head.
-  Fresh macOS ARM64 / Zulu Java 25.0.3 FX `./gradlew check coverage shadowJar
-  --no-daemon --rerun-tasks` passed all 462 tests, zero failures/errors/skips;
-  Checkstyle, coverage and repository checks passed. Rebuilt JAR hash is unchanged.
-- Local master now matches team master `49fcd352` and tracks `upstream/master`.
-  No push, release or team-master merge performed by this task. Windows/Linux
-  checks for the audit fixes remain unverified; no new platform claim is made.
-- Assistance: OpenAI Codex.
-
-## Earlier local v1.6 audit handoff — 3 November 2026 (SGT)
-
-- Owner: Min Thi Ha (`toomintyy`); branch `codex/v16-bug-audit`, created before
-  changes from freshly fetched team master / v1.5 `20294cd2`. Original branches
-  preserved. Team master still matched that baseline on final remote inspection.
-- Fixed logging-startup failure, JAR-home file paths, minimum window height and
-  single-JAR Intel/ARM Mac packaging. Production/build revision: `63adf48f`.
-  No student command/model behavior or dependency versions changed. Details,
-  reproductions, individual commits and matrix: `docs/project/v1.6-audit.md`.
-- Fresh macOS ARM64 / Zulu Java 25.0.3 FX `./gradlew check coverage shadowJar
-  --no-daemon` passed **462 tests**, zero failures/errors/skips, Checkstyle and
-  coverage. Eleven tests added across five new classes; original tests unchanged.
-  Includes 480 seeded steps, seven-command real I/O recovery and 250-student UI
-  recycling. Off-screen preference warning did not reproduce; no restore fix.
-- Same candidate passed packaged GUI/clean-exit probes on plain ARM Java 25.0.3
-  and Intel Java 25.0.3 under Rosetta; all seven universal native pairs preserve
-  original slices. Windows/Linux natives unchanged. Normal JAR entry point opens.
-- One 12,898,862-byte JAR; SHA-256
+  issue [#121](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/121), milestone v1.6;
+  published for teammate review in [PR #122](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/122).
+  Based on team master `49fcd352`, including documentation PR #118. No merge or release.
+- Scope: logging-startup fallback, JAR-home file locations, a usable smaller window
+  and one JAR containing the existing Intel/ARM Mac natives. No command grammar,
+  student model, storage schema or dependency-version changes.
+- Owner-requested cleanup removes internal audit records, broad command/storage
+  audit tests, the roster stress test and the off-screen test. Keeps five focused
+  logging, packaged-path and small-window regressions; all original tests retained.
+  Production/build inputs are unchanged from the previously verified package.
+- Validation: macOS ARM64 / Zulu Java 25.0.3 FX, `./gradlew check coverage
+  shadowJar --no-daemon` passed all 456 tests, zero failures/errors/skips;
+  Checkstyle, coverage, repository checks and `git diff --check` passed.
+  Rebuilt JAR SHA-256 remains
   `356d131e99492f877cb415edb63ceeb9d23ab6aca48d675445707d3f2668fb7d`.
-  Candidate/structured evidence staged locally in the outer workspace's
-  `output/v1.6-audit/`. No remote issue/PR/push/merge/release/submission performed.
-- Freeze evidence: official report attributes 658 functional lines to owner,
-  no published freeze edits at audit start; 150-line minimum. Conservative patch
-  estimate is 44 functional added/deleted lines, 142 including build/CI glue.
-  Recheck final RepoSense attribution before merge; no tolerance margin assumed.
-- Remaining: peer review; reconcile PR #118 with v1.6 guide/package/path changes;
-  fresh Windows/Linux checks, physical Intel/actual OS scaling and integrated
-  rendered-doc verification. Local Jekyll lacks locked Bundler 2.5.11; deployed
-  UG/DG and their anchors were inspected. Full 107-file inventory accompanies report.
-- Assistance: OpenAI Codex; teammate work preserved. This is a local candidate,
-  not team approval or a published release, and not a guarantee of no bugs.
+- Prior packaged GUI/clean-exit probes passed on plain ARM Java 25.0.3 and Intel
+  Java 25.0.3 under Rosetta. Original slices of all seven universal Mac native
+  pairs are preserved; Windows/Linux natives are unchanged.
+- Integration: Aston's PR #120 owns off-screen startup and minimized Help recovery.
+  Its production files do not overlap these fixes. Retain both owners' handoffs
+  when resolving the shared CONTEXT.md conflict.
+- Remaining: peer review, exact-head Windows/Linux checks, physical Intel hardware,
+  actual OS scaling and fresh rendered-doc verification. Local Jekyll lacks locked
+  Bundler 2.5.11. The owner's manual checklist is not claimed completed.
+- Assistance: OpenAI Codex; existing teammate history below is preserved.
 
 ## Documentation/contact handoff before PR #118 merged — 3 November 2026 (SGT)
 

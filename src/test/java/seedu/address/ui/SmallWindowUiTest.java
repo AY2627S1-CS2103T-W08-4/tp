@@ -18,10 +18,8 @@ import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import seedu.address.commons.core.GuiSettings;
 import seedu.address.logic.LogicManager;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -44,28 +42,6 @@ public class SmallWindowUiTest {
     @AfterEach
     public void tearDown() throws Exception {
         runOnFxThread(() -> stage.hide());
-    }
-
-    @Test
-    public void restore_unavailableMonitor_keepsTheEntireWindowOnAnAvailableScreen() throws Exception {
-        CompletableFuture<Boolean> visible = new CompletableFuture<>();
-        runOnFxThread(() -> {
-            ModelManager model = new ModelManager();
-            model.setGuiSettings(new GuiSettings(1000, 700, 100000, 100000));
-            LogicManager logic = new LogicManager(model, new StorageManager(
-                    new JsonAddressBookStorage(directory.resolve("students.json")),
-                    new JsonUserPrefsStorage(directory.resolve("prefs.json"))));
-            stage = new Stage();
-            MainWindow window = new MainWindow(stage, logic, directory.resolve("students.json"));
-            window.fillInnerParts();
-            window.show();
-            PauseTransition settled = new PauseTransition(Duration.millis(200));
-            settled.setOnFinished(event -> visible.complete(Screen.getScreens().stream().anyMatch(screen ->
-                    screen.getVisualBounds().contains(stage.getX(), stage.getY(),
-                            stage.getWidth(), stage.getHeight()))));
-            settled.play();
-        });
-        assertTrue(visible.get(10, TimeUnit.SECONDS), "Restored window extends outside the available screens");
     }
 
     @Test
