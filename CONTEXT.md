@@ -4,17 +4,21 @@
 
 - Owner: Min Thi Ha (`toomintyy`); branch `codex/v16-release-fixes`;
   issue [#123](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/123).
-  Team base `43510ff8`; preparing fixes for peer review before the v1.6 release.
+  Team base `43510ff8`; [PR #124](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/124)
+  is open for peer review before the v1.6 release.
 - Windows CI reproduced a 45px roster at an 853×480 outer window. Allow the results
   panel to shrink from 100px to 60px instead of weakening the existing roster
   assertion. This changes one FXML line; commands and data formats are unchanged.
 - Help tests now separate show/minimize/restore operations across bounded JavaFX
   event-loop waits. Linux CI installs Openbox inside Xvfb because iconification
   requires a window manager. The CI matrix no longer cancels other platforms when
-  one fails. Temporary diagnostic tests/screenshots remain outside this PR.
+  one fails; manual workflow dispatch supports explicit release verification.
+  Temporary diagnostic tests/screenshots remain outside this PR.
 - Local macOS ARM64 / Zulu Java 25.0.3 FX `./gradlew check coverage shadowJar
   --no-daemon` passed all 462 tests, zero failures/errors/skips, Checkstyle and coverage.
-  Cross-platform checks for this follow-up are pending; no release has been published.
+  Packaged GUI/clean-exit probes passed on plain ARM Java 25.0.3 and Intel Java
+  25.0.3 under Rosetta. Cross-platform CI for this follow-up is pending; no release
+  has been published.
 - Assistance: OpenAI Codex. Existing team history below is retained.
 
 ## PR #120 integration — 3 November 2026 (SGT)
