@@ -46,7 +46,7 @@ examples. Updating the application does not replace your saved contacts.
 
    * `list` : Lists all students.
 
-   * `select 1` : Shows the first displayed student's details in a build containing direct selection.
+   * `select 1` : Shows the first displayed student's details.
 
    * `add n/John Doe p/@johndoe e/johnd@example.com c/CS2103T:T04` : Adds a student named `John Doe`.
 
@@ -196,8 +196,7 @@ below the roster. Selecting a row does not change saved data.
 
 Selects a displayed row and reveals the student's details below the roster without
 changing their saved data or moving focus away from the command box.
-Use a build containing this enhancement; published releases made before its
-integration do not support `select`.
+Available since v1.5; older release JARs do not support `select`.
 
 Format: `select INDEX`
 
