@@ -589,8 +589,10 @@ fixing the storage problem. Other commands retain their existing error handling.
 requests, invalid input, failure/retry and save-before-close ordering.
 `ExitIntegrationTest` covers IO/permission failures, state/file preservation and
 reloading existing contacts after editing and deleting. GUI tests run on the
-JavaFX thread with a bounded wait. Linux checks require a display; CI uses
-`xvfb-run -a ./gradlew check coverage`. No new Gradle dependencies are required.
+JavaFX thread with a bounded wait. Linux checks require a display and a window
+manager for minimization. CI installs Openbox and runs
+`xvfb-run -a sh -c 'openbox >/tmp/tutortrack-openbox.log 2>&1 & ./gradlew check coverage shadowJar'`.
+No new application or Gradle dependencies are required.
 
 ### Startup data protection
 
@@ -607,7 +609,13 @@ No student records, command grammar or storage schema change. These fixes are no
 present in the published v1.5 JAR.
 
 `MainWindowRecoveryTest` exercises both invalid positions, a valid position, typed
-and menu Help restoration, and reopening a hidden minimized Help window.
+and menu Help restoration, and reopening a hidden minimized Help window. Showing,
+minimizing and restoring are separated by bounded event-loop waits so assertions
+observe settled native-window state.
+
+At small viewport heights, the results panel can shrink from its 100px preferred
+height to 60px. Its text remains scrollable, leaving more room for the roster and
+selected-student details, including Windows window decorations.
 
 #### Existing student-data startup protection
 

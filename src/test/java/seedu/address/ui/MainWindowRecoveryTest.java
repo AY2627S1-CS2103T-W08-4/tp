@@ -7,18 +7,22 @@ import static seedu.address.testutil.FxTestUtil.initializeToolkit;
 import static seedu.address.testutil.FxTestUtil.runOnFxThread;
 
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextField;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.logic.LogicManager;
 import seedu.address.model.AddressBook;
@@ -88,45 +92,64 @@ public class MainWindowRecoveryTest {
 
     @Test
     public void helpCommand_restoresMinimizedHelp() throws Exception {
+        openMinimizedHelp();
         runOnFxThread(() -> {
-            openMinimizedHelp();
             TextField input = (TextField) stage.getScene().lookup("#commandTextField");
             input.setText("help");
             input.fireEvent(new ActionEvent());
-            assertFalse(help.isIconified());
-            assertTrue(help.isShowing());
         });
+        assertRestoredHelp();
     }
 
     @Test
     public void helpMenu_restoresMinimizedHelp() throws Exception {
+        openMinimizedHelp();
         runOnFxThread(() -> {
-            openMinimizedHelp();
             MenuBar menuBar = (MenuBar) stage.getScene().lookup("#menuBar");
             menuBar.getMenus().get(1).getItems().getFirst().fire();
-            assertFalse(help.isIconified());
-            assertTrue(help.isShowing());
         });
+        assertRestoredHelp();
     }
 
     @Test
     public void help_reopensHiddenMinimizedWindow() throws Exception {
+        openMinimizedHelp();
         runOnFxThread(() -> {
-            openMinimizedHelp();
             help.hide();
             window.handleHelp();
+        });
+        assertRestoredHelp();
+    }
+
+    private void openMinimizedHelp() throws Exception {
+        runOnFxThread(() -> {
+            open(new GuiSettings());
+            window.handleHelp();
+            help = (Stage) Window.getWindows().stream().filter(candidate -> candidate != stage
+                    && candidate instanceof Stage child && "Help".equals(child.getTitle())).findFirst().orElseThrow();
+        });
+        settleWindowEvents();
+        runOnFxThread(() -> help.setIconified(true));
+        settleWindowEvents();
+        runOnFxThread(() -> assertTrue(help.isIconified()));
+    }
+
+    private void assertRestoredHelp() throws Exception {
+        settleWindowEvents();
+        runOnFxThread(() -> {
             assertFalse(help.isIconified());
             assertTrue(help.isShowing());
         });
     }
 
-    private void openMinimizedHelp() {
-        open(new GuiSettings());
-        window.handleHelp();
-        help = (Stage) Window.getWindows().stream().filter(candidate -> candidate != stage
-                && candidate instanceof Stage child && "Help".equals(child.getTitle())).findFirst().orElseThrow();
-        help.setIconified(true);
-        assertTrue(help.isIconified());
+    private void settleWindowEvents() throws Exception {
+        CompletableFuture<Void> settled = new CompletableFuture<>();
+        runOnFxThread(() -> {
+            PauseTransition pause = new PauseTransition(Duration.millis(250));
+            pause.setOnFinished(event -> settled.complete(null));
+            pause.play();
+        });
+        settled.get(10, TimeUnit.SECONDS);
     }
 
     private void open(GuiSettings settings) {
