@@ -494,7 +494,7 @@ app from that new home folder to load the transferred records.
 
 ## Window visibility and recovery
 
-**v1.6 development build:** if a saved window position would leave the title bar
+**v1.6 release:** if a saved window position would leave the title bar
 outside all connected displays' usable areas, TutorTrack recenters the main window
 on startup. A still-visible saved position is retained. Entering `help`, choosing
 **Help > Help** or pressing **F1** restores an existing minimized Help window.
