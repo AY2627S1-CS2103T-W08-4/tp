@@ -185,11 +185,6 @@ course/week means Unrecorded. Check `isStudent()` before using legacy-only gette
 See [Add-student integration](#add-student-integration-v13) and
 [Record and correct attendance](#record-and-correct-attendance) for implementation details.
 
-This inherited diagram shows shared and legacy contact fields. Student profiles
-use the same `Person` class, with a `TelegramHandle`, course/group memberships and
-attendance records instead of legacy phone/address fields. Those student fields
-are omitted from this diagram; see the add-student and attendance sections below.
-
 The `Model` component,
 
 * stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
@@ -599,6 +594,23 @@ JavaFX thread with a bounded wait. Linux checks require a display; CI uses
 
 ### Startup data protection
 
+#### Window recovery in the v1.6 development build
+
+`MainWindow` retains saved coordinates only when the title-bar region intersects
+a connected display's visual bounds; otherwise it calls `centerOnScreen()`.
+This also handles a window whose body intersects a screen while its title bar is
+above every screen. Saved dimensions and visible saved positions are retained.
+
+`HelpWindow.show()` and `focus()` clear the iconified state before displaying or
+focusing the window, so typed, menu and F1 Help requests restore the same window.
+No student records, command grammar or storage schema change. These fixes are not
+present in the published v1.5 JAR.
+
+`MainWindowRecoveryTest` exercises both invalid positions, a valid position, typed
+and menu Help restoration, and reopening a hidden minimized Help window.
+
+#### Existing student-data startup protection
+
 `MainApp.initialize(Storage)` loads student data before constructing the model, logic and main UI. If loading raises `DataLoadingException`, initialization stops. `MainApp.start()` displays recovery guidance through `UiManager.showDataLoadingErrorAndWait()`, then exits after the dialog closes.
 
 This prevents an empty fallback roster from overwriting an unreadable or invalid existing file through a later saving command or Exit. `MainApp.stop()` skips preference saving when no model was initialized.
@@ -672,8 +684,9 @@ Failures reach the existing command error handler, preserving selection, details
 filter and attempted input. Success clears the input without requesting focus on
 the roster. No storage-schema or Person change is required.
 
-This is an owner-authorized enhancement under #113, pending teammate review; it
-extends the original MVP rather than fixing a previously documented select command.
+This owner-authorized enhancement under #113 merged in
+[PR #115](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/115). It extends the
+original MVP rather than fixing a previously documented select command.
 Parser, command, persistence-integration and real-window tests cover strict input,
 filtered indices, empty/out-of-range rosters, legacy rows, repeated selection,
 read-only behavior, detail refresh and error-state preservation. For manual checks,
@@ -832,7 +845,7 @@ The complete set below includes requirements beyond the MVP.
 | S16 | P4 | TA | clear all student records with one purge command | prepare the application for a new semester |
 | S17 | P2 | TA | select a displayed student by row number using a command | inspect details without changing their records |
 
-S17 records the owner-authorized #113 enhancement; teammate review remains pending.
+S17 records the owner-authorized #113 enhancement merged in PR #115.
 
 ### Use cases
 

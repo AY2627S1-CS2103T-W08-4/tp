@@ -10,6 +10,7 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import seedu.address.commons.core.GuiSettings;
@@ -136,8 +137,16 @@ public class MainWindow extends UiPart<Stage> {
         primaryStage.setHeight(guiSettings.getWindowHeight());
         primaryStage.setWidth(guiSettings.getWindowWidth());
         if (guiSettings.getWindowCoordinates() != null) {
-            primaryStage.setX(guiSettings.getWindowCoordinates().getX());
-            primaryStage.setY(guiSettings.getWindowCoordinates().getY());
+            double x = guiSettings.getWindowCoordinates().getX();
+            double y = guiSettings.getWindowCoordinates().getY();
+            boolean titleBarVisible = Screen.getScreens().stream().anyMatch(screen ->
+                    screen.getVisualBounds().intersects(x, y, primaryStage.getWidth(), 30));
+            if (titleBarVisible) {
+                primaryStage.setX(x);
+                primaryStage.setY(y);
+            } else {
+                primaryStage.centerOnScreen();
+            }
         }
     }
 

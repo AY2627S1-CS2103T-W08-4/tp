@@ -489,10 +489,18 @@ app from that new home folder to load the transferred records.
 
 --------------------------------------------------------------------------------------------------------------------
 
-## Known issues
+## Window visibility and recovery
 
-1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
-2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
+**v1.6 development build:** if a saved window position would leave the title bar
+outside all connected displays' usable areas, TutorTrack recenters the main window
+on startup. A still-visible saved position is retained. Entering `help`, choosing
+**Help > Help** or pressing **F1** restores an existing minimized Help window.
+
+**Published v1.5 JAR:** these two recovery fixes are not included. If the main window
+opens off-screen after disconnecting a monitor, close TutorTrack and move
+`preferences.json` to a backup location before relaunching. Saved student data in
+`data/addressbook.json` is unaffected. If Help remains minimized, restore its existing
+window from the taskbar or window switcher.
 
 --------------------------------------------------------------------------------------------------------------------
 
