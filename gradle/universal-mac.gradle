@@ -1,0 +1,79 @@
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.util.zip.ZipFile
+
+// Mach-O universal headers select the original native slice for each Mac architecture.
+// Format reference: https://github.com/apple-oss-distributions/cctools/blob/main/include/mach-o/fat.h
+def generated = layout.buildDirectory.dir('generated/universal-mac-natives')
+def intelJars = providers.provider {
+    configurations.runtimeClasspath.files.findAll { it.name.endsWith('-mac.jar') }
+}
+
+tasks.register('generateUniversalMacNatives') {
+    inputs.files(intelJars, configurations.macArmJavafx)
+    outputs.dir(generated)
+    doLast {
+        def natives = [:].withDefault { [:] }
+        [intel: intelJars.get(), arm: configurations.macArmJavafx.files].each { architecture, jars ->
+            jars.each { artifact ->
+                new ZipFile(artifact).withCloseable { zip ->
+                    zip.entries().each { entry ->
+                        if (entry.name.endsWith('.dylib') && !entry.directory) {
+                            natives[entry.name][architecture] = zip.getInputStream(entry).withCloseable {
+                                it.readAllBytes()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (natives.isEmpty()) {
+            throw new GradleException('No JavaFX Mac native libraries found')
+        }
+        def output = generated.get().asFile
+        delete(output)
+        output.mkdirs()
+        natives.each { name, slices ->
+            if (slices.keySet() != (['intel', 'arm'] as Set)) {
+                throw new GradleException("Missing architecture for ${name}")
+            }
+            def ordered = [slices.intel, slices.arm]
+            int offset = 16384
+            def headers = ordered.collect { bytes ->
+                def header = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
+                if (header.getInt(0) != (0xFEEDFACF as int)) {
+                    throw new GradleException("Expected a thin 64-bit Mach-O library: ${name}")
+                }
+                def result = [header.getInt(4), header.getInt(8), offset, bytes.length, 14]
+                offset = ((offset + bytes.length + 16383).intdiv(16384)) * 16384
+                result
+            }
+            if (headers[0][0] != 0x01000007 || headers[1][0] != 0x0100000c) {
+                throw new GradleException("Expected x86_64 and arm64 slices for ${name}")
+            }
+            // The wrapper is big endian; each unchanged slice starts on a 16 KiB boundary.
+            def universal = ByteBuffer.allocate(offset)
+            universal.putInt(0xCAFEBABE as int).putInt(2)
+            headers.each { header -> header.each { universal.putInt(it as int) } }
+            ordered.eachWithIndex { bytes, i ->
+                universal.position(headers[i][2] as int)
+                universal.put(bytes as byte[])
+            }
+            new File(output, name).bytes = universal.array()
+        }
+    }
+}
+
+tasks.named('shadowJar') {
+    dependsOn tasks.named('generateUniversalMacNatives')
+    from(generated)
+    exclude { details ->
+        details.path.endsWith('.dylib') && !details.file.toPath().startsWith(generated.get().asFile.toPath())
+    }
+}
+
+// Retain the old developer command without producing a second platform-specific JAR.
+tasks.register('shadowJarMacArm') {
+    dependsOn tasks.named('shadowJar')
+    description = 'Legacy alias for shadowJar; produces the same single cross-platform JAR.'
+}

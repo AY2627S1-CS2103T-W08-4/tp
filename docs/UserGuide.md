@@ -3,7 +3,7 @@ layout: page
 title: User Guide
 ---
 
-TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This guide covers TutorTrack commands available since v1.5, including direct selection with `select`, contact correction with `update` and attendance commands that accept multiple student indices. TutorTrack supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
+TutorTrack is a desktop application for teaching staff to manage student contacts and course/group memberships using typed commands. This guide covers TutorTrack v1.6, including direct selection with `select`, contact correction with `update` and attendance commands that accept multiple student indices. TutorTrack supports creating students, viewing a class for a chosen week, recording/correcting/clearing attendance, deleting students and saving/reloading records. Legacy AB3 contacts remain readable.
 
 * Table of Contents
 {:toc}
@@ -22,19 +22,20 @@ examples. Updating the application does not replace your saved contacts.
 
 1. Install Java `25`. The release was validated with Java 25; newer major versions are not yet verified.
 
-1. Choose the JAR matching your Java installation:
-   * `addressbook.jar`: standard build with Windows, Linux and Intel Mac JavaFX natives. On macOS, follow the [course Java installation guide](https://se-education.org/guides/tutorials/javaInstallationMac.html). A Java 25 distribution with bundled JavaFX also works; Zulu Java 25 FX on Apple Silicon was verified locally.
-   * `tutortrack-macos-arm64.jar`: Apple Silicon Macs using an ARM64 Java 25 installation (for example Temurin). Run `java -jar tutortrack-macos-arm64.jar`.
-   * Do not run the standard JAR with a plain ARM64 JDK without JavaFX; use the Apple Silicon JAR instead.
+1. For v1.6, use the single `addressbook.jar` on Windows, Linux and macOS, including
+   Intel and Apple Silicon Macs. The JAR includes JavaFX native libraries for both
+   Mac architectures; a Java distribution with bundled JavaFX is not required.
+   Earlier v1.5 release assets have separate platform instructions in their release notes.
 
-1. Download the matching `.jar` file from [GitHub Releases](https://github.com/AY2627S1-CS2103T-W08-4/tp/releases).
-   Choose v1.5 or later and follow that release's Java/platform instructions. Earlier JARs may not include all of these commands.
+1. Download the v1.6 `.jar` file from [GitHub Releases](https://github.com/AY2627S1-CS2103T-W08-4/tp/releases)
+   when that release is available. This guide's packaging and file-location instructions
+   describe v1.6; follow the relevant release notes if using an earlier JAR.
 
 1. Copy the file to the folder you want to use as the _home folder_ for TutorTrack.
    Choose a folder where you can create and replace files. A write-protected folder can prevent saving changes or exiting successfully.
 
 1. Open a terminal, `cd` to the folder containing the JAR file, and check `java -version` reports Java 25.
-   Run `java -jar addressbook.jar`, or `java -jar tutortrack-macos-arm64.jar` for the Apple Silicon build.<br>
+   Run `java -jar addressbook.jar`.<br>
    Launch from the terminal rather than double-clicking: double-clicking may fail or use a different Java installation.<br>
    The example below shows a populated class view with attendance totals and a selected student's history.
    It uses fictional demonstration data; a fresh installation starts with the sample students described above.<br>
@@ -452,7 +453,7 @@ TutorTrack saves accepted additions, contact updates, deletions, clear operation
 
 ### Editing the data file
 
-TutorTrack stores student data in `data/addressbook.json`, relative to the folder from which you launch the application. Follow the Quick Start instructions to launch it from your TutorTrack home folder.
+TutorTrack stores student data in `data/addressbook.json` inside the folder containing the JAR, even when you launch it from another directory. Keep your existing `data` folder beside the JAR when upgrading. Development runs from unpackaged classes use the working directory.
 
 The data file must contain one complete JSON document. Trailing spaces and line breaks are accepted, but additional JSON values or other text are rejected. If loading fails, TutorTrack displays recovery instructions and leaves the original student data file unchanged.
 
@@ -470,7 +471,7 @@ A missing data file starts TutorTrack with sample data. A valid saved empty rost
 
 ### Recovering window preferences
 
-TutorTrack stores window settings in `preferences.json`, relative to the folder from which you launch the application.
+TutorTrack stores window settings in `preferences.json` beside the JAR. Log files are kept in that same folder. Development runs from unpackaged classes use the working directory.
 
 If the preferences cannot be loaded, including when GUI settings are null, TutorTrack restores default window settings. This recovery does not change your saved student records.
 

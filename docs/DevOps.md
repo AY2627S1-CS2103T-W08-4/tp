@@ -74,11 +74,16 @@ Any warnings or errors will be printed out to the console.
 Here are the steps to create a new release.
 
 1. Update the version number in [`MainApp.java`](https://github.com/AY2627S1-CS2103T-W08-4/tp/tree/master/src/main/java/seedu/address/MainApp.java).
-1. Run `./gradlew check coverage shadowJar shadowJarMacArm` and `./.github/run-checks.sh`.
-   `build/libs/addressbook.jar` is the standard build; `build/libs/tutortrack-macos-arm64.jar`
-   is a separate Apple Silicon build. The additional task keeps ARM and Intel native libraries
-   out of the same archive, where their identical filenames would collide. JavaFX remains 17.0.7.
-1. Launch each supported package/runtime combination, exercise the MVP and restart with isolated
+1. Run `./gradlew check coverage shadowJar` and `./.github/run-checks.sh`.
+   Submit the single `build/libs/addressbook.jar`. JavaFX remains 17.0.7; no library
+   upgrade or native compiler is required. `gradle/universal-mac.gradle` wraps the
+   existing Intel/ARM Mac native binaries in universal Mach-O containers, preserving
+   each original architecture slice. Windows/Linux natives are retained unchanged.
+   The format follows Apple's [Mach-O universal header specification](https://github.com/apple-oss-distributions/cctools/blob/main/include/mach-o/fat.h);
+   its implementation is original build glue, with OpenAI Codex assistance.
+   The old `shadowJarMacArm` command is an alias for the same single-JAR build.
+   Remove obsolete JARs from the release staging folder before choosing an upload.
+1. Launch the single JAR on each supported platform/runtime, exercise the MVP and restart with isolated
    data. Record actual platform verification; do not infer launch success from unit tests.
 1. Capture current screenshots and write release notes listing implemented behavior and limitations.
 1. Tag the repo with the version number. e.g. `v0.1`

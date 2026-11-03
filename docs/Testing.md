@@ -62,7 +62,9 @@ before integrating changes. The contact-specific coverage is split across these 
 ### Packaged add/update acceptance
 
 Run these checks on the **exact JAR proposed for release**, from a new disposable
-folder with synthetic data only. Record the JAR SHA-256, source revision, OS and
+folder with synthetic data only. Copy the JAR into that folder before launching:
+v1.6 saves beside the JAR even when invoked from another directory.
+Record the JAR SHA-256, source revision, OS and
 `java -version`. Do not reuse your real TutorTrack data folder: `clear` below deletes
 all records without undo. Automated GUI tests do not replace this packaged check.
 
