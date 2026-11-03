@@ -80,6 +80,9 @@ class view, or `add` to create a student if no students have been saved.
 
 ## Features
 
+On smaller windows, the command-results area becomes shorter to preserve roster
+space. Scroll within that area to read feedback that does not fit.
+
 <div markdown="block" class="alert alert-info">
 
 **:information_source: Notes about the command format:**<br>
