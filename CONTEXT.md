@@ -1,6 +1,38 @@
 # TutorTrack team implementation context
 
-## Active v1.6 documentation and contact verification — 3 November 2026 (SGT)
+## v1.6 bug-fix PR handoff — 3 November 2026 (SGT)
+
+- Owner: Min Thi Ha (`toomintyy`); branch `codex/v16-bug-audit`;
+  issue [#121](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/121), milestone v1.6;
+  published for teammate review in [PR #122](https://github.com/AY2627S1-CS2103T-W08-4/tp/pull/122).
+  Based on team master `49fcd352`, including documentation PR #118. No merge or release.
+- Scope: logging-startup fallback, JAR-home file locations, a usable smaller window
+  and one JAR containing the existing Intel/ARM Mac natives. No command grammar,
+  student model, storage schema or dependency-version changes.
+- Owner-requested cleanup removes internal audit records, broad command/storage
+  audit tests, the roster stress test and the off-screen test. Keeps five focused
+  logging, packaged-path and small-window regressions; all original tests retained.
+  Production/build inputs are unchanged from the previously verified package.
+- Validation: macOS ARM64 / Zulu Java 25.0.3 FX, `./gradlew check coverage
+  shadowJar --no-daemon` passed all 456 tests, zero failures/errors/skips;
+  Checkstyle, coverage, repository checks and `git diff --check` passed.
+  Rebuilt JAR SHA-256 remains
+  `356d131e99492f877cb415edb63ceeb9d23ab6aca48d675445707d3f2668fb7d`.
+- Prior packaged GUI/clean-exit probes passed on plain ARM Java 25.0.3 and Intel
+  Java 25.0.3 under Rosetta. Original slices of all seven universal Mac native
+  pairs are preserved; Windows/Linux natives are unchanged.
+- Integration: Aston's PR #120 owns off-screen startup and minimized Help recovery.
+  Its production files do not overlap these fixes. Retain both owners' handoffs
+  when resolving the shared CONTEXT.md conflict.
+- Remaining: peer review, exact-head Windows/Linux checks, physical Intel hardware,
+  actual OS scaling and fresh rendered-doc verification. Local Jekyll lacks locked
+  Bundler 2.5.11. The owner's manual checklist is not claimed completed.
+- Assistance: OpenAI Codex; existing teammate history below is preserved.
+
+## Documentation/contact handoff before PR #118 merged — 3 November 2026 (SGT)
+
+The following handoff predates team merge `49fcd352`; its original status and
+validation claims are retained as history. Current synchronization is recorded above.
 
 - Owner: Vincent Peh (`Eskalade`); issue [#117](https://github.com/AY2627S1-CS2103T-W08-4/tp/issues/117),
   self-assigned under v1.6. Branch: `codex/final-contact-docs-v16` in his fork.
